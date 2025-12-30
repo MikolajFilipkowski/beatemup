@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="core\managers\display_manager.cpp">
+      <Filter>core\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="core\managers\input_manager.cpp">
+      <Filter>core\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="core\managers\object_manager.cpp">
+      <Filter>core\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="core\managers\sprite_manager.cpp">
+      <Filter>core\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="core\managers\time_manager.cpp">
+      <Filter>core\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="core\core_types.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\utils.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\engine.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="game\game.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="core\managers\animation_manager.cpp">
+      <Filter>core\managers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="core\managers\display_manager.h">
+      <Filter>core\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="core\managers\input_manager.h">
+      <Filter>core\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="core\managers\manager.h">
+      <Filter>core\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="core\managers\managers.h">
+      <Filter>core\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="core\managers\object_manager.h">
+      <Filter>core\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="core\managers\sprite_manager.h">
+      <Filter>core\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="core\managers\time_manager.h">
+      <Filter>core\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="core\core.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\core_types.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\utils.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\application.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\engine.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="game\game.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="core\managers\animation_manager.h">
+      <Filter>core\managers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="game\assets\cs8x8.bmp">
+      <Filter>game\assets</Filter>
+    </Image>
+    <Image Include="eti.bmp">
+      <Filter>game\assets</Filter>
+    </Image>
+    <Image Include="game\assets\player\Attack_1.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\Attack_2.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\Attack_3.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\Dead.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\Hurt.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\Jump.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\Idle.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\Run.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\Shield.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\Walk.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="core">
+      <UniqueIdentifier>{86e78a1a-3fb5-45e8-870b-18f2cb1c4d82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core\managers">
+      <UniqueIdentifier>{c214f5f9-e40b-4b7a-8b36-653eb9068e73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game">
+      <UniqueIdentifier>{07b72737-a986-40e3-8027-8adcd0ba40e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\assets">
+      <UniqueIdentifier>{112c018b-8eee-4599-b59d-f7d5e75c4587}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\assets\player">
+      <UniqueIdentifier>{e5ae09ff-dbcd-422e-ac1f-e6fc68e6e0da}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
