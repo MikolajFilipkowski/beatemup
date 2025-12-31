@@ -14,19 +14,27 @@ private:
 	SDL_Renderer* sdlRenderer;
 	Dims screenDims;
 	Dims logDims;
+	Camera* activeCamera;
+	bool fullscreenEnabled;
+	bool borderlessFullscreen;
 
-	DisplayManager(Managers* managers) : Manager(managers), sdlWindow(nullptr), sdlRenderer(nullptr), screenDims{}, logDims{} {}
+	DisplayManager(Managers* managers) : Manager(managers), sdlWindow(nullptr), sdlRenderer(nullptr),
+		screenDims{}, logDims{}, activeCamera(nullptr), fullscreenEnabled(false), borderlessFullscreen(true) {}
 	~DisplayManager() override;
 	void destroy() override;
 
 	Vector2 worldToScreen(Vector3 worldPos) const;
+	SDL_FRect worldToRect(Vector3 worldPos, Dims dims) const;
 public:
-	bool init(const char* title, Dims winDims, Dims logicalDims = {}, bool isFullscreen = false);
+	bool init(const char* title, Dims winDims, Dims logicalDims = {}, bool fullscreen = false);
 	void present();
 	void clear();
 
 	SDL_Renderer* getSDL_Renderer();
 	SDL_Texture* createTexture(SDL_Surface* surface);
+
+	Camera* getActiveCamera() const;
+	void setActiveCamera(Camera* camera);
 
 	Dims getScreenDims() const;
 	Dims getLogDims() const;
@@ -36,11 +44,19 @@ public:
 	Vector2 getLogStart();
 	Vector2 getLogScale();
 
+	bool isFullscreen() const;
+	void setFullscreen(bool isFullscreened);
+	void toggleFullscreen();
+	Uint32 getFullscreenType() const;
+	void setBorderless(bool isBorderlessed);
+
 	void setDrawColor(ColorRGBA color);
 	void drawSprite(const char* sprite_key, Vector2 pos);
 	void drawSprite(const char* sprite_key, Vector3 worldPos);
+	void drawAnimFrame(const char* anim_key, int frameIdx, Vector3 worldPos, 
+		SDL_RendererFlip flip = SDL_FLIP_NONE, double rotation = 0);
 	void drawLine(Vector2 start, Vector2 dest, ColorRGBA color);
 	void drawRect(Vector2 pos, Dims dims, ColorRGBA color, int thickness = 1);
 	void drawFilledRect(Vector2 pos, Dims dims, ColorRGBA fill_color, ColorRGBA outline_color, int thickness = 1);
-	void drawString(const char* charset_key, Vector2 pos, const char* text);
+	void drawString(const char* charset_key, Vector2 pos, const char* text, float scale = 1.0f);
 };

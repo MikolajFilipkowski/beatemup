@@ -2,6 +2,7 @@
 #include "managers.h"
 #include "../engine.h"
 #include <stdio.h>
+#include <assert.h>
 
 DisplayManager::~DisplayManager()
 {
@@ -10,7 +11,7 @@ DisplayManager::~DisplayManager()
 
 Vector2 DisplayManager::worldToScreen(Vector3 worldPos) const
 {
-	Camera* cam = Camera::getActiveCamera();
+	Camera* cam = getActiveCamera();
 
 	if (cam == nullptr) return { worldPos.x, worldPos.y };
 
@@ -25,14 +26,34 @@ Vector2 DisplayManager::worldToScreen(Vector3 worldPos) const
 	return screenPos;
 }
 
-bool DisplayManager::init(const char* title, Dims winDims, Dims logicalDims, bool isFullscreen)
+SDL_FRect DisplayManager::worldToRect(Vector3 worldPos, Dims dims) const
+{
+	Vector2 screenPos = worldToScreen(worldPos);
+	float zoom = getActiveCamera()->getZoom();
+
+	SDL_FRect rect{};
+
+	rect.w = dims.width * zoom;
+	rect.h = dims.height * zoom;
+
+	// (0,0) -> x srodek, y dol
+	rect.x = screenPos.x - (rect.w / 2.0f);
+	rect.y = screenPos.y - rect.h;
+
+	printf("x: %f y: %f w: %f h: %f\n", rect.x, rect.y, rect.w, rect.h);
+
+	return rect;
+}
+
+bool DisplayManager::init(const char* title, Dims winDims, Dims logicalDims, bool fullscreen)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		printf("SDL_Init error: %s\n", SDL_GetError());
 		return false;
 	}
 
-	Uint32 winFlags = (isFullscreen) ? SDL_WINDOW_FULLSCREEN : 0;
+	Uint32 winFlags = (fullscreen) ? SDL_WINDOW_FULLSCREEN : 0;
+	fullscreenEnabled = fullscreen;
 
 	winFlags |= SDL_WINDOW_RESIZABLE;
 
@@ -61,7 +82,7 @@ bool DisplayManager::init(const char* title, Dims winDims, Dims logicalDims, boo
 	logDims = logicalDims;
 
 	SDL_SetRenderDrawBlendMode(sdlRenderer, SDL_BLENDMODE_BLEND);
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
 	SDL_RenderSetLogicalSize(sdlRenderer, logDims.width, logDims.height);
 
 	return true;
@@ -99,6 +120,16 @@ SDL_Renderer* DisplayManager::getSDL_Renderer()
 SDL_Texture* DisplayManager::createTexture(SDL_Surface* surface)
 {
 	return SDL_CreateTextureFromSurface(sdlRenderer, surface);
+}
+
+Camera* DisplayManager::getActiveCamera() const
+{
+	return activeCamera;
+}
+
+void DisplayManager::setActiveCamera(Camera* camera)
+{
+	activeCamera = camera;
 }
 
 Dims DisplayManager::getScreenDims() const
@@ -147,6 +178,35 @@ Vector2 DisplayManager::getLogScale()
 	};
 }
 
+bool DisplayManager::isFullscreen() const
+{
+	return fullscreenEnabled;
+}
+
+void DisplayManager::setFullscreen(bool flag)
+{
+	fullscreenEnabled = flag;
+	SDL_SetWindowFullscreen(sdlWindow, getFullscreenType());
+}
+
+void DisplayManager::toggleFullscreen()
+{
+	fullscreenEnabled = !fullscreenEnabled;
+	SDL_SetWindowFullscreen(sdlWindow, getFullscreenType());
+}
+
+Uint32 DisplayManager::getFullscreenType() const
+{
+	if (!fullscreenEnabled)
+		return 0;
+	return (borderlessFullscreen) ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_FULLSCREEN;
+}
+
+void DisplayManager::setBorderless(bool isBorderlessed)
+{
+	borderlessFullscreen = isBorderlessed;
+}
+
 void DisplayManager::setDrawColor(ColorRGBA color)
 {
 	SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
@@ -167,19 +227,30 @@ void DisplayManager::drawSprite(const char* sprite_key, Vector3 worldPos)
 	Sprite* sprite = mgs->sprite->get(sprite_key);
 	if (sprite == nullptr || sprite->texture == nullptr) return;
 
-	Vector2 screenPos = worldToScreen(worldPos);
-	float zoom = Camera::getActiveCamera()->getZoom();
-
-	SDL_FRect rect{};
-
-	rect.w = sprite->width * zoom;
-	rect.h = sprite->height * zoom;
-
-	// (0,0) -> x srodek, y dol
-	rect.x = screenPos.x - (rect.w / 2.0f);
-	rect.y = screenPos.y - rect.h;
+	SDL_FRect rect = worldToRect(worldPos, { sprite->width, sprite->height });
 
 	SDL_RenderCopyF(sdlRenderer, sprite->texture, nullptr, &rect);
+}
+
+void DisplayManager::drawAnimFrame(const char* anim_key, int frameIdx, 
+	Vector3 worldPos, SDL_RendererFlip flip, double rotation
+) {
+	AnimationClip* clip = mgs->anim->get(anim_key);
+	if (clip == nullptr) return;
+
+	if (frameIdx >= clip->frameCount) {
+		assert(false && "Frame out of bounds");
+		return;
+	}
+
+	Sprite* sprite = mgs->sprite->get(clip->spriteKey);
+	if (sprite == nullptr) return;
+
+	SDL_Rect src = clip->frames[frameIdx];
+
+	SDL_FRect dst = worldToRect(worldPos, { src.w, src.h });
+
+	SDL_RenderCopyExF(sdlRenderer, sprite->texture, &src, &dst, rotation, NULL, flip);
 }
 
 void DisplayManager::drawLine(Vector2 start, Vector2 dest, ColorRGBA color)
@@ -224,29 +295,35 @@ void DisplayManager::drawFilledRect(Vector2 pos, Dims dims, ColorRGBA fill_color
 	drawRect(pos, dims, outline_color, thickness);
 }
 
-void DisplayManager::drawString(const char* charset_key, Vector2 pos, const char* text)
+void DisplayManager::drawString(const char* charset_key, Vector2 pos, const char* text, float scale)
 {
 	Sprite* sprite = mgs->sprite->get(charset_key);
+	if (sprite == nullptr) return;
 
-	int px, py, c;
-	SDL_Rect s;
-	SDL_FRect d;
-	s.w = 8;
-	s.h = 8;
-	d.w = 8;
-	d.h = 8;
+	int charW = sprite->width / 16;
+	int charH = sprite->height / 16;
+
+	int px, py, ch;
+	SDL_Rect src;
+	SDL_FRect dest;
+	src.w = charW;
+	src.h = charH;
+
+	dest.w = charW * scale;
+	dest.h = charH * scale;
+
 	while (*text) {
-		c = *text & 255;
-		px = (c % 16) * 8;
-		py = (c / 16) * 8;
-		s.x = px;
-		s.y = py;
-		d.x = pos.x;
-		d.y = pos.y;
+		ch = *text & 255;
+		px = (ch % 16) * charW;
+		py = (ch / 16) * charH;
+		src.x = px;
+		src.y = py;
+		dest.x = pos.x * scale;
+		dest.y = pos.y * scale;
 
-		SDL_RenderCopyF(sdlRenderer, sprite->texture, &s, &d);
+		SDL_RenderCopyF(sdlRenderer, sprite->texture, &src, &dest);
 
-		pos.x += 8;
+		pos.x += charW;
 		text++;
 	};
 }

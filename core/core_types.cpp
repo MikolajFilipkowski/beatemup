@@ -1,9 +1,9 @@
 #include "core_types.h"
 #include "managers/managers.h"
 
-GameObject::GameObject(Managers* mgs, Vector3 pos, const char* key) 
+GameObject::GameObject(Managers* mgs, Transform tr, const char* key) 
 	: mgs(mgs),
-	position(pos),
+	transform(tr),
 	spriteKey(copy_string(key)), 
 	removalPending(false) {}
 
@@ -13,14 +13,24 @@ GameObject::~GameObject()
 	spriteKey = nullptr;
 }
 
+Transform& GameObject::getTransform()
+{
+	return transform;
+}
+
+void GameObject::setTransform(Transform tr)
+{
+	transform = tr;
+}
+
 Vector3& GameObject::getPosition()
 {
-	return position;
+	return transform.pos;
 }
 
 void GameObject::setPosition(Vector3 pos)
 {
-	position = pos;
+	transform.pos = pos;
 }
 
 Sprite* GameObject::getSprite() const
@@ -44,37 +54,20 @@ void GameObject::setRemovalFlag(bool flag)
 	removalPending = true;
 }
 
-Camera* Camera::activeCamera = nullptr;
-
-Camera::Camera(Managers* mgs, Vector3 pos) : GameObject(mgs, pos) {}
-
-Camera::~Camera()
-{
-	if (activeCamera == this) {
-		activeCamera = nullptr;
-	}
+Camera::Camera(Managers* mgs, Vector3 pos) : GameObject(mgs) {
+	transform.pos = pos;
 }
+
+Camera::~Camera() {}
 
 Rect Camera::getViewport(Dims logDims)
 {
-	return { position.x, position.y, (float)logDims.width, (float)logDims.height };
+	return { transform.pos.x, transform.pos.y, (float)logDims.width, (float)logDims.height};
 }
 
 float Camera::getZoom()
 {
-	float pos_z = (position.z > 1.0f) ? position.z : 1.0f;
+	float pos_z = (transform.pos.z > 1.0f) ? transform.pos.z : 1.0f;
 
 	return DEFAULT_CAM_Z / pos_z;
 }
-
-Camera* Camera::getActiveCamera()
-{
-	return activeCamera;
-}
-
-void Camera::setActiveCamera(Camera* cam)
-{
-	activeCamera = cam;
-}
-
-

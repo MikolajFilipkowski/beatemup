@@ -274,7 +274,7 @@ extern "C"
 int main(int argc, char **argv) {
 	Engine* engine = new Engine();
 	Game* game = new Game();
-	engine->init("Gra", {640, 480});
+	engine->init("Gra", {1280, 720}, {0,0}, false);
 	engine->run(game);
 
 	return 0;

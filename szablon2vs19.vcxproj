@@ -32,8 +32,9 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="game\assets\cs8x8.bmp" />
-    <Image Include="eti.bmp" />
+    <Image Include="game\assets\def_8.bmp" />
+    <Image Include="game\assets\eti.bmp" />
+    <Image Include="game\assets\ps2p_16.bmp" />
     <Image Include="game\assets\player\Attack_1.bmp" />
     <Image Include="game\assets\player\Attack_2.bmp" />
     <Image Include="game\assets\player\Attack_3.bmp" />
@@ -60,6 +61,9 @@
     <ClInclude Include="core\managers\time_manager.h" />
     <ClInclude Include="core\utils.h" />
     <ClInclude Include="game\game.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CREDITS.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

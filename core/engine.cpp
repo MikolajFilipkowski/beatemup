@@ -76,6 +76,8 @@ void Engine::handleEvents()
 		case SDL_KEYDOWN:
 			if (event.key.keysym.sym == SDLK_ESCAPE && app->onEscPressed()) 
 				stop();
+			if (event.key.keysym.sym == SDLK_F11 && !app->fullscreenDisabled)
+				mgs.display->toggleFullscreen();
 			break;
 		case SDL_WINDOWEVENT:
 			if (event.window.event == SDL_WINDOWEVENT_RESIZED) 

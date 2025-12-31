@@ -4,7 +4,8 @@ class Application {
 protected:
 	Managers* mgs;
 public:
-	Application() : mgs(nullptr) {}
+	bool fullscreenDisabled;
+	Application() : mgs(nullptr), fullscreenDisabled(false) {}
 	Application(const Application&) = delete;
 	Application& operator=(const Application&) = delete;
 	virtual ~Application() = default;

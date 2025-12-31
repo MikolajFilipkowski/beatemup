@@ -78,10 +78,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="game\assets\cs8x8.bmp">
+    <Image Include="game\assets\def_8.bmp">
       <Filter>game\assets</Filter>
     </Image>
-    <Image Include="eti.bmp">
+    <Image Include="game\assets\eti.bmp">
       <Filter>game\assets</Filter>
     </Image>
     <Image Include="game\assets\player\Attack_1.bmp">
@@ -114,6 +114,9 @@
     <Image Include="game\assets\player\Walk.bmp">
       <Filter>game\assets\player</Filter>
     </Image>
+    <Image Include="game\assets\ps2p_16.bmp">
+      <Filter>game\assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -131,5 +134,8 @@
     <Filter Include="game\assets\player">
       <UniqueIdentifier>{e5ae09ff-dbcd-422e-ac1f-e6fc68e6e0da}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CREDITS.txt" />
   </ItemGroup>
 </Project>

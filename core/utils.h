@@ -256,6 +256,12 @@ inline Map<T>::~Map() {
 template<typename T>
 inline T& Map<T>::get(const char* key) {
 	static T dummy;
+
+	if (key == nullptr) {
+		assert(false && "Key must not be null");
+		return dummy;
+	}
+
 	for (KVPair<T>& item : array) {
 		if (strcmp(key, item.key) == 0) {
 			return item.value;

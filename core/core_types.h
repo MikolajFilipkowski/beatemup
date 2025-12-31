@@ -17,6 +17,12 @@ constexpr float FPS_INTERVAL = 1.0f;
 
 class Managers;
 
+typedef SDL_RendererFlip Flip;
+
+constexpr SDL_RendererFlip NO_FLIP = SDL_FLIP_NONE;
+constexpr SDL_RendererFlip H_FLIP = SDL_FLIP_HORIZONTAL;
+constexpr SDL_RendererFlip V_FLIP = SDL_FLIP_VERTICAL;
+
 struct Dims {
 	int width, height;
 };
@@ -38,6 +44,17 @@ struct Vector3 {
 
 	static Vector3 zero() {
 		return { 0.0f, 0.0f, 0.0f };
+	}
+};
+
+struct Transform {
+	Vector3 pos;
+	double rotation;
+	Flip flip;
+	Vector2 scale;
+
+	static Transform zero() {
+		return { {0,0,0}, 0.0, NO_FLIP, {1.0f, 1.0f} };
 	}
 };
 
@@ -112,7 +129,7 @@ struct Sprite {
 
 class GameObject {
 protected:
-	Vector3 position;
+	Transform transform;
 	char* spriteKey;
 	bool removalPending;
 	Managers* mgs;
@@ -120,8 +137,11 @@ public:
 	GameObject(const GameObject&) = delete;
 	GameObject& operator=(const GameObject&) = delete;
 
-	GameObject(Managers* mgs, Vector3 pos = Vector3::zero(), const char* key = nullptr);
+	GameObject(Managers* mgs, Transform tr = Transform::zero(), const char* key = nullptr);
 	virtual ~GameObject();
+
+	Transform& getTransform();
+	void setTransform(Transform tr);
 
 	Vector3& getPosition();
 	void setPosition(Vector3 pos);
@@ -139,15 +159,17 @@ public:
 };
 
 class Camera : public GameObject {
-private:
-	static Camera* activeCamera;
 public:
-	Camera(Managers* mgs, Vector3 pos = Vector3::zero());
+	Camera(Managers* mgs, Vector3 pos = {0, 0, 500.0f});
 	~Camera();
 
 	Rect getViewport(Dims logDims);
 	float getZoom();
+};
 
-	static Camera* getActiveCamera();
-	static void setActiveCamera(Camera* cam);
+struct AnimationClip {
+	const char* spriteKey;
+	SDL_Rect* frames;
+	int frameCount;
+	float frameDuration;
 };
