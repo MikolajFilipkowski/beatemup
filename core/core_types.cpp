@@ -1,17 +1,20 @@
 #include "core_types.h"
 #include "managers/managers.h"
 
-GameObject::GameObject(Managers* mgs, Transform tr, const char* key) 
+#include "cstring"
+
+GameObject::GameObject(Managers* mgs, Transform tr) 
 	: mgs(mgs),
 	transform(tr),
-	spriteKey(copy_string(key)), 
-	removalPending(false) {}
-
-GameObject::~GameObject()
+	rb({0,0,0}),
+	removalPending(false),
+	hasStarted(false)
 {
-	delete[] spriteKey;
-	spriteKey = nullptr;
+	if (mgs->object != nullptr)
+		mgs->object->add((GameObject*)this);
 }
+
+GameObject::~GameObject() {}
 
 Transform& GameObject::getTransform()
 {
@@ -33,15 +36,9 @@ void GameObject::setPosition(Vector3 pos)
 	transform.pos = pos;
 }
 
-Sprite* GameObject::getSprite() const
+Rigidbody& GameObject::getRb()
 {
-	return mgs->sprite->get(spriteKey);
-}
-
-void GameObject::setSprite(const char* key)
-{
-	delete[] spriteKey;
-	spriteKey = copy_string(key);
+	return rb;
 }
 
 bool GameObject::getRemovalFlag() const
@@ -52,6 +49,16 @@ bool GameObject::getRemovalFlag() const
 void GameObject::setRemovalFlag(bool flag)
 {
 	removalPending = true;
+}
+
+bool GameObject::getStartedFlag() const
+{
+	return hasStarted;
+}
+
+void GameObject::setStartedFlag(bool flag)
+{
+	hasStarted = flag;
 }
 
 Camera::Camera(Managers* mgs, Vector3 pos) : GameObject(mgs) {
@@ -70,4 +77,64 @@ float Camera::getZoom()
 	float pos_z = (transform.pos.z > 1.0f) ? transform.pos.z : 1.0f;
 
 	return DEFAULT_CAM_Z / pos_z;
+}
+
+SpriteObject::SpriteObject(Managers* mgs, Transform tr, const char* key) 
+	: GameObject(mgs, tr), spriteKey(copy_string(key))
+{
+
+}
+
+SpriteObject::~SpriteObject() {
+	delete[] spriteKey;
+	spriteKey = nullptr;
+}
+
+Sprite* SpriteObject::getSprite() {
+	return mgs->sprite->get(spriteKey);
+}
+
+void SpriteObject::setSpriteKey(const char* key) {
+	delete[] spriteKey;
+	spriteKey = copy_string(key);
+}
+
+AnimatableObject::AnimatableObject(Managers* mgs, Transform tr)
+	: GameObject(mgs, tr), currentAnimKey(nullptr), currentAnimFrame(0), currentAnimTimer(0.0f)
+{
+	
+}
+
+AnimatableObject::~AnimatableObject() {
+	delete[] currentAnimKey;
+	currentAnimKey = nullptr;
+}
+
+char* AnimatableObject::getCurrentAnimKey()
+{
+	return currentAnimKey;
+}
+
+void AnimatableObject::setAnim(const char* key)
+{
+	if (key == nullptr) return;
+	if (currentAnimKey != nullptr && strcmp(key, currentAnimKey) == 0) return;
+
+	delete[] currentAnimKey;
+	currentAnimKey = copy_string(key);
+	currentAnimFrame = 0;
+	currentAnimTimer = 0.0f;
+}
+
+void AnimatableObject::updateAnim(float dt)
+{
+	AnimationClip* clip = mgs->anim->get(currentAnimKey);
+	if (clip == nullptr) return;
+
+	currentAnimTimer += dt;
+	if (currentAnimTimer >= clip->frameDuration) {
+		currentAnimTimer = 0;
+		currentAnimFrame++;
+		currentAnimFrame %= clip->frameCount;
+	}
 }

@@ -1,10 +1,13 @@
 #pragma once
 
 #include "../core/core.h"
+#include "gameObjects/player.h"
 
 class Game : public Application {
+private:
+	Player* player;
 public:
-	Game() = default;
+	Game();
 	virtual ~Game() = default;
 	bool onStart(Managers* managers) override;
 	void onUpdate(float dt) override;

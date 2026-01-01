@@ -10,6 +10,33 @@ with Reserved Font Name "Press Start 2P".
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 
 License Link: https://openfontlicense.org
+
+Note: Font has been converted to a 16x16 pixel bitmap for engine compatibility.
+------------------------------------------------------------
+
+FONT: ThaleahFat
+------------------------------------------------------------
+Copyright (c) Rick Hoppmann (https://tinyworlds.itch.io/)
+
+This font is licensed under the Attribution 4.0 International 
+(CC BY 4.0) license. 
+
+License Terms:
+- Attribution to Rick Hoppmann is required.
+- Free for personal and commercial use.
+
+Link: https://tinyworlds.itch.io/free-pixel-font-thaleah
+
+Note: Font has been converted to a 32x32 pixel bitmap for engine compatibility.
+------------------------------------------------------------
+
+FONT: You're Gone
+------------------------------------------------------------
+Author/Source: 1001 Fonts
+License: Public Domain / CC0
+Link: https://www.1001fonts.com/you-re-gone-font.html
+
+Note: Font has been converted to a 64x64 pixel bitmap for engine compatibility.
 ------------------------------------------------------------
 
 GRAPHICS: 2D Assets

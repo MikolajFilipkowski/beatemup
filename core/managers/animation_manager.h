@@ -17,6 +17,6 @@ private:
 	void destroy() override;
 public:
 	void createFromSheet(const char* animKey, const char* spriteKey, int frameCount, float frameDuration);
-	AnimationClip*& get(const char* key);
+	AnimationClip* get(const char* key);
 	void remove(const char* key);
 };

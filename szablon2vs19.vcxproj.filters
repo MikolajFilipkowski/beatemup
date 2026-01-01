@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="core\managers\display_manager.cpp">
       <Filter>core\managers</Filter>
     </ClCompile>
@@ -26,12 +25,16 @@
     <ClCompile Include="core\engine.cpp">
       <Filter>core</Filter>
     </ClCompile>
-    <ClCompile Include="game\game.cpp">
-      <Filter>game</Filter>
-    </ClCompile>
     <ClCompile Include="core\managers\animation_manager.cpp">
       <Filter>core\managers</Filter>
     </ClCompile>
+    <ClCompile Include="game\game.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\gameObjects\player.cpp">
+      <Filter>game\gameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\managers\display_manager.h">
@@ -70,17 +73,17 @@
     <ClInclude Include="core\engine.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="game\game.h">
-      <Filter>game</Filter>
-    </ClInclude>
     <ClInclude Include="core\managers\animation_manager.h">
       <Filter>core\managers</Filter>
     </ClInclude>
+    <ClInclude Include="game\game.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\gameObjects\player.h">
+      <Filter>game\gameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="game\assets\def_8.bmp">
-      <Filter>game\assets</Filter>
-    </Image>
     <Image Include="game\assets\eti.bmp">
       <Filter>game\assets</Filter>
     </Image>
@@ -114,8 +117,17 @@
     <Image Include="game\assets\player\Walk.bmp">
       <Filter>game\assets\player</Filter>
     </Image>
-    <Image Include="game\assets\ps2p_16.bmp">
-      <Filter>game\assets</Filter>
+    <Image Include="game\assets\charsets\def_8.bmp">
+      <Filter>game\assets\charsets</Filter>
+    </Image>
+    <Image Include="game\assets\charsets\ps2p_16.bmp">
+      <Filter>game\assets\charsets</Filter>
+    </Image>
+    <Image Include="game\assets\charsets\thf_32.bmp">
+      <Filter>game\assets\charsets</Filter>
+    </Image>
+    <Image Include="game\assets\charsets\yg_64.bmp">
+      <Filter>game\assets\charsets</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -133,6 +145,12 @@
     </Filter>
     <Filter Include="game\assets\player">
       <UniqueIdentifier>{e5ae09ff-dbcd-422e-ac1f-e6fc68e6e0da}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\assets\charsets">
+      <UniqueIdentifier>{b9144c78-9bdc-4dc9-82e4-0f617e0d895b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\gameObjects">
+      <UniqueIdentifier>{8d6ec7a8-77ff-4eab-8b8f-867d8f62a275}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

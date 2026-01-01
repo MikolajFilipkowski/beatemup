@@ -24,7 +24,7 @@ private:
 	void destroy() override;
 
 	Vector2 worldToScreen(Vector3 worldPos) const;
-	SDL_FRect worldToRect(Vector3 worldPos, Dims dims) const;
+	SDL_FRect worldToRect(Vector3 worldPos, FDims dims) const;
 public:
 	bool init(const char* title, Dims winDims, Dims logicalDims = {}, bool fullscreen = false);
 	void present();
@@ -52,11 +52,10 @@ public:
 
 	void setDrawColor(ColorRGBA color);
 	void drawSprite(const char* sprite_key, Vector2 pos);
-	void drawSprite(const char* sprite_key, Vector3 worldPos);
-	void drawAnimFrame(const char* anim_key, int frameIdx, Vector3 worldPos, 
-		SDL_RendererFlip flip = SDL_FLIP_NONE, double rotation = 0);
+	void drawSprite(const char* sprite_key, Transform tr);
+	void drawAnimFrame(const char* anim_key, int frameIdx, Transform tr);
 	void drawLine(Vector2 start, Vector2 dest, ColorRGBA color);
 	void drawRect(Vector2 pos, Dims dims, ColorRGBA color, int thickness = 1);
 	void drawFilledRect(Vector2 pos, Dims dims, ColorRGBA fill_color, ColorRGBA outline_color, int thickness = 1);
-	void drawString(const char* charset_key, Vector2 pos, const char* text, float scale = 1.0f);
+	void drawString(const char* charset_key, Vector2 pos, const char* text, float scale = 1.0f, float spacing = 1.0f);
 };

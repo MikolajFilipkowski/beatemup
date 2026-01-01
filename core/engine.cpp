@@ -43,6 +43,7 @@ void Engine::run(Application* application)
 		mgs.time->tick();
 
 		mgs.input->updateState();
+		handleEvents();
 
 		while (mgs.time->step()) {
 			app->onFixedUpdate(mgs.time->getFixedDt());
@@ -60,8 +61,6 @@ void Engine::run(Application* application)
 		mgs.object->drawAll();
 
 		mgs.display->present();
-
-		handleEvents();
 	}
 
 	destroy();

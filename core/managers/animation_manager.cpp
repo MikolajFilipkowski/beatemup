@@ -31,12 +31,15 @@ void AnimationManager::createFromSheet(const char* animKey, const char* spriteKe
 	animMap.put(animKey, clip);
 }
 
-AnimationClip*& AnimationManager::get(const char* key)
+AnimationClip* AnimationManager::get(const char* key)
 {
+	if (!animMap.containsKey(key))
+		return nullptr;
 	return animMap.get(key);
 }
 
 void AnimationManager::remove(const char* key) {
+	if (key == nullptr) return;
 	AnimationClip*& clip = animMap.get(key);
 	delete[] clip->frames;
 	delete clip;

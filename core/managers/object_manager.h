@@ -15,6 +15,7 @@ private:
 	ObjectManager(Managers* managers) : Manager(managers) {}
 	~ObjectManager() override;
 	void destroy() override;
+	void startIfNeeded(GameObject*& object);
 public:
 	void add(GameObject* object);
 	void remove(GameObject* object);

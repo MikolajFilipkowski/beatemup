@@ -26,7 +26,7 @@ Vector2 DisplayManager::worldToScreen(Vector3 worldPos) const
 	return screenPos;
 }
 
-SDL_FRect DisplayManager::worldToRect(Vector3 worldPos, Dims dims) const
+SDL_FRect DisplayManager::worldToRect(Vector3 worldPos, FDims dims) const
 {
 	Vector2 screenPos = worldToScreen(worldPos);
 	float zoom = getActiveCamera()->getZoom();
@@ -40,7 +40,7 @@ SDL_FRect DisplayManager::worldToRect(Vector3 worldPos, Dims dims) const
 	rect.x = screenPos.x - (rect.w / 2.0f);
 	rect.y = screenPos.y - rect.h;
 
-	printf("x: %f y: %f w: %f h: %f\n", rect.x, rect.y, rect.w, rect.h);
+	//printf("x: %f y: %f w: %f h: %f\n", rect.x, rect.y, rect.w, rect.h);
 
 	return rect;
 }
@@ -222,21 +222,21 @@ void DisplayManager::drawSprite(const char* sprite_key, Vector2 pos)
 	SDL_RenderCopyF(sdlRenderer, sprite->texture, nullptr, &rect);
 }
 
-void DisplayManager::drawSprite(const char* sprite_key, Vector3 worldPos)
+void DisplayManager::drawSprite(const char* sprite_key, Transform tr)
 {
 	Sprite* sprite = mgs->sprite->get(sprite_key);
 	if (sprite == nullptr || sprite->texture == nullptr) return;
 
-	SDL_FRect rect = worldToRect(worldPos, { sprite->width, sprite->height });
+	SDL_FRect rect = worldToRect(tr.pos, { sprite->width * tr.scale.x, sprite->height * tr.scale.y });
 
-	SDL_RenderCopyF(sdlRenderer, sprite->texture, nullptr, &rect);
+	SDL_RenderCopyExF(sdlRenderer, sprite->texture, nullptr, &rect, tr.rotation, NULL, tr.flip);
 }
 
-void DisplayManager::drawAnimFrame(const char* anim_key, int frameIdx, 
-	Vector3 worldPos, SDL_RendererFlip flip, double rotation
-) {
+void DisplayManager::drawAnimFrame(const char* anim_key, int frameIdx, Transform tr) {
 	AnimationClip* clip = mgs->anim->get(anim_key);
 	if (clip == nullptr) return;
+
+	//printf("%d\n",frameIdx);
 
 	if (frameIdx >= clip->frameCount) {
 		assert(false && "Frame out of bounds");
@@ -248,9 +248,9 @@ void DisplayManager::drawAnimFrame(const char* anim_key, int frameIdx,
 
 	SDL_Rect src = clip->frames[frameIdx];
 
-	SDL_FRect dst = worldToRect(worldPos, { src.w, src.h });
+	SDL_FRect dst = worldToRect(tr.pos, { src.w * tr.scale.x, src.h * tr.scale.y });
 
-	SDL_RenderCopyExF(sdlRenderer, sprite->texture, &src, &dst, rotation, NULL, flip);
+	SDL_RenderCopyExF(sdlRenderer, sprite->texture, &src, &dst, tr.rotation, NULL, tr.flip);
 }
 
 void DisplayManager::drawLine(Vector2 start, Vector2 dest, ColorRGBA color)
@@ -295,7 +295,7 @@ void DisplayManager::drawFilledRect(Vector2 pos, Dims dims, ColorRGBA fill_color
 	drawRect(pos, dims, outline_color, thickness);
 }
 
-void DisplayManager::drawString(const char* charset_key, Vector2 pos, const char* text, float scale)
+void DisplayManager::drawString(const char* charset_key, Vector2 pos, const char* text, float scale, float spacing)
 {
 	Sprite* sprite = mgs->sprite->get(charset_key);
 	if (sprite == nullptr) return;
@@ -323,7 +323,7 @@ void DisplayManager::drawString(const char* charset_key, Vector2 pos, const char
 
 		SDL_RenderCopyF(sdlRenderer, sprite->texture, &src, &dest);
 
-		pos.x += charW;
+		pos.x += charW * spacing;
 		text++;
 	};
 }

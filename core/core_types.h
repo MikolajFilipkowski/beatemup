@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include "utils.h"
 
 extern "C" {
@@ -27,6 +28,14 @@ struct Dims {
 	int width, height;
 };
 
+struct FDims {
+	float width, height;
+
+	operator Dims() const {
+		return {(int)width, (int)height};
+	}
+};
+
 struct DimsF {
 	float width, height;
 };
@@ -37,6 +46,51 @@ struct Vector2 {
 	static Vector2 zero() {
 		return { 0.0f, 0.0f };
 	}
+
+	Vector2 operator+(const Vector2& other) const {
+		return { x + other.x, y + other.y };
+	}
+
+	Vector2& operator+=(const Vector2& other) {
+		x += other.x;
+		y += other.y;
+		return *this;
+	}
+
+	Vector2 operator-(const Vector2& other) const {
+		return { x - other.x, y - other.y };
+	}
+
+	Vector2& operator-=(const Vector2& other) {
+		x -= other.x;
+		y -= other.y;
+		return *this;
+	}
+
+	Vector2 operator*(float scalar) const {
+		return { x * scalar, y * scalar };
+	}
+
+	Vector2& operator*=(float scalar) {
+		x *= scalar;
+		y *= scalar;
+		return *this;
+	}
+
+	friend Vector2 operator*(float scalar, Vector2 vec) {
+		return vec * scalar;
+	}
+
+	float length() const {
+		return sqrt(x * x + y * y);
+	}
+
+	Vector2 normalized() const {
+		float len = length();
+
+		if (len == 0) return { 0, 0 };
+		return *this * (1.0f / len);
+	}
 };
 
 struct Vector3 {
@@ -44,6 +98,54 @@ struct Vector3 {
 
 	static Vector3 zero() {
 		return { 0.0f, 0.0f, 0.0f };
+	}
+
+	Vector3 operator+(const Vector3& other) const {
+		return { x + other.x, y + other.y, z + other.z };
+	}
+
+	Vector3& operator+=(const Vector3& other) {
+		x += other.x;
+		y += other.y;
+		z += other.z;
+		return *this;
+	}
+
+	Vector3 operator-(const Vector3& other) const {
+		return { x - other.x, y - other.y, z - other.z };
+	}
+
+	Vector3& operator-=(const Vector3& other) {
+		x -= other.x;
+		y -= other.y;
+		z -= other.z;
+		return *this;
+	}
+
+	Vector3 operator*(float scalar) const {
+		return { x * scalar, y * scalar, z * scalar };
+	}
+
+	Vector3& operator*=(float scalar) {
+		x *= scalar;
+		y *= scalar;
+		z *= scalar;
+		return *this;
+	}
+
+	friend Vector3 operator*(float scalar, Vector3 vec) {
+		return vec * scalar;
+	}
+
+	float length() const {
+		return sqrt(x * x + y * y + z*z);
+	}
+
+	Vector3 normalized() const {
+		float len = length();
+
+		if (len == 0) return { 0, 0, 0 };
+		return *this * (1.0f / len);
 	}
 };
 
@@ -65,8 +167,8 @@ struct Rect {
 	Rect(float x = 0, float y = 0, float w = 0, float h = 0)
 		: x(x), y(y), w(w), h(h) {}
 
-	Rect(const SDL_FRect& rect) : 
-		x(rect.x), y(rect.y), w(rect.w), h(rect.h) {}
+	Rect(const SDL_FRect& rect) 
+		: x(rect.x), y(rect.y), w(rect.w), h(rect.h) {}
 
 	Rect& operator=(const SDL_FRect& rect) {
 		x = rect.x;
@@ -127,17 +229,48 @@ struct Sprite {
 	int width, height;
 };
 
+struct AnimationClip {
+	const char* spriteKey;
+	SDL_Rect* frames;
+	int frameCount;
+	float frameDuration;
+};
+
+struct Rigidbody {
+	Vector3 vel;
+};
+
+enum class InputType : Uint8 {
+	KEYBOARD,
+	MOUSE
+};
+
+struct InputBinding {
+	InputType type;
+	Uint8 key;
+
+	bool operator==(const InputBinding other) const {
+		return type == other.type && key == other.key;
+	}
+	bool operator!=(const InputBinding other) const {
+		return type != other.type || key != other.key;
+	}
+};
+
+typedef Array<InputBinding> ActionBinding;
+
 class GameObject {
 protected:
 	Transform transform;
-	char* spriteKey;
+	Rigidbody rb;
 	bool removalPending;
+	bool hasStarted;
 	Managers* mgs;
 public:
 	GameObject(const GameObject&) = delete;
 	GameObject& operator=(const GameObject&) = delete;
 
-	GameObject(Managers* mgs, Transform tr = Transform::zero(), const char* key = nullptr);
+	GameObject(Managers* mgs, Transform tr = Transform::zero());
 	virtual ~GameObject();
 
 	Transform& getTransform();
@@ -146,16 +279,43 @@ public:
 	Vector3& getPosition();
 	void setPosition(Vector3 pos);
 
-	Sprite* getSprite() const;
-	void setSprite(const char* key);
+	Rigidbody& getRb();
 
 	bool getRemovalFlag() const;
 	void setRemovalFlag(bool flag);
+	bool getStartedFlag() const;
+	void setStartedFlag(bool flag);
 
 	virtual void start() {};
 	virtual void update(float dt) {};
 	virtual void fixedUpdate(float fixed_dt) {};
 	virtual void draw() {};
+};
+
+class SpriteObject : public GameObject {
+protected:
+	char* spriteKey;
+public:
+	SpriteObject(Managers* mgs, Transform tr = Transform::zero(), const char* key = nullptr);
+	virtual ~SpriteObject();
+
+	Sprite* getSprite();
+	void setSpriteKey(const char* key);
+};
+
+class AnimatableObject : public GameObject {
+protected:
+	char* currentAnimKey;
+	int currentAnimFrame;
+	float currentAnimTimer;
+public:
+	AnimatableObject(Managers* mgs, Transform tr = Transform::zero());
+	virtual ~AnimatableObject();
+
+	virtual void updateAnim(float dt);
+
+	char* getCurrentAnimKey();
+	void setAnim(const char* key);
 };
 
 class Camera : public GameObject {
@@ -165,11 +325,4 @@ public:
 
 	Rect getViewport(Dims logDims);
 	float getZoom();
-};
-
-struct AnimationClip {
-	const char* spriteKey;
-	SDL_Rect* frames;
-	int frameCount;
-	float frameDuration;
 };

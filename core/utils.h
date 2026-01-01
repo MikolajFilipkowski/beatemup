@@ -12,6 +12,21 @@ int clamp(int value, int min, int max);
 float clamp(float value, float min, float max);
 
 template <typename T>
+class Array {
+private:
+	T* array;
+	int arrCount;
+public:
+	Array(int count);
+	Array(const Array&) = delete;
+	Array& operator=(const Array&) = delete;
+	~Array();
+	T& get(int index);
+	T& operator[](int index);
+	int count() const;
+};
+
+template <typename T>
 class ArrayList {
 private:
 	T* array;
@@ -27,7 +42,7 @@ public:
 	void add(const T& item);
 	void insert(int index, const T& item);
 	void removeAt(int index);
-	void remove(const T& item);
+	void remove(T& item);
 	void removeIf(bool (*cond)(const T&), void (*onRemove)(T&) = nullptr);
 	int count() const;
 	void clear();
@@ -79,6 +94,35 @@ protected:
 public:
 	static T& getInstance();
 };
+
+template<typename T>
+inline Array<T>::Array(int count) : arrCount(count) {
+	array = new T[arrCount];
+}
+
+template<typename T>
+inline Array<T>::~Array() {
+	delete[] array;
+	array = nullptr;
+}
+
+template<typename T>
+inline T& Array<T>::get(int index) {
+	assert(index >= 0 && index < arrCount && "Index out of bounds");
+
+	return array[index];
+}
+
+template <typename T>
+inline T& Array<T>::operator[](int index) {
+	return get(index);
+}
+
+template<typename T>
+inline int Array<T>::count() const
+{
+	return arrCount;
+}
 
 template<typename T>
 inline void ArrayList<T>::resize(int newCapacity) {
@@ -157,7 +201,7 @@ inline void ArrayList<T>::removeAt(int index) {
 }
 
 template<typename T>
-inline void ArrayList<T>::remove(const T& item) {
+inline void ArrayList<T>::remove(T& item) {
 	for (int i = 0; i < arrCount; i++) {
 		if (array[i] == item) {
 			removeAt(i);
@@ -200,7 +244,7 @@ inline void ArrayList<T>::clear() {
 // Bubble sort z flag¹ swapped
 template<typename T>
 inline void ArrayList<T>::sort(bool(*compare)(const T&, const T&)) {
-	bool swapped;
+	bool swapped = false;
 
 	for (int i = 0; i < arrCount - 1; i++) {
 		for (int j = 0; j < arrCount - i - 1; j++) {
@@ -377,3 +421,4 @@ inline T& Singleton<T>::getInstance() {
 
 	return instance;
 }
+
