@@ -82,6 +82,9 @@
     <ClInclude Include="game\gameObjects\player.h">
       <Filter>game\gameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="game\config.h">
+      <Filter>game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="game\assets\eti.bmp">
@@ -128,6 +131,9 @@
     </Image>
     <Image Include="game\assets\charsets\yg_64.bmp">
       <Filter>game\assets\charsets</Filter>
+    </Image>
+    <Image Include="game\assets\City1.bmp">
+      <Filter>game\assets</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

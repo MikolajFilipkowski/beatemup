@@ -10,7 +10,7 @@ extern "C" {
 class InputManager : private Manager {
 	friend class Engine;
 private:
-	Map<ActionBinding*> bindings;
+	Map<int, ActionBinding*> bindings;
 	Uint8 const* keyboardState;
 	Uint8* prevKeyboardState;
 	Uint32 mouseState;
@@ -24,7 +24,7 @@ private:
 	void destroy() override;
 	void updateMouseState();
 	// \brief Przyjmuje akcje i dwie funkcje (do obslugi klawiatury i myszy)
-	bool checkActionState(const char* action, 
+	bool checkActionState(int action, 
 		bool (InputManager::*keyFun)(Uint8) const, bool (InputManager::*mouseFun)(Uint8) const);
 public:
 	void updateState();
@@ -36,11 +36,11 @@ public:
 	bool getMouseButtonUp(Uint8 button) const;
 	bool isMouseOver(Rect rect);
 
-	void addBinding(const char* action, ActionBinding*& bdg);
-	void removeBinding(const char* action);
-	bool getAction(const char* action);
-	bool getActionDown(const char* action);
-	bool getActionUp(const char* action);
+	void addBinding(int action, ActionBinding*& bdg);
+	void removeBinding(int action);
+	bool getAction(int action);
+	bool getActionDown(int action);
+	bool getActionUp(int action);
 
 	Vector2 getMousePos() const;
 };

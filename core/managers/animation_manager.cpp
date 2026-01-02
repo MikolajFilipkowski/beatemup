@@ -11,7 +11,7 @@ void AnimationManager::destroy()
 {
 }
 
-void AnimationManager::createFromSheet(const char* animKey, const char* spriteKey, int frameCount, float frameDuration) {
+void AnimationManager::createFromSheet(int animKey, int spriteKey, int frameCount, float frameDuration) {
 	Sprite* sprite = mgs->sprite->get(spriteKey);
 	if (sprite == nullptr) return;
 
@@ -19,7 +19,7 @@ void AnimationManager::createFromSheet(const char* animKey, const char* spriteKe
 	clip->frameCount = frameCount;
 	clip->frameDuration = frameDuration;
 	clip->frames = new SDL_Rect[frameCount];
-	clip->spriteKey = copy_string(spriteKey);
+	clip->spriteKey = spriteKey;
 
 	int frameW = sprite->width / frameCount;
 	int frameH = sprite->height;
@@ -31,15 +31,14 @@ void AnimationManager::createFromSheet(const char* animKey, const char* spriteKe
 	animMap.put(animKey, clip);
 }
 
-AnimationClip* AnimationManager::get(const char* key)
+AnimationClip* AnimationManager::get(int key)
 {
 	if (!animMap.containsKey(key))
 		return nullptr;
 	return animMap.get(key);
 }
 
-void AnimationManager::remove(const char* key) {
-	if (key == nullptr) return;
+void AnimationManager::remove(int key) {
 	AnimationClip*& clip = animMap.get(key);
 	delete[] clip->frames;
 	delete clip;

@@ -12,6 +12,15 @@ int clamp(int value, int min, int max);
 float clamp(float value, float min, float max);
 
 template <typename T>
+constexpr bool is_str() { return false; }
+
+template <>
+constexpr bool is_str<const char*>() { return true; }
+
+template <>
+constexpr bool is_str<char*>() { return true; }
+
+template <typename T>
 class Array {
 private:
 	T* array;
@@ -54,45 +63,42 @@ public:
 	const T* end() const;
 };
 
-template <typename T>
+/*template <typename T>
 struct KVPair {
 	const char* key;
 	T value;
+};*/
+
+template <typename K, typename V>
+struct KVPair {
+	K key;
+	V value;
 };
 
-template <typename T>
+template <typename K, typename V>
 class Map {
-private:
-	ArrayList<KVPair<T>> array;
+protected:
+	ArrayList<KVPair<K,V>> array;
 	Map(const Map&) = delete;
 	Map& operator=(const Map&) = delete;
+	bool compareKeys(const K& key1, const K& key2) const;
+	constexpr bool isStringMap() const;
 public:
 	Map(int size = DEFAULT_ARR_CAPACITY);
 	~Map();
 
-	T& get(const char* key);
-	T& getByIndex(int index);
-	bool containsKey(const char* key) const;
-	void put(const char* key, const T& value);
-	void remove(const char* key);
+	V& get(const K key);
+	V& getByIndex(int index);
+	bool containsKey(const K key) const;
+	void put(const K key, const V& value);
+	void remove(const K key);
 	void clear();
-	const T& operator[](const char* key) const;
-	T& operator[](const char* key);
-	KVPair<T>* begin();
-	KVPair<T>* end();
-	const KVPair<T>* begin() const;
-	const KVPair<T>* end() const;
-};
-
-template <class T>
-class Singleton {
-protected:
-	Singleton() = default;
-	~Singleton() = default;
-	Singleton(const Singleton&) = delete;
-	Singleton& operator=(const Singleton&) = delete;
-public:
-	static T& getInstance();
+	const V& operator[](const K key) const;
+	V& operator[](const K key);
+	KVPair<K, V>* begin();
+	KVPair<K, V>* end();
+	const KVPair<K, V>* begin() const;
+	const KVPair<K, V>* end() const;
 };
 
 template<typename T>
@@ -289,88 +295,109 @@ inline const T* ArrayList<T>::end() const {
 	return array + arrCount;
 }
 
-template<typename T>
-inline Map<T>::Map(int size) : array(size) {}
+template<typename K, typename V>
+inline bool Map<K, V>::compareKeys(const K& key1, const K& key2) const
+{
+	if constexpr (isStringMap()) {
+		return strcmp(key1, key2) == 0;
+	}
+	else {
+		return key1 == key2;
+	}
+}
 
-template<typename T>
-inline Map<T>::~Map() {
+template<typename K, typename V>
+inline constexpr bool Map<K, V>::isStringMap() const
+{
+	return is_str<K>();
+}
+
+template<typename K, typename V>
+inline Map<K,V>::Map(int size) : array(size) {}
+
+template<typename K, typename V>
+inline Map<K, V>::~Map() {
 	clear();
 }
 
-template<typename T>
-inline T& Map<T>::get(const char* key) {
-	static T dummy;
-
-	if (key == nullptr) {
+template<typename K, typename V>
+inline V& Map<K, V>::get(K key) {
+	if (key == NULL) {
 		assert(false && "Key must not be null");
-		return dummy;
+		return array[0].value;
 	}
 
-	for (KVPair<T>& item : array) {
-		if (strcmp(key, item.key) == 0) {
+	for (KVPair<K,V>& item : array) {
+		if (compareKeys(key, item.key))
 			return item.value;
-		}
 	}
 
 	assert(false && "Key does not exists");
-	return dummy;
+	return array[0].value;
 }
 
-template<typename T>
-inline T& Map<T>::getByIndex(int index)
+template<typename K, typename V>
+inline V& Map<K, V>::getByIndex(int index)
 {
 	return array.get(index).value;
 }
 
-template<typename T>
-inline bool Map<T>::containsKey(const char* key) const
+template<typename K, typename V>
+inline bool Map<K, V>::containsKey(const K key) const
 {
-	for (const KVPair<T>& item : array) {
-		if (strcmp(key, item.key) == 0) {
+	for (const KVPair<K, V>& item : array) {
+		if (compareKeys(key, item.key))
 			return true;
-		}
 	}
 
 	return false;
 }
 
-template<typename T>
-inline void Map<T>::put(const char* key, const T& value) {
-	for (KVPair<T>& item : array) {
-		if (strcmp(key, item.key) == 0) {
+template<typename K, typename V>
+inline void Map<K, V>::put(const K key, const V& value) {
+	for (KVPair<K, V>& item : array) {
+		if (compareKeys(key, item.key)) {
 			item.value = value;
 			return;
 		}
 	}
 
-	array.add({ copy_string(key), value });
+	if constexpr (isStringMap()) {
+		array.add({ copy_string(key), value });
+	} else {
+		array.add({ key, value });
+	}
 }
 
-template<typename T>
-inline void Map<T>::remove(const char* key) {
+template<typename K, typename V>
+inline void Map<K, V>::remove(const K key) {
 	for (int i = 0; i < array.count(); i++) {
-		if (strcmp(array[i].key, key) == 0) {
-			delete[] array[i].key;
-			array[i].key = nullptr;
+		if (compareKeys(key, array[i].key)) {
+			if constexpr (isStringMap()) {
+				delete[] array[i].key;
+				array[i].key = nullptr;
+			}
 			array.removeAt(i);
 			return;
 		}
 	}
 }
 
-template<typename T>
-inline void Map<T>::clear() {
-	for (KVPair<T>& item : array) {
-		delete[] item.key;
-		item.key = nullptr;
+template<typename K, typename V>
+inline void Map<K, V>::clear() {
+	if constexpr (isStringMap()) {
+		for (KVPair<K, V>& item : array) {
+			delete[] item.key;
+			item.key = nullptr;
+		}
 	}
 	array.clear();
 }
 
-template<typename T>
-inline const T& Map<T>::operator[](const char* key) const {
-	for (const KVPair<T>& item : array) {
-		if (strcmp(key, item.key) == 0) {
+template<typename K, typename V>
+inline const V& Map<K, V>::operator[](const K key) const {
+	for (const KVPair<K, V>& item : array) {
+		if (compareKeys(item.key, key)) {
 			return item.value;
 		}
 	}
@@ -378,47 +405,42 @@ inline const T& Map<T>::operator[](const char* key) const {
 	assert(false && "Key does not exists");
 }
 
-template<typename T>
-inline T& Map<T>::operator[](const char* key) {
-	for (KVPair<T>& item : array) {
-		if (strcmp(key, item.key) == 0) {
+template<typename K, typename V>
+inline V& Map<K, V>::operator[](const K key) {
+	for (KVPair<K, V>& item : array) {
+		if (compareKeys(item.key, key)) {
 			return item.value;
 		}
 	}
 
-	array.add({ copy_string(key), T() });
+	if constexpr (isStringMap())
+		array.add({ copy_string(key), V() });
+	else
+		array.add({ key, V()});
 
 	return array[array.count() - 1].value;
 }
 
-template<typename T>
-inline KVPair<T>* Map<T>::begin()
+template<typename K, typename V>
+inline KVPair<K, V>* Map<K, V>::begin()
 {
 	return array.begin();
 }
 
-template<typename T>
-inline KVPair<T>* Map<T>::end()
+template<typename K, typename V>
+inline KVPair<K, V>* Map<K, V>::end()
 {
 	return array.end();
 }
 
-template<typename T>
-inline const KVPair<T>* Map<T>::begin() const
+template<typename K, typename V>
+inline const KVPair<K, V>* Map<K, V>::begin() const
 {
 	return array.begin();
 }
 
-template<typename T>
-inline const KVPair<T>* Map<T>::end() const
+template<typename K, typename V>
+inline const KVPair<K, V>* Map<K, V>::end() const
 {
 	return array.end();
 }
-
-template<class T>
-inline T& Singleton<T>::getInstance() {
-	static T instance;
-
-	return instance;
-}
-

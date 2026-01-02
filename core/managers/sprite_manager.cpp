@@ -4,7 +4,7 @@
 #include "../engine.h"
 #include <stdio.h>
 
-void SpriteManager::load(const char* fileName, const char* key, bool isCharset)
+void SpriteManager::load(const char* fileName, int key, bool isCharset)
 {
 	if (spriteMap.containsKey(key))
 		return;
@@ -41,7 +41,7 @@ void SpriteManager::load(const char* fileName, const char* key, bool isCharset)
 	spriteMap.put(key, sprite);
 }
 
-void SpriteManager::loadCharset(const char* fileName, const char* key)
+void SpriteManager::loadCharset(const char* fileName, int key)
 {
 	load(fileName, key, true);
 }
@@ -53,7 +53,7 @@ SpriteManager::~SpriteManager()
 
 void SpriteManager::destroy()
 {
-	for (KVPair<Sprite*>& pair : spriteMap) {
+	for (auto& pair : spriteMap) {
 		if (pair.value == nullptr) continue;
 
 		SDL_DestroyTexture(pair.value->texture);
@@ -64,7 +64,7 @@ void SpriteManager::destroy()
 	spriteMap.clear();
 }
 
-void SpriteManager::unload(const char* key)
+void SpriteManager::unload(int key)
 {
 	if (!spriteMap.containsKey(key))
 		return;
@@ -84,7 +84,7 @@ void SpriteManager::unload(const char* key)
 	sprite = nullptr;
 }
 
-Sprite* SpriteManager::get(const char* key)
+Sprite* SpriteManager::get(int key)
 {
 	return spriteMap.get(key);
 }

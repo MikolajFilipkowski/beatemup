@@ -1,12 +1,19 @@
 #pragma once
 
 #include "../../core/core.h"
+#include "../config.h"
+
+namespace PlayerActions {
+	
+}
 
 class Player : public AnimatableObject {
-private:
+protected:
 	bool jumpRequested;
+	bool isGrounded;
+	Camera* plyCam;
 public:
-	Player(Managers* mgs, Transform tr = Transform::zero());
+	Player(Managers* mgs, Camera* cam, Transform tr = Transform::zero());
 	virtual ~Player() override;
 	virtual void start() override;
 	virtual void update(float dt) override;

@@ -212,7 +212,7 @@ void DisplayManager::setDrawColor(ColorRGBA color)
 	SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
 }
 
-void DisplayManager::drawSprite(const char* sprite_key, Vector2 pos)
+void DisplayManager::drawSprite(int sprite_key, Vector2 pos)
 {
 	Sprite* sprite = mgs->sprite->get(sprite_key);
 	if (sprite == nullptr || sprite->texture == nullptr) return;
@@ -222,7 +222,7 @@ void DisplayManager::drawSprite(const char* sprite_key, Vector2 pos)
 	SDL_RenderCopyF(sdlRenderer, sprite->texture, nullptr, &rect);
 }
 
-void DisplayManager::drawSprite(const char* sprite_key, Transform tr)
+void DisplayManager::drawSprite(int sprite_key, Transform tr)
 {
 	Sprite* sprite = mgs->sprite->get(sprite_key);
 	if (sprite == nullptr || sprite->texture == nullptr) return;
@@ -232,7 +232,7 @@ void DisplayManager::drawSprite(const char* sprite_key, Transform tr)
 	SDL_RenderCopyExF(sdlRenderer, sprite->texture, nullptr, &rect, tr.rotation, NULL, tr.flip);
 }
 
-void DisplayManager::drawAnimFrame(const char* anim_key, int frameIdx, Transform tr) {
+void DisplayManager::drawAnimFrame(int anim_key, int frameIdx, Transform tr) {
 	AnimationClip* clip = mgs->anim->get(anim_key);
 	if (clip == nullptr) return;
 
@@ -295,7 +295,7 @@ void DisplayManager::drawFilledRect(Vector2 pos, Dims dims, ColorRGBA fill_color
 	drawRect(pos, dims, outline_color, thickness);
 }
 
-void DisplayManager::drawString(const char* charset_key, Vector2 pos, const char* text, float scale, float spacing)
+void DisplayManager::drawString(int charset_key, Vector2 pos, const char* text, float scale, float spacing)
 {
 	Sprite* sprite = mgs->sprite->get(charset_key);
 	if (sprite == nullptr) return;

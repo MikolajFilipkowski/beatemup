@@ -1,11 +1,13 @@
 #pragma once
 
 #include "../core/core.h"
+#include "config.h"
 #include "gameObjects/player.h"
 
 class Game : public Application {
 private:
 	Player* player;
+	SpriteObject* bg;
 public:
 	Game();
 	virtual ~Game() = default;

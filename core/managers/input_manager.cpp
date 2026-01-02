@@ -13,7 +13,7 @@ InputManager::InputManager(Managers* managers) : Manager(managers) {
 }
 
 InputManager::~InputManager() {
-	for (KVPair<ActionBinding*>& pair : bindings) {
+	for (auto& pair : bindings) {
 		delete pair.value;
 		pair.value = nullptr;
 	}
@@ -46,7 +46,7 @@ void InputManager::updateMouseState()
 	mouseY = clamp(logY, 0.0f, (float)dims.height);
 }
 
-bool InputManager::checkActionState(const char* action, 
+bool InputManager::checkActionState(int action, 
 	bool (InputManager::*keyFun)(Uint8) const, bool (InputManager::*mouseFun)(Uint8) const)
 {
 	if (!bindings.containsKey(action)) return false;
@@ -112,28 +112,28 @@ bool InputManager::isMouseOver(Rect rect)
 	return rect.contains({ (float)mouseX, (float)mouseY });
 }
 
-void InputManager::addBinding(const char* action, ActionBinding*& bdg)
+void InputManager::addBinding(int action, ActionBinding*& bdg)
 {
 	bindings.put(action, bdg);
 }
 
-void InputManager::removeBinding(const char* action)
+void InputManager::removeBinding(int action)
 {
 	delete bindings.get(action);
 	bindings.remove(action);
 }
 
-bool InputManager::getAction(const char* action)
+bool InputManager::getAction(int action)
 {
 	return checkActionState(action, &InputManager::getKey, &InputManager::getMouseButton);
 }
 
-bool InputManager::getActionDown(const char* action)
+bool InputManager::getActionDown(int action)
 {
 	return checkActionState(action, &InputManager::getKeyDown, &InputManager::getMouseButtonDown);
 }
 
-bool InputManager::getActionUp(const char* action)
+bool InputManager::getActionUp(int action)
 {
 	return checkActionState(action, &InputManager::getKeyUp, &InputManager::getMouseButtonUp);
 }

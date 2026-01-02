@@ -34,6 +34,7 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="game\assets\charsets\def_8.bmp" />
+    <Image Include="game\assets\City1.bmp" />
     <Image Include="game\assets\eti.bmp" />
     <Image Include="game\assets\charsets\ps2p_16.bmp" />
     <Image Include="game\assets\player\Attack_1.bmp" />
@@ -63,6 +64,7 @@
     <ClInclude Include="core\managers\sprite_manager.h" />
     <ClInclude Include="core\managers\time_manager.h" />
     <ClInclude Include="core\utils.h" />
+    <ClInclude Include="game\config.h" />
     <ClInclude Include="game\game.h" />
     <ClInclude Include="game\gameObjects\player.h" />
   </ItemGroup>

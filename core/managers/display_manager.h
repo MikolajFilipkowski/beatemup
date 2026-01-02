@@ -51,11 +51,11 @@ public:
 	void setBorderless(bool isBorderlessed);
 
 	void setDrawColor(ColorRGBA color);
-	void drawSprite(const char* sprite_key, Vector2 pos);
-	void drawSprite(const char* sprite_key, Transform tr);
-	void drawAnimFrame(const char* anim_key, int frameIdx, Transform tr);
+	void drawSprite(int sprite_key, Vector2 pos);
+	void drawSprite(int sprite_key, Transform tr);
+	void drawAnimFrame(int anim_key, int frameIdx, Transform tr);
 	void drawLine(Vector2 start, Vector2 dest, ColorRGBA color);
 	void drawRect(Vector2 pos, Dims dims, ColorRGBA color, int thickness = 1);
 	void drawFilledRect(Vector2 pos, Dims dims, ColorRGBA fill_color, ColorRGBA outline_color, int thickness = 1);
-	void drawString(const char* charset_key, Vector2 pos, const char* text, float scale = 1.0f, float spacing = 1.0f);
+	void drawString(int charset_key, Vector2 pos, const char* text, float scale = 1.0f, float spacing = 1.0f);
 };

@@ -230,7 +230,7 @@ struct Sprite {
 };
 
 struct AnimationClip {
-	const char* spriteKey;
+	int spriteKey;
 	SDL_Rect* frames;
 	int frameCount;
 	float frameDuration;
@@ -294,18 +294,20 @@ public:
 
 class SpriteObject : public GameObject {
 protected:
-	char* spriteKey;
+	int spriteKey;
 public:
-	SpriteObject(Managers* mgs, Transform tr = Transform::zero(), const char* key = nullptr);
+	SpriteObject(Managers* mgs, Transform tr = Transform::zero(), int key = 0);
 	virtual ~SpriteObject();
 
 	Sprite* getSprite();
-	void setSpriteKey(const char* key);
+	void setSpriteKey(int key);
+
+	virtual void draw() override;
 };
 
 class AnimatableObject : public GameObject {
 protected:
-	char* currentAnimKey;
+	int currentAnimKey;
 	int currentAnimFrame;
 	float currentAnimTimer;
 public:
@@ -314,8 +316,8 @@ public:
 
 	virtual void updateAnim(float dt);
 
-	char* getCurrentAnimKey();
-	void setAnim(const char* key);
+	int getCurrentAnimKey();
+	void setAnim(int key);
 };
 
 class Camera : public GameObject {

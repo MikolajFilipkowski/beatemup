@@ -10,14 +10,14 @@ extern "C" {
 class SpriteManager : private Manager {
 	friend class Engine;
 private:
-	Map<Sprite*> spriteMap;
+	Map<int, Sprite*> spriteMap;
 
 	SpriteManager(Managers* managers) : Manager(managers) {}
 	~SpriteManager() override;
 	void destroy() override;
 public:
-	void load(const char* fileName, const char* key, bool isCharset = false);
-	void loadCharset(const char* fileName, const char* key);
-	void unload(const char* key);
-	Sprite* get(const char* key);
+	void load(const char* fileName, int key, bool isCharset = false);
+	void loadCharset(const char* fileName, int key);
+	void unload(int key);
+	Sprite* get(int key);
 };

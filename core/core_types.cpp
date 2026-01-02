@@ -79,49 +79,50 @@ float Camera::getZoom()
 	return DEFAULT_CAM_Z / pos_z;
 }
 
-SpriteObject::SpriteObject(Managers* mgs, Transform tr, const char* key) 
-	: GameObject(mgs, tr), spriteKey(copy_string(key))
+SpriteObject::SpriteObject(Managers* mgs, Transform tr, int key) 
+	: GameObject(mgs, tr), spriteKey(key)
 {
 
 }
 
 SpriteObject::~SpriteObject() {
-	delete[] spriteKey;
-	spriteKey = nullptr;
+	
 }
 
 Sprite* SpriteObject::getSprite() {
+	if (spriteKey == 0) return nullptr;
 	return mgs->sprite->get(spriteKey);
 }
 
-void SpriteObject::setSpriteKey(const char* key) {
-	delete[] spriteKey;
-	spriteKey = copy_string(key);
+void SpriteObject::setSpriteKey(int key) {
+	spriteKey = key;
+}
+
+void SpriteObject::draw()
+{
+	mgs->display->drawSprite(spriteKey, transform);
 }
 
 AnimatableObject::AnimatableObject(Managers* mgs, Transform tr)
-	: GameObject(mgs, tr), currentAnimKey(nullptr), currentAnimFrame(0), currentAnimTimer(0.0f)
+	: GameObject(mgs, tr), currentAnimKey(0), currentAnimFrame(0), currentAnimTimer(0.0f)
 {
 	
 }
 
 AnimatableObject::~AnimatableObject() {
-	delete[] currentAnimKey;
-	currentAnimKey = nullptr;
+	
 }
 
-char* AnimatableObject::getCurrentAnimKey()
+int AnimatableObject::getCurrentAnimKey()
 {
 	return currentAnimKey;
 }
 
-void AnimatableObject::setAnim(const char* key)
+void AnimatableObject::setAnim(int key)
 {
-	if (key == nullptr) return;
-	if (currentAnimKey != nullptr && strcmp(key, currentAnimKey) == 0) return;
+	if (key == 0 || currentAnimKey == key) return;
 
-	delete[] currentAnimKey;
-	currentAnimKey = copy_string(key);
+	currentAnimKey = key;
 	currentAnimFrame = 0;
 	currentAnimTimer = 0.0f;
 }
