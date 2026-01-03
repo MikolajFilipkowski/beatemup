@@ -15,6 +15,7 @@ constexpr float FPS_CAP = 240.0f;
 constexpr Uint32 MIN_FRAMETIME = (Uint32)(1000 / FPS_CAP);
 constexpr Uint32 MAX_FRAMETIME = 500;
 constexpr float FPS_INTERVAL = 1.0f;
+constexpr int MAX_TEXTSIZE = 256;
 
 class Managers;
 
@@ -259,6 +260,40 @@ struct InputBinding {
 
 typedef Array<InputBinding> ActionBinding;
 
+struct BackgroundLayer {
+	int spriteKey;
+	float scrollFactor;
+	float width;
+	int copies;
+};
+
+
+
+class Scene {
+protected:
+	Managers* mgs;
+public:
+	Scene(Managers* managers) : mgs(managers) {}
+	Scene(const Scene&) = delete;
+	Scene& operator=(const Scene&) = delete;
+	virtual ~Scene() { destroy(); }
+	virtual void start() {}
+	virtual void update(float dt) {}
+	virtual void fixedUpdate(float fixed_dt) {}
+	virtual void draw() {}
+	virtual void destroy() {}
+};
+
+class GameScene : public Scene {
+protected:
+	ArrayList<BackgroundLayer> layers;
+public:
+	GameScene(Managers* managers) : Scene(managers) {}
+	void addLayer(int spriteKey, float scrollFactor, float width);
+	void drawBackground();
+	void drawLayer(BackgroundLayer& layer, float camX, Dims& logDims);
+};
+
 class GameObject {
 protected:
 	Transform transform;
@@ -325,6 +360,6 @@ public:
 	Camera(Managers* mgs, Vector3 pos = {0, 0, 500.0f});
 	~Camera();
 
-	Rect getViewport(Dims logDims);
+	Rect getViewport();
 	float getZoom();
 };

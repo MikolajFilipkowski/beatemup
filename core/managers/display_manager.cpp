@@ -212,12 +212,17 @@ void DisplayManager::setDrawColor(ColorRGBA color)
 	SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
 }
 
-void DisplayManager::drawSprite(int sprite_key, Vector2 pos)
+void DisplayManager::drawSprite(int sprite_key, Vector2 pos, FDims dims)
 {
 	Sprite* sprite = mgs->sprite->get(sprite_key);
 	if (sprite == nullptr || sprite->texture == nullptr) return;
 
-	SDL_FRect rect = { pos.x, pos.y, (float)sprite->width, (float)sprite->height };
+	if (dims.width == 0 || dims.height == 0) {
+		dims.width = (float)sprite->width;
+		dims.height = (float)sprite->height;
+	}
+
+	SDL_FRect rect = { pos.x, pos.y, dims.width, dims.height };
 
 	SDL_RenderCopyF(sdlRenderer, sprite->texture, nullptr, &rect);
 }

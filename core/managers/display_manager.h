@@ -51,7 +51,7 @@ public:
 	void setBorderless(bool isBorderlessed);
 
 	void setDrawColor(ColorRGBA color);
-	void drawSprite(int sprite_key, Vector2 pos);
+	void drawSprite(int sprite_key, Vector2 pos, FDims dims = {0,0});
 	void drawSprite(int sprite_key, Transform tr);
 	void drawAnimFrame(int anim_key, int frameIdx, Transform tr);
 	void drawLine(Vector2 start, Vector2 dest, ColorRGBA color);

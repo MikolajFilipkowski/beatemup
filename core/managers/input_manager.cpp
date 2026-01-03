@@ -74,6 +74,8 @@ bool InputManager::checkActionState(int action,
 
 void InputManager::updateState() {
 	memcpy(prevKeyboardState, keyboardState, numkeyCount);
+
+	updateMouseState();
 }
 
 bool InputManager::getKey(Uint8 key) const {

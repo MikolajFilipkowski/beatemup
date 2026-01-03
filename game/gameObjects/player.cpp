@@ -1,7 +1,9 @@
 #include "player.h"
 #include <cstdio>
 
-Player::Player(Managers* mgs, Camera* cam, Transform tr) : AnimatableObject(mgs, tr), plyCam(cam), jumpRequested(false), isGrounded(true) {}
+Player::Player(Managers* mgs, Camera* cam, Transform tr) 
+	: AnimatableObject(mgs, tr), plyCam(cam), jumpRequested(false), 
+	isGrounded(true), isAttacking(false), attackTimer(0.0f) {}
 
 Player::~Player()
 {
@@ -21,12 +23,27 @@ void Player::start()
 	mgs->sprite->load("game/assets/player/Jump.bmp", RES::PLY_JUMP);
 	mgs->anim->createFromSheet(RES::PLY_JUMP, RES::PLY_JUMP, 10, 0.05f);
 
+	mgs->sprite->load("game/assets/player/Attack_1.bmp", RES::PLY_ATTACK_1);
+	mgs->anim->createFromSheet(RES::PLY_ATTACK_1, RES::PLY_ATTACK_1, 4, 0.07f);
+
+	mgs->sprite->load("game/assets/player/Attack_2.bmp", RES::PLY_ATTACK_2);
+	mgs->anim->createFromSheet(RES::PLY_ATTACK_2, RES::PLY_ATTACK_2, 3, 0.05f);
+
 	setAnim(RES::PLY_IDLE);
 }
 
 void Player::update(float dt)
 {
 	Vector3& pos = transform.pos;
+
+	if (isAttacking) {
+		attackTimer -= dt;
+		if (attackTimer <= 0) {
+			attackTimer = 0;
+			isAttacking = false;
+			setAnim(RES::PLY_IDLE);
+		}
+	}
 
 	if (mgs->input->getAction(Action::LEFT)) {
 		transform.flip = H_FLIP;
@@ -42,31 +59,46 @@ void Player::update(float dt)
 		pos.x += 700 * dt;
 	}
 	if (mgs->input->getAction(Action::UP)) {
-		pos.z = clamp(pos.z - (300 * dt), 200.0f, 350.0f);
+		pos.z = clamp(pos.z - (300 * dt), 250.0f, 350.0f);
 	}
 	if (mgs->input->getAction(Action::DOWN)) {
-		pos.z = clamp(pos.z + (300 * dt), 200.0f, 350.0f);
+		pos.z = clamp(pos.z + (300 * dt), 250.0f, 350.0f);
 	}
-	if (mgs->input->getActionDown(Action::JUMP) && isGrounded) {
+	if (mgs->input->getAction(Action::JUMP) && isGrounded) {
 		jumpRequested = true;
+	}
+
+	if (mgs->input->getActionDown(Action::ACT_X) && isGrounded && !jumpRequested) {
+		isAttacking = true;
+		AnimationClip* anim = mgs->anim->get(RES::PLY_ATTACK_2);
+		attackTimer = anim->frameDuration * anim->frameCount;
+		setAnim(RES::PLY_ATTACK_2);
+	}
+	else if (mgs->input->getActionDown(Action::ACT_Y) && isGrounded && !jumpRequested) {
+		isAttacking = true;
+		AnimationClip* anim = mgs->anim->get(RES::PLY_ATTACK_1);
+		attackTimer = anim->frameDuration * anim->frameCount;
+		setAnim(RES::PLY_ATTACK_1);
 	}
 
 	bool isWalking = mgs->input->getAction(Action::UP) || mgs->input->getAction(Action::DOWN);
 	bool isMoving = mgs->input->getAction(Action::LEFT) || mgs->input->getAction(Action::RIGHT);
 
-	if (isGrounded) {
-		if (isMoving) {
-			setAnim(RES::PLY_RUN);
-		}
-		else if (isWalking) {
-			setAnim(RES::PLY_WALK);
+	if (!isAttacking) {
+		if (isGrounded) {
+			if (isMoving) {
+				setAnim(RES::PLY_RUN);
+			}
+			else if (isWalking) {
+				setAnim(RES::PLY_WALK);
+			}
+			else {
+				setAnim(RES::PLY_IDLE);
+			}
 		}
 		else {
-			setAnim(RES::PLY_IDLE);
+			setAnim(RES::PLY_JUMP);
 		}
-	}
-	else {
-		setAnim(RES::PLY_JUMP);
 	}
 	
 	plyCam->setPosition({ pos.x, 0, 500.0f });

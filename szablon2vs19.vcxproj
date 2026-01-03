@@ -25,18 +25,29 @@
     <ClCompile Include="core\managers\display_manager.cpp" />
     <ClCompile Include="core\managers\input_manager.cpp" />
     <ClCompile Include="core\managers\object_manager.cpp" />
+    <ClCompile Include="core\managers\scene_manager.cpp" />
     <ClCompile Include="core\managers\sprite_manager.cpp" />
     <ClCompile Include="core\managers\time_manager.cpp" />
+    <ClCompile Include="core\managers\ui_manager.cpp" />
+    <ClCompile Include="core\ui.cpp" />
     <ClCompile Include="core\utils.cpp" />
     <ClCompile Include="game\game.cpp" />
     <ClCompile Include="game\gameObjects\player.cpp" />
+    <ClCompile Include="game\level_scene.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="game\assets\charsets\def_8.bmp" />
-    <Image Include="game\assets\City1.bmp" />
     <Image Include="game\assets\eti.bmp" />
     <Image Include="game\assets\charsets\ps2p_16.bmp" />
+    <Image Include="game\assets\levels\level1\boxes.bmp" />
+    <Image Include="game\assets\levels\level1\buildings.bmp" />
+    <Image Include="game\assets\levels\level1\City1.bmp" />
+    <Image Include="game\assets\levels\level1\road.bmp" />
+    <Image Include="game\assets\levels\level1\sky.bmp" />
+    <Image Include="game\assets\levels\level1\wall1.bmp" />
+    <Image Include="game\assets\levels\level1\wall2.bmp" />
+    <Image Include="game\assets\levels\level1\wheels.bmp" />
     <Image Include="game\assets\player\Attack_1.bmp" />
     <Image Include="game\assets\player\Attack_2.bmp" />
     <Image Include="game\assets\player\Attack_3.bmp" />
@@ -61,12 +72,16 @@
     <ClInclude Include="core\managers\manager.h" />
     <ClInclude Include="core\managers\managers.h" />
     <ClInclude Include="core\managers\object_manager.h" />
+    <ClInclude Include="core\managers\scene_manager.h" />
     <ClInclude Include="core\managers\sprite_manager.h" />
     <ClInclude Include="core\managers\time_manager.h" />
+    <ClInclude Include="core\managers\ui_manager.h" />
+    <ClInclude Include="core\ui.h" />
     <ClInclude Include="core\utils.h" />
     <ClInclude Include="game\config.h" />
     <ClInclude Include="game\game.h" />
     <ClInclude Include="game\gameObjects\player.h" />
+    <ClInclude Include="game\level_scene.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CREDITS.txt" />

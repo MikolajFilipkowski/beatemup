@@ -35,6 +35,18 @@
       <Filter>game\gameObjects</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="core\managers\scene_manager.cpp">
+      <Filter>core\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="core\managers\ui_manager.cpp">
+      <Filter>core\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="game\level_scene.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="core\ui.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\managers\display_manager.h">
@@ -85,6 +97,18 @@
     <ClInclude Include="game\config.h">
       <Filter>game</Filter>
     </ClInclude>
+    <ClInclude Include="core\managers\scene_manager.h">
+      <Filter>core\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="core\managers\ui_manager.h">
+      <Filter>core\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="game\level_scene.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="core\ui.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="game\assets\eti.bmp">
@@ -132,8 +156,29 @@
     <Image Include="game\assets\charsets\yg_64.bmp">
       <Filter>game\assets\charsets</Filter>
     </Image>
-    <Image Include="game\assets\City1.bmp">
-      <Filter>game\assets</Filter>
+    <Image Include="game\assets\levels\level1\wheels.bmp">
+      <Filter>game\assets\levels\level1</Filter>
+    </Image>
+    <Image Include="game\assets\levels\level1\City1.bmp">
+      <Filter>game\assets\levels\level1</Filter>
+    </Image>
+    <Image Include="game\assets\levels\level1\boxes.bmp">
+      <Filter>game\assets\levels\level1</Filter>
+    </Image>
+    <Image Include="game\assets\levels\level1\buildings.bmp">
+      <Filter>game\assets\levels\level1</Filter>
+    </Image>
+    <Image Include="game\assets\levels\level1\road.bmp">
+      <Filter>game\assets\levels\level1</Filter>
+    </Image>
+    <Image Include="game\assets\levels\level1\sky.bmp">
+      <Filter>game\assets\levels\level1</Filter>
+    </Image>
+    <Image Include="game\assets\levels\level1\wall2.bmp">
+      <Filter>game\assets\levels\level1</Filter>
+    </Image>
+    <Image Include="game\assets\levels\level1\wall1.bmp">
+      <Filter>game\assets\levels\level1</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -157,6 +202,12 @@
     </Filter>
     <Filter Include="game\gameObjects">
       <UniqueIdentifier>{8d6ec7a8-77ff-4eab-8b8f-867d8f62a275}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\assets\levels">
+      <UniqueIdentifier>{146c1078-a0e9-431a-a7ab-a51b322ea257}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\assets\levels\level1">
+      <UniqueIdentifier>{cc68c9d4-0ade-4006-8497-8a82bf77eee2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

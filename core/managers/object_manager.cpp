@@ -83,3 +83,8 @@ void ObjectManager::refreshObjects()
 		}
 	);
 }
+
+void ObjectManager::clear()
+{
+	destroy();
+}

@@ -24,4 +24,5 @@ public:
 	void fixedUpdateAll(float fixed_dt);
 	void drawAll();
 	void refreshObjects();
+	void clear();
 };

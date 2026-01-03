@@ -9,6 +9,7 @@ extern "C" {
 #include "core_types.h"
 #include "engine.h"
 #include "application.h"
+#include "ui.h"
 
 /*
 * Prosty silnik do gier na potrzeby projektu beat 'em up

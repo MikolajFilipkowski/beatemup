@@ -16,6 +16,8 @@ bool Engine::init(const char* title, Dims screenDims, Dims logicalDims, bool isF
 	mgs.time = new TimeManager(&mgs);
 	mgs.input = new InputManager(&mgs);
 	mgs.anim = new AnimationManager(&mgs);
+	mgs.scene = new SceneManager(&mgs);
+	mgs.ui = new UIManager(&mgs);
 	mgs.engine = this;
 
 	bool displayInitialized = mgs.display->init(title, screenDims, logicalDims, isFullscreen);
@@ -47,18 +49,15 @@ void Engine::run(Application* application)
 
 		while (mgs.time->step()) {
 			app->onFixedUpdate(mgs.time->getFixedDt());
-			mgs.object->fixedUpdateAll(mgs.time->getFixedDt());
 		}
 
 		app->onUpdate(mgs.time->getDt());
-		mgs.object->updateAll(mgs.time->getDt());
 
 		mgs.object->refreshObjects();
 
 		mgs.display->clear();
 
 		app->onDraw();
-		mgs.object->drawAll();
 
 		mgs.display->present();
 	}
@@ -86,6 +85,8 @@ void Engine::handleEvents()
 			stop();
 			break;
 		};
+
+		mgs.ui->handleEvents(event);
 	};
 }
 

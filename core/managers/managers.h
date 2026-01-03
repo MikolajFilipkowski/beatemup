@@ -7,8 +7,10 @@
 #include "time_manager.h"
 #include "input_manager.h"
 #include "animation_manager.h"
+#include "scene_manager.h"
+#include "ui_manager.h"
 
-constexpr int MGS_LEN = 6;
+constexpr int MGS_LEN = 8;
 
 class Engine;
 
@@ -24,6 +26,8 @@ public:
 	TimeManager* time = nullptr;
 	InputManager* input = nullptr;
 	AnimationManager* anim = nullptr;
+	SceneManager* scene = nullptr;
+	UIManager* ui = nullptr;
 
 	Engine* engine = nullptr;
 
@@ -36,5 +40,7 @@ public:
 		array[3] = (Manager**)&time;
 		array[4] = (Manager**)&input;
 		array[5] = (Manager**)&anim;
+		array[6] = (Manager**)&scene;
+		array[7] = (Manager**)&ui;
 	}
 };

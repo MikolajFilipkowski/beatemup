@@ -11,6 +11,8 @@ class Player : public AnimatableObject {
 protected:
 	bool jumpRequested;
 	bool isGrounded;
+	bool isAttacking;
+	float attackTimer;
 	Camera* plyCam;
 public:
 	Player(Managers* mgs, Camera* cam, Transform tr = Transform::zero());

@@ -1,7 +1,38 @@
+#include "math.h"
 #include "core_types.h"
 #include "managers/managers.h"
 
 #include "cstring"
+
+
+void GameScene::addLayer(int spriteKey, float scrollFactor, float width)
+{
+	int copies = (mgs->display->getLogWidth() / (int)width) + 2;
+	layers.add({spriteKey, scrollFactor, width, copies});
+}
+
+void GameScene::drawBackground()
+{
+	float camX = mgs->display->getActiveCamera()->getPosition().x;
+	Dims logDims = mgs->display->getLogDims();
+
+	for (auto& layer : layers) {
+		drawLayer(layer, camX, logDims);
+	}
+}
+
+void GameScene::drawLayer(BackgroundLayer& layer, float camX, Dims& logDims)
+{
+	// x - pozycja layera (<=0)
+	float x = fmodf( - camX * layer.scrollFactor, layer.width);
+	if (x > 0) x -= layer.width;
+
+	// zapetlanie layera
+	for (int i = 0; i < layer.copies; i++) {
+		Vector2 pos = { x + (i * layer.width), 0 };
+		mgs->display->drawSprite(layer.spriteKey, pos, {(float)logDims.width, (float)logDims.height});
+	}
+}
 
 GameObject::GameObject(Managers* mgs, Transform tr) 
 	: mgs(mgs),
@@ -67,9 +98,9 @@ Camera::Camera(Managers* mgs, Vector3 pos) : GameObject(mgs) {
 
 Camera::~Camera() {}
 
-Rect Camera::getViewport(Dims logDims)
+Rect Camera::getViewport()
 {
-	return { transform.pos.x, transform.pos.y, (float)logDims.width, (float)logDims.height};
+	return { transform.pos.x, transform.pos.y, (float)mgs->display->getLogWidth(), (float)mgs->display->getLogHeight() };
 }
 
 float Camera::getZoom()
@@ -139,3 +170,5 @@ void AnimatableObject::updateAnim(float dt)
 		currentAnimFrame %= clip->frameCount;
 	}
 }
+
+
