@@ -30,30 +30,7 @@ public:
 	float getFPS() const;
 	float getWorldTime() const;
 	void setWorldTime(float wt);
+	float getAccum() const;
+	float getIFactor() const;
 };
-
-inline float TimeManager::getDt() const
-{
-	return dt;
-}
-
-inline float TimeManager::getFixedDt() const
-{
-	return fixedDt;
-}
-
-inline float TimeManager::getFPS() const {
-	return fps;
-}
-
-inline float TimeManager::getWorldTime() const
-{
-	return worldTime;
-}
-
-inline void TimeManager::setWorldTime(float wt)
-{
-	worldTime = wt;
-}
-
 

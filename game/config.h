@@ -1,5 +1,14 @@
 #pragma once
 
+#define ASSETS "game/assets/"
+
+constexpr float CAMERA_LERP = .2f;
+constexpr float CAMERA_THR = .25f;
+
+constexpr float IC_SIZE = 50.0f;
+constexpr float IC_OFF_X = -64.0f;
+constexpr float IC_OFF_Y = 8.0f;
+
 // Dziala podobnie do enum class, ale automatycznie rzutuje na inta
 
 namespace RES {
@@ -9,13 +18,15 @@ namespace RES {
 		CH_16,
 		CH_32,
 		CH_64,
-		LVL_BOXES,
-		LVL_WHEELS,
-		LVL_BUILDINGS,
-		LVL_ROAD,
-		LVL_WALL1,
-		LVL_WALL2,
-		LVL_SKY,
+		SHADOW,
+		PUNCH_ICON,
+		MENU_BOXES,
+		MENU_WHEELS,
+		MENU_BUILDINGS,
+		MENU_ROAD,
+		MENU_WALL1,
+		MENU_WALL2,
+		MENU_SKY,
 
 		ANIMS_OFFSET,
 	};

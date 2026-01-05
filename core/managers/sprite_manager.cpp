@@ -88,3 +88,12 @@ Sprite* SpriteManager::get(int key)
 {
 	return spriteMap.get(key);
 }
+
+void SpriteManager::setSpriteColor(int key, ColorRGBA clr)
+{
+	if (!spriteMap.containsKey(key)) return;
+
+	Sprite* spr = get(key);
+	SDL_SetTextureColorMod(spr->texture, clr.r, clr.g, clr.b);
+	SDL_SetTextureAlphaMod(spr->texture, clr.a);
+}

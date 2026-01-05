@@ -41,11 +41,21 @@ Note: Font has been converted to a 64x64 pixel bitmap for engine compatibility.
 
 GRAPHICS: 2D Assets
 ------------------------------------------------------------
-Assets sourced from: CraftPix.net (Freebie Collection)
+Source 1: CraftPix.net (Freebie Collection)
 License: CraftPix Freebie License
 Website: https://craftpix.net/freebies/
 
+Source 2: OpenGameArt.org (Bad Company Thugs)
+Author: Puffolotti
+License: Public Domain / CC0
+Website: https://opengameart.org/users/puffolotti
+
+Source 3: Flaticon.com (Fight Icons)
+Author: Mayor Icons
+License: Flaticon License
+Website: https://www.flaticon.com/authors/mayor-icons
+
 Contribution appreciated and acknowledged. 
-Special thanks to the artists at CraftPix for providing 
-high-quality game assets.
+Special thanks to the artists at CraftPix, Puffolotti, 
+and Mayor Icons for providing high-quality assets.
 ------------------------------------------------------------

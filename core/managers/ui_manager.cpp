@@ -10,6 +10,8 @@ UIManager::~UIManager()
 void UIManager::destroy()
 {
 	for (auto& el : elements) {
+		if (el == nullptr) continue;
+
 		delete el;
 		el = nullptr;
 	}
@@ -24,20 +26,28 @@ void UIManager::add(UIElement* el)
 void UIManager::handleEvents(SDL_Event& ev)
 {
 	for (auto& el : elements) {
-		el->handleEvents(ev);
+		if (el->isActive())
+			el->handleEvents(ev);
 	}
 }
 
 void UIManager::update(float dt)
 {
 	for (auto& el : elements) {
-		el->update(dt);
+		if (el->isActive())
+			el->update(dt);
 	}
 }
 
 void UIManager::draw()
 {
 	for (auto& el : elements) {
-		el->draw();
+		if (el->isActive())
+			el->draw();
 	}
+}
+
+void UIManager::clear()
+{
+	destroy();
 }

@@ -16,6 +16,9 @@ constexpr Uint32 MIN_FRAMETIME = (Uint32)(1000 / FPS_CAP);
 constexpr Uint32 MAX_FRAMETIME = 500;
 constexpr float FPS_INTERVAL = 1.0f;
 constexpr int MAX_TEXTSIZE = 256;
+constexpr float BTN_PR_DUR = .15f;
+constexpr int BTN_FC_BRD = 60;
+constexpr float BTN_PULSE_SPD = 2.5;
 
 class Managers;
 
@@ -212,6 +215,14 @@ struct ColorRGBA {
 		return { 0, 0, 0, 0xFF };
 	}
 
+	static ColorRGBA white() {
+		return { 0xFF, 0xFF, 0xFF, 0xFF };
+	}
+
+	static ColorRGBA transparent() {
+		return { 0, 0, 0, 0 };
+	}
+
 	static ColorRGBA red() {
 		return { 0xFF, 0, 0, 0xFF };
 	}
@@ -239,6 +250,8 @@ struct AnimationClip {
 
 struct Rigidbody {
 	Vector3 vel;
+	Vector3 prevPos;
+	Vector3 currPos;
 };
 
 enum class InputType : Uint8 {
@@ -263,7 +276,7 @@ typedef Array<InputBinding> ActionBinding;
 struct BackgroundLayer {
 	int spriteKey;
 	float scrollFactor;
-	float width;
+	FDims dims;
 	int copies;
 };
 
@@ -289,7 +302,7 @@ protected:
 	ArrayList<BackgroundLayer> layers;
 public:
 	GameScene(Managers* managers) : Scene(managers) {}
-	void addLayer(int spriteKey, float scrollFactor, float width);
+	void addLayer(int spriteKey, float scrollFactor, float width, float height);
 	void drawBackground();
 	void drawLayer(BackgroundLayer& layer, float camX, Dims& logDims);
 };
@@ -320,6 +333,9 @@ public:
 	void setRemovalFlag(bool flag);
 	bool getStartedFlag() const;
 	void setStartedFlag(bool flag);
+	Vector3 getIPos();
+
+	void drawShadow(int sh_key, float obj_width, FDims sh_dims);
 
 	virtual void start() {};
 	virtual void update(float dt) {};

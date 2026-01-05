@@ -5,10 +5,10 @@
 #include "cstring"
 
 
-void GameScene::addLayer(int spriteKey, float scrollFactor, float width)
+void GameScene::addLayer(int spriteKey, float scrollFactor, float width, float height)
 {
-	int copies = (mgs->display->getLogWidth() / (int)width) + 2;
-	layers.add({spriteKey, scrollFactor, width, copies});
+	int copies = (mgs->display->getLogWidth() / (int)width + 2);
+	layers.add({ spriteKey, scrollFactor, {width, height}, copies });
 }
 
 void GameScene::drawBackground()
@@ -24,20 +24,20 @@ void GameScene::drawBackground()
 void GameScene::drawLayer(BackgroundLayer& layer, float camX, Dims& logDims)
 {
 	// x - pozycja layera (<=0)
-	float x = fmodf( - camX * layer.scrollFactor, layer.width);
-	if (x > 0) x -= layer.width;
+	float x = fmodf(-camX * layer.scrollFactor, layer.dims.width);
+	if (x > 0) x -= layer.dims.width;
 
 	// zapetlanie layera
 	for (int i = 0; i < layer.copies; i++) {
-		Vector2 pos = { x + (i * layer.width), 0 };
-		mgs->display->drawSprite(layer.spriteKey, pos, {(float)logDims.width, (float)logDims.height});
+		Vector2 pos = { x + (i * layer.dims.width), 0 };
+		mgs->display->drawSprite(layer.spriteKey, pos, layer.dims);
 	}
 }
 
 GameObject::GameObject(Managers* mgs, Transform tr) 
 	: mgs(mgs),
 	transform(tr),
-	rb({0,0,0}),
+	rb({ {0,0,0}, tr.pos, tr.pos }),
 	removalPending(false),
 	hasStarted(false)
 {
@@ -92,8 +92,43 @@ void GameObject::setStartedFlag(bool flag)
 	hasStarted = flag;
 }
 
+Vector3 GameObject::getIPos()
+{
+	float ifactor = mgs->time->getIFactor();
+
+	// pozycja zinterpolowana (pomiedzy klatkami fizyki)
+	float dx = rb.prevPos.x * (1.0f - ifactor) + rb.currPos.x * ifactor;
+	float dy = rb.prevPos.y * (1.0f - ifactor) + rb.currPos.y * ifactor;
+	float dz = rb.prevPos.z * (1.0f - ifactor) + rb.currPos.z * ifactor;
+
+	return { dx, dy, dz };
+}
+
+void GameObject::drawShadow(int sh_key, float obj_width, FDims sh_dims)
+{
+	float shX = transform.pos.x;
+	float shY = transform.pos.z - sh_dims.height/2;
+
+	// przy skoku
+	float shScale = 1.0f / (1.0f - transform.pos.y / 2500.0f);
+
+	// do szerokosci obiektu * stala
+	shScale *= (obj_width / sh_dims.width) * .8f;
+
+	sh_dims.width *= shScale;
+	sh_dims.height *= shScale;
+
+	Transform tr = Transform::zero();
+	tr.pos = { shX, shY };
+	tr.scale = { shScale, shScale };
+
+	mgs->display->drawSprite(sh_key, tr);
+}
+
 Camera::Camera(Managers* mgs, Vector3 pos) : GameObject(mgs) {
 	transform.pos = pos;
+	rb.currPos = pos;
+	rb.prevPos = pos;
 }
 
 Camera::~Camera() {}

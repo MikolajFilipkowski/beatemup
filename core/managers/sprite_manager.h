@@ -20,4 +20,5 @@ public:
 	void loadCharset(const char* fileName, int key);
 	void unload(int key);
 	Sprite* get(int key);
+	void setSpriteColor(int key, ColorRGBA clr);
 };

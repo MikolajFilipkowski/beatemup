@@ -41,11 +41,17 @@
     <ClCompile Include="core\managers\ui_manager.cpp">
       <Filter>core\managers</Filter>
     </ClCompile>
-    <ClCompile Include="game\level_scene.cpp">
-      <Filter>game</Filter>
-    </ClCompile>
     <ClCompile Include="core\ui.cpp">
       <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="game\gameObjects\player_camera.cpp">
+      <Filter>game\gameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="game\scenes\level_scene.cpp">
+      <Filter>game\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="game\scenes\menu_scene.cpp">
+      <Filter>game\scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -103,46 +109,22 @@
     <ClInclude Include="core\managers\ui_manager.h">
       <Filter>core\managers</Filter>
     </ClInclude>
-    <ClInclude Include="game\level_scene.h">
-      <Filter>game</Filter>
-    </ClInclude>
     <ClInclude Include="core\ui.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="game\gameObjects\player_camera.h">
+      <Filter>game\gameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="game\scenes\level_scene.h">
+      <Filter>game\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="game\scenes\menu_scene.h">
+      <Filter>game\scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="game\assets\eti.bmp">
       <Filter>game\assets</Filter>
-    </Image>
-    <Image Include="game\assets\player\Attack_1.bmp">
-      <Filter>game\assets\player</Filter>
-    </Image>
-    <Image Include="game\assets\player\Attack_2.bmp">
-      <Filter>game\assets\player</Filter>
-    </Image>
-    <Image Include="game\assets\player\Attack_3.bmp">
-      <Filter>game\assets\player</Filter>
-    </Image>
-    <Image Include="game\assets\player\Dead.bmp">
-      <Filter>game\assets\player</Filter>
-    </Image>
-    <Image Include="game\assets\player\Hurt.bmp">
-      <Filter>game\assets\player</Filter>
-    </Image>
-    <Image Include="game\assets\player\Jump.bmp">
-      <Filter>game\assets\player</Filter>
-    </Image>
-    <Image Include="game\assets\player\Idle.bmp">
-      <Filter>game\assets\player</Filter>
-    </Image>
-    <Image Include="game\assets\player\Run.bmp">
-      <Filter>game\assets\player</Filter>
-    </Image>
-    <Image Include="game\assets\player\Shield.bmp">
-      <Filter>game\assets\player</Filter>
-    </Image>
-    <Image Include="game\assets\player\Walk.bmp">
-      <Filter>game\assets\player</Filter>
     </Image>
     <Image Include="game\assets\charsets\def_8.bmp">
       <Filter>game\assets\charsets</Filter>
@@ -156,29 +138,107 @@
     <Image Include="game\assets\charsets\yg_64.bmp">
       <Filter>game\assets\charsets</Filter>
     </Image>
-    <Image Include="game\assets\levels\level1\wheels.bmp">
-      <Filter>game\assets\levels\level1</Filter>
+    <Image Include="game\assets\levels\menu\wheels.bmp">
+      <Filter>game\assets\levels\menu</Filter>
     </Image>
-    <Image Include="game\assets\levels\level1\City1.bmp">
-      <Filter>game\assets\levels\level1</Filter>
+    <Image Include="game\assets\levels\menu\boxes.bmp">
+      <Filter>game\assets\levels\menu</Filter>
     </Image>
-    <Image Include="game\assets\levels\level1\boxes.bmp">
-      <Filter>game\assets\levels\level1</Filter>
+    <Image Include="game\assets\levels\menu\buildings.bmp">
+      <Filter>game\assets\levels\menu</Filter>
     </Image>
-    <Image Include="game\assets\levels\level1\buildings.bmp">
-      <Filter>game\assets\levels\level1</Filter>
+    <Image Include="game\assets\levels\menu\road.bmp">
+      <Filter>game\assets\levels\menu</Filter>
     </Image>
-    <Image Include="game\assets\levels\level1\road.bmp">
-      <Filter>game\assets\levels\level1</Filter>
+    <Image Include="game\assets\levels\menu\sky.bmp">
+      <Filter>game\assets\levels\menu</Filter>
     </Image>
-    <Image Include="game\assets\levels\level1\sky.bmp">
-      <Filter>game\assets\levels\level1</Filter>
+    <Image Include="game\assets\levels\menu\wall2.bmp">
+      <Filter>game\assets\levels\menu</Filter>
     </Image>
-    <Image Include="game\assets\levels\level1\wall2.bmp">
-      <Filter>game\assets\levels\level1</Filter>
+    <Image Include="game\assets\levels\menu\wall1.bmp">
+      <Filter>game\assets\levels\menu</Filter>
     </Image>
-    <Image Include="game\assets\levels\level1\wall1.bmp">
-      <Filter>game\assets\levels\level1</Filter>
+    <Image Include="game\assets\player\ply_walk.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\ply_attack1.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\ply_attack3.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\ply_dead.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\ply_hurt.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\ply_idle.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\doyle\doyle_attack1.bmp">
+      <Filter>game\assets\doyle</Filter>
+    </Image>
+    <Image Include="game\assets\doyle\doyle_attack3.bmp">
+      <Filter>game\assets\doyle</Filter>
+    </Image>
+    <Image Include="game\assets\doyle\doyle_dead.bmp">
+      <Filter>game\assets\doyle</Filter>
+    </Image>
+    <Image Include="game\assets\doyle\doyle_hurt.bmp">
+      <Filter>game\assets\doyle</Filter>
+    </Image>
+    <Image Include="game\assets\doyle\doyle_idle.bmp">
+      <Filter>game\assets\doyle</Filter>
+    </Image>
+    <Image Include="game\assets\doyle\doyle_walk.bmp">
+      <Filter>game\assets\doyle</Filter>
+    </Image>
+    <Image Include="game\assets\player\ply_jump.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\doyle\doyle_jump.bmp">
+      <Filter>game\assets\doyle</Filter>
+    </Image>
+    <Image Include="game\assets\player\ply_attack2.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\doyle\doyle_attack2.bmp">
+      <Filter>game\assets\doyle</Filter>
+    </Image>
+    <Image Include="game\assets\autumn\autumn_attack1.bmp">
+      <Filter>game\assets\autumn</Filter>
+    </Image>
+    <Image Include="game\assets\autumn\autumn_attack2.bmp">
+      <Filter>game\assets\autumn</Filter>
+    </Image>
+    <Image Include="game\assets\autumn\autumn_attack3.bmp">
+      <Filter>game\assets\autumn</Filter>
+    </Image>
+    <Image Include="game\assets\autumn\autumn_dead.bmp">
+      <Filter>game\assets\autumn</Filter>
+    </Image>
+    <Image Include="game\assets\autumn\autumn_hurt.bmp">
+      <Filter>game\assets\autumn</Filter>
+    </Image>
+    <Image Include="game\assets\autumn\autumn_idle.bmp">
+      <Filter>game\assets\autumn</Filter>
+    </Image>
+    <Image Include="game\assets\autumn\autumn_jump.bmp">
+      <Filter>game\assets\autumn</Filter>
+    </Image>
+    <Image Include="game\assets\autumn\autumn_walk.bmp">
+      <Filter>game\assets\autumn</Filter>
+    </Image>
+    <Image Include="game\assets\punch.bmp">
+      <Filter>game\assets</Filter>
+    </Image>
+    <Image Include="game\assets\shadow.bmp">
+      <Filter>game\assets</Filter>
+    </Image>
+    <Image Include="game\assets\menu_bg.bmp">
+      <Filter>game\assets</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -206,7 +266,16 @@
     <Filter Include="game\assets\levels">
       <UniqueIdentifier>{146c1078-a0e9-431a-a7ab-a51b322ea257}</UniqueIdentifier>
     </Filter>
-    <Filter Include="game\assets\levels\level1">
+    <Filter Include="game\assets\doyle">
+      <UniqueIdentifier>{bc0491a2-f487-4958-b53d-b57d5a2a39bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\assets\autumn">
+      <UniqueIdentifier>{93b24f3a-8ab3-42fe-b911-2e9fdeb55957}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\scenes">
+      <UniqueIdentifier>{27d3ff2a-3786-4112-b10c-af024d42a443}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\assets\levels\menu">
       <UniqueIdentifier>{cc68c9d4-0ade-4006-8497-8a82bf77eee2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

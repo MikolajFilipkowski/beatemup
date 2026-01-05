@@ -1,13 +1,16 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "game.h"
-
 #include <cstdio>
+
+#define CH_ASSETS "game/assets/charsets/"
 
 Game::Game() : Application() {}
 
 bool Game::onStart(Managers* managers) {
 	mgs = managers;
+
+	mgs->display->setIcon("game/assets/punch.bmp");
 
 	ActionBinding* jump = new ActionBinding(1);
 	(*jump)[0] = { InputType::KEYBOARD, SDL_SCANCODE_SPACE };
@@ -46,14 +49,20 @@ bool Game::onStart(Managers* managers) {
 	mgs->input->addBinding(Action::ACT_X, act_x);
 	mgs->input->addBinding(Action::ACT_Y, act_y);
 
-	mgs->sprite->load("game/assets/charsets/def_8.bmp", RES::CH_8, true);
-	mgs->sprite->load("game/assets/charsets/ps2p_16.bmp", RES::CH_16, true);
-	mgs->sprite->load("game/assets/charsets/thf_32.bmp", RES::CH_32, true);
-	mgs->sprite->load("game/assets/charsets/yg_64.bmp", RES::CH_64, true);
+	mgs->sprite->load(CH_ASSETS "def_8.bmp", RES::CH_8, true);
+	mgs->sprite->load(CH_ASSETS "ps2p_16.bmp", RES::CH_16, true);
+	mgs->sprite->load(CH_ASSETS "thf_32.bmp", RES::CH_32, true);
+	mgs->sprite->load(CH_ASSETS "yg_64.bmp", RES::CH_64, true);
+
+	mgs->sprite->load("game/assets/shadow.bmp", RES::SHADOW);
 
 	LevelScene* level = new LevelScene(mgs);
 	mgs->scene->add(SceneID::LEVEL, level);
-	mgs->scene->load(SceneID::LEVEL);
+	//mgs->scene->load(SceneID::LEVEL);
+
+	MenuScene* menu = new MenuScene(mgs);
+	mgs->scene->add(SceneID::MENU, menu);
+	mgs->scene->load(SceneID::MENU);
 
 	return true;
 }
@@ -74,8 +83,8 @@ void Game::onDraw() {
 	mgs->scene->getCurrentScene()->draw();
 	mgs->ui->draw();
 
-	Dims logDims = mgs->display->getLogDims();
-	mgs->display->drawFilledRect({ 4, 4 }, { logDims.width - 8, 64 }, ColorRGBA::blue(), ColorRGBA::red());
+	/*Dims logDims = mgs->display->getLogDims();
+	mgs->display->drawFilledRect({ 4, 4 }, { (float)logDims.width - 8.0f, 64.0f }, ColorRGBA::blue(), ColorRGBA::red());
 
 	char text[128];
 
@@ -84,7 +93,7 @@ void Game::onDraw() {
 
 
 	sprintf(text, "Esc - wyjscie, F11 - fullscreen");
-	mgs->display->drawString(RES::CH_16, { (float)((logDims.width / 2) - strlen(text) * 16 / 2), 40 }, text, 1.0f);
+	mgs->display->drawString(RES::CH_16, { (float)((logDims.width / 2) - strlen(text) * 16 / 2), 40 }, text, 1.0f);*/
 }
 
 void Game::onDestroy() {

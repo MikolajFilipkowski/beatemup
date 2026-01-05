@@ -20,4 +20,5 @@ public:
 	void handleEvents(SDL_Event& ev);
 	void update(float dt);
 	void draw();
+	void clear();
 };

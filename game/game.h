@@ -3,7 +3,8 @@
 #include "../core/core.h"
 #include "config.h"
 #include "gameObjects/player.h"
-#include "level_scene.h"
+#include "scenes/level_scene.h"
+#include "scenes/menu_scene.h"
 
 class Game : public Application {
 public:

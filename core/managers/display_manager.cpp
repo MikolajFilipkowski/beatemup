@@ -122,6 +122,31 @@ SDL_Texture* DisplayManager::createTexture(SDL_Surface* surface)
 	return SDL_CreateTextureFromSurface(sdlRenderer, surface);
 }
 
+void DisplayManager::setIcon(const char* fileName, ColorRGBA clr)
+{
+	SDL_Surface* icon = SDL_LoadBMP(fileName);
+	if (icon == nullptr) return;
+
+	SDL_LockSurface(icon);
+
+	Uint32* pixels = (Uint32*)icon->pixels;
+	int pixelC = icon->w * icon->h;
+
+	for (int i = 0; i < pixelC; i++) {
+		Uint8 dummy, a;
+		SDL_GetRGBA(pixels[i], icon->format, &dummy, &dummy, &dummy, &a);
+
+		if (a != 0x00) {
+			pixels[i] = SDL_MapRGBA(icon->format, clr.r, clr.g, clr.b, clr.a);
+		}
+	}
+
+	SDL_UnlockSurface(icon);
+
+	SDL_SetWindowIcon(sdlWindow, icon);
+	SDL_FreeSurface(icon);
+}
+
 Camera* DisplayManager::getActiveCamera() const
 {
 	return activeCamera;
@@ -130,6 +155,16 @@ Camera* DisplayManager::getActiveCamera() const
 void DisplayManager::setActiveCamera(Camera* camera)
 {
 	activeCamera = camera;
+}
+
+void DisplayManager::showCursor(bool shown)
+{
+	SDL_ShowCursor((int)shown);
+}
+
+bool DisplayManager::cursorShown() const
+{
+	return (bool)SDL_ShowCursor(-1);
 }
 
 Dims DisplayManager::getScreenDims() const
@@ -267,7 +302,7 @@ void DisplayManager::drawLine(Vector2 start, Vector2 dest, ColorRGBA color)
 	setDrawColor(ColorRGBA::black());
 }
 
-void DisplayManager::drawRect(Vector2 pos, Dims dims, ColorRGBA color, int thickness)
+void DisplayManager::drawRect(Vector2 pos, FDims dims, ColorRGBA color, int thickness)
 {
 	setDrawColor(color);
 
@@ -284,15 +319,15 @@ void DisplayManager::drawRect(Vector2 pos, Dims dims, ColorRGBA color, int thick
 	setDrawColor(ColorRGBA::black());
 }
 
-void DisplayManager::drawFilledRect(Vector2 pos, Dims dims, ColorRGBA fill_color, ColorRGBA outline_color, int thickness)
+void DisplayManager::drawFilledRect(Vector2 pos, FDims dims, ColorRGBA fill_color, ColorRGBA outline_color, int thickness)
 {
 	setDrawColor(fill_color);
 
 	SDL_FRect fill_rect = { 
 		pos.x,
 		pos.y,
-		(float)dims.width,
-		(float)dims.height
+		dims.width,
+		dims.height
 	};
 
 	SDL_RenderFillRectF(sdlRenderer, &fill_rect);
@@ -300,7 +335,7 @@ void DisplayManager::drawFilledRect(Vector2 pos, Dims dims, ColorRGBA fill_color
 	drawRect(pos, dims, outline_color, thickness);
 }
 
-void DisplayManager::drawString(int charset_key, Vector2 pos, const char* text, float scale, float spacing)
+void DisplayManager::drawString(int charset_key, Vector2 pos, const char* text, float scale, float spacing, FDims maxSize, ColorRGBA clr)
 {
 	Sprite* sprite = mgs->sprite->get(charset_key);
 	if (sprite == nullptr) return;
@@ -308,27 +343,51 @@ void DisplayManager::drawString(int charset_key, Vector2 pos, const char* text, 
 	int charW = sprite->width / 16;
 	int charH = sprite->height / 16;
 
-	int px, py, ch;
+	SDL_SetTextureColorMod(sprite->texture, clr.r, clr.g, clr.b);
+	SDL_SetTextureAlphaMod(sprite->texture, clr.a);
+
+	int ch;
 	SDL_Rect src;
 	SDL_FRect dest;
 	src.w = charW;
 	src.h = charH;
 
+	Vector2 starting_pos = pos;
+
 	dest.w = charW * scale;
 	dest.h = charH * scale;
 
+	float advX = dest.w * spacing;
+
 	while (*text) {
 		ch = *text & 255;
-		px = (ch % 16) * charW;
-		py = (ch / 16) * charH;
-		src.x = px;
-		src.y = py;
-		dest.x = pos.x * scale;
-		dest.y = pos.y * scale;
+
+		if (ch == '\n') {
+			pos.x = starting_pos.x;
+			pos.y += (float)charH * scale;
+			text++;
+			continue;
+		}
+
+		src.x = (ch % 16) * charW;
+		src.y = (ch / 16) * charH;
+		dest.x = pos.x;
+		dest.y = pos.y;
+
+		if (maxSize.width != 0 && maxSize.height != 0) {
+			if ((charW * spacing + pos.x > maxSize.width + starting_pos.x)
+				|| (charH * spacing + pos.y > maxSize.height + starting_pos.y)
+				) {
+				break;
+			}
+		}
 
 		SDL_RenderCopyF(sdlRenderer, sprite->texture, &src, &dest);
 
-		pos.x += charW * spacing;
+		pos.x += advX;
 		text++;
 	};
+
+	SDL_SetTextureColorMod(sprite->texture, 0xFF, 0xFF, 0xFF);
+	SDL_SetTextureAlphaMod(sprite->texture, 0xFF);
 }

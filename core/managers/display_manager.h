@@ -33,8 +33,13 @@ public:
 	SDL_Renderer* getSDL_Renderer();
 	SDL_Texture* createTexture(SDL_Surface* surface);
 
+	void setIcon(const char* fileName, ColorRGBA clr = ColorRGBA::black());
+
 	Camera* getActiveCamera() const;
 	void setActiveCamera(Camera* camera);
+
+	void showCursor(bool shown);
+	bool cursorShown() const;
 
 	Dims getScreenDims() const;
 	Dims getLogDims() const;
@@ -55,7 +60,8 @@ public:
 	void drawSprite(int sprite_key, Transform tr);
 	void drawAnimFrame(int anim_key, int frameIdx, Transform tr);
 	void drawLine(Vector2 start, Vector2 dest, ColorRGBA color);
-	void drawRect(Vector2 pos, Dims dims, ColorRGBA color, int thickness = 1);
-	void drawFilledRect(Vector2 pos, Dims dims, ColorRGBA fill_color, ColorRGBA outline_color, int thickness = 1);
-	void drawString(int charset_key, Vector2 pos, const char* text, float scale = 1.0f, float spacing = 1.0f);
+	void drawRect(Vector2 pos, FDims dims, ColorRGBA color, int thickness = 1);
+	void drawFilledRect(Vector2 pos, FDims dims, ColorRGBA fill_color, ColorRGBA outline_color, int thickness = 1);
+	void drawString(int charset_key, Vector2 pos, const char* text, float scale = 1.0f, 
+		float spacing = 1.0f, FDims maxSize = { 0,0 }, ColorRGBA clr = ColorRGBA::white());
 };

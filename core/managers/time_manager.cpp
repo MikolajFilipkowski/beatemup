@@ -55,3 +55,37 @@ bool TimeManager::step()
 	}
 	return false;
 }
+
+float TimeManager::getDt() const
+{
+	return dt;
+}
+
+float TimeManager::getFixedDt() const
+{
+	return fixedDt;
+}
+
+float TimeManager::getFPS() const {
+	return fps;
+}
+
+float TimeManager::getWorldTime() const
+{
+	return worldTime;
+}
+
+void TimeManager::setWorldTime(float wt)
+{
+	worldTime = wt;
+}
+
+float TimeManager::getAccum() const
+{
+	return accumulator;
+}
+
+float TimeManager::getIFactor() const
+{
+	return clamp(accumulator / fixedDt, 0.0f, 1.0f);
+}

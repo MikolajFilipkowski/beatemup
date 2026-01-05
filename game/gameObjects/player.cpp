@@ -1,8 +1,10 @@
 #include "player.h"
 #include <cstdio>
 
-Player::Player(Managers* mgs, Camera* cam, Transform tr) 
-	: AnimatableObject(mgs, tr), plyCam(cam), jumpRequested(false), 
+#define PLY_ASSETS "game/assets/player/"
+
+Player::Player(Managers* mgs, Transform tr) 
+	: AnimatableObject(mgs, tr), jumpRequested(false), 
 	isGrounded(true), isAttacking(false), attackTimer(0.0f) {}
 
 Player::~Player()
@@ -11,23 +13,23 @@ Player::~Player()
 
 void Player::start()
 {
-	mgs->sprite->load("game/assets/player/Idle.bmp", RES::PLY_IDLE);
-	mgs->anim->createFromSheet(RES::PLY_IDLE, RES::PLY_IDLE, 6, 0.2f);
+	mgs->sprite->load(PLY_ASSETS "ply_idle.bmp", RES::PLY_IDLE);
+	mgs->anim->createFromSheet(RES::PLY_IDLE, RES::PLY_IDLE, 7, 0.1f);
 
-	mgs->sprite->load("game/assets/player/Run.bmp", RES::PLY_RUN);
-	mgs->anim->createFromSheet(RES::PLY_RUN, RES::PLY_RUN, 8, 0.05f);
+	mgs->sprite->load(PLY_ASSETS "ply_walk.bmp", RES::PLY_WALK);
+	mgs->anim->createFromSheet(RES::PLY_WALK, RES::PLY_WALK, 13, 0.1f);
 
-	mgs->sprite->load("game/assets/player/Walk.bmp", RES::PLY_WALK);
-	mgs->anim->createFromSheet(RES::PLY_WALK, RES::PLY_WALK, 8, 0.3f);
+	mgs->sprite->load(PLY_ASSETS "ply_jump.bmp", RES::PLY_JUMP);
+	mgs->anim->createFromSheet(RES::PLY_JUMP, RES::PLY_JUMP, 13, 0.06f);
 
-	mgs->sprite->load("game/assets/player/Jump.bmp", RES::PLY_JUMP);
-	mgs->anim->createFromSheet(RES::PLY_JUMP, RES::PLY_JUMP, 10, 0.05f);
+	mgs->sprite->load(PLY_ASSETS "ply_attack1.bmp", RES::PLY_ATTACK_1);
+	mgs->anim->createFromSheet(RES::PLY_ATTACK_1, RES::PLY_ATTACK_1, 12, 0.03f);
 
-	mgs->sprite->load("game/assets/player/Attack_1.bmp", RES::PLY_ATTACK_1);
-	mgs->anim->createFromSheet(RES::PLY_ATTACK_1, RES::PLY_ATTACK_1, 4, 0.07f);
+	mgs->sprite->load(PLY_ASSETS "ply_attack2.bmp", RES::PLY_ATTACK_2);
+	mgs->anim->createFromSheet(RES::PLY_ATTACK_2, RES::PLY_ATTACK_2, 14, 0.03f);
 
-	mgs->sprite->load("game/assets/player/Attack_2.bmp", RES::PLY_ATTACK_2);
-	mgs->anim->createFromSheet(RES::PLY_ATTACK_2, RES::PLY_ATTACK_2, 3, 0.05f);
+	mgs->sprite->load(PLY_ASSETS "ply_attack3.bmp", RES::PLY_ATTACK_3);
+	mgs->anim->createFromSheet(RES::PLY_ATTACK_3, RES::PLY_ATTACK_3, 11, 0.03f);
 
 	setAnim(RES::PLY_IDLE);
 }
@@ -35,6 +37,9 @@ void Player::start()
 void Player::update(float dt)
 {
 	Vector3& pos = transform.pos;
+	pos = getIPos();
+
+	//printf("%.2f %.2f %.2f\n", pos.x, pos.y, pos.z);
 
 	if (isAttacking) {
 		attackTimer -= dt;
@@ -51,19 +56,7 @@ void Player::update(float dt)
 	if (mgs->input->getAction(Action::RIGHT)) {
 		transform.flip = NO_FLIP;
 	}
-
-	if (mgs->input->getAction(Action::LEFT)) {
-		pos.x -= 700 * dt;
-	}
-	if (mgs->input->getAction(Action::RIGHT)) {
-		pos.x += 700 * dt;
-	}
-	if (mgs->input->getAction(Action::UP)) {
-		pos.z = clamp(pos.z - (300 * dt), 250.0f, 350.0f);
-	}
-	if (mgs->input->getAction(Action::DOWN)) {
-		pos.z = clamp(pos.z + (300 * dt), 250.0f, 350.0f);
-	}
+	
 	if (mgs->input->getAction(Action::JUMP) && isGrounded) {
 		jumpRequested = true;
 	}
@@ -87,7 +80,7 @@ void Player::update(float dt)
 	if (!isAttacking) {
 		if (isGrounded) {
 			if (isMoving) {
-				setAnim(RES::PLY_RUN);
+				setAnim(RES::PLY_WALK);
 			}
 			else if (isWalking) {
 				setAnim(RES::PLY_WALK);
@@ -100,27 +93,37 @@ void Player::update(float dt)
 			setAnim(RES::PLY_JUMP);
 		}
 	}
-	
-	plyCam->setPosition({ pos.x, 0, 500.0f });
 
 	updateAnim(dt);
 }
 
 void Player::fixedUpdate(float fixed_dt)
 {
-	Vector3& pos = transform.pos;
+	rb.prevPos = rb.currPos;
+	Vector3& pos = rb.currPos;
+
+	if (mgs->input->getAction(Action::LEFT)) {
+		pos.x -= 6;
+	}
+	if (mgs->input->getAction(Action::RIGHT)) {
+		pos.x += 6;
+	}
+	if (mgs->input->getAction(Action::UP)) {
+		pos.z = clamp(pos.z - 3, 280.0f, 400.0f);
+	}
+	if (mgs->input->getAction(Action::DOWN)) {
+		pos.z = clamp(pos.z + 3, 280.0f, 400.0f);
+	}
 
 	if (jumpRequested && isGrounded) {
-		rb.vel.y = -600.0f;
+		rb.vel.y = -2000.0f;
 		jumpRequested = false;
 		isGrounded = false;
 	}
 
 	if (!isGrounded) {
-		rb.vel.y += 20.0f;
+		rb.vel.y += 50.0f;
 	}
-
-	printf("%.2f %.2f %.2f\n", pos.x, pos.y, pos.z);
 
 	pos.x += rb.vel.x * fixed_dt;
 	pos.y += rb.vel.y * fixed_dt;
@@ -135,5 +138,7 @@ void Player::fixedUpdate(float fixed_dt)
 
 void Player::draw()
 {
+	float ply_w = (float)mgs->anim->get(currentAnimKey)->frames[currentAnimFrame].w;
+	drawShadow(RES::SHADOW, ply_w, { 96, 32 });
 	mgs->display->drawAnimFrame(currentAnimKey, currentAnimFrame, transform);
 }
