@@ -46,6 +46,14 @@ void MenuScene::start()
 		t_color
 	};
 
+	Font input_font = {
+		RES::CH_16,
+		16,
+		2.0f,
+		1.0f,
+		t_color
+	};
+
 	const float ch_size = t_font.chSize * t_font.scale;
 
 	const char* t_text = "Beat 'em up";
@@ -71,29 +79,70 @@ void MenuScene::start()
 
 
 	auto onClick = [](SDL_Event& ev, UIButton* button, Managers* mgs) -> void {
-		mgs->scene->load(SceneID::LEVEL);
+		mgs->scene->load(SceneID::LEVEL, false);
 	};
+
+	auto exit = [](SDL_Event& ev, UIButton* button, Managers* mgs) -> void {
+		mgs->engine->stop();
+		};
 
 	UIButton* btn_1 = new UIButton(
 		mgs,
 		{ d.width * .35f, d.height * .45f },
-		{ d.width * .3f, 56 },
+		{ d.width * .3f, MENU_BTN_H },
 		t_font,
 		onClick
 	);
 
+	UIButton* btn_2 = new UIButton(
+		mgs,
+		{ d.width * .35f, d.height * .45f  + MENU_BTN_H + MENU_BTN_GAP},
+		{ d.width * .3f, MENU_BTN_H },
+		t_font
+	);
+
+	UIButton* btn_3 = new UIButton(
+		mgs,
+		{ d.width * .35f, d.height * .45f + 2 * MENU_BTN_H + 2 * MENU_BTN_GAP },
+		{ d.width * .3f, MENU_BTN_H },
+		t_font,
+		exit
+	);
+
+	UITextInput* txt_input = new UITextInput(
+		mgs,
+		{ d.width * .35f, d.height * .45f - MENU_BTN_H - MENU_BTN_GAP },
+		{ d.width * .3f, MENU_BTN_H },
+		input_font,
+		10,
+		{25, 0}
+	);
+
+	txt_input->setBackground(ColorRGBA::white());
+	txt_input->setBorder(ColorRGBA::black(), 3);
+	txt_input->setPlaceholder("Pseudonim", { 0x77, 0x77, 0x77, 0xFF });
+
 	btn_1->setBackground(ColorRGBA::blue());
 	btn_1->setBorder(ColorRGBA::black(), 3);
-	btn_1->setText("Przycisk");
+	btn_1->setText("Graj");
 
-	btn_1->setFocused(true);
+	btn_2->setBackground(ColorRGBA::blue());
+	btn_2->setBorder(ColorRGBA::black(), 3);
+	btn_2->setText("Wyniki");
+
+	btn_3->setBackground(ColorRGBA::blue());
+	btn_3->setBorder(ColorRGBA::black(), 3);
+	btn_3->setText("Wyjscie");
 
 	menu->setBackground({0x66, 0xAA, 0x66, 0xFF});
 	menu->setBorder({0x0F, 0x0F, 0x0F, 0xFF}, 8);
 
 	menu->addElement((UIElement*)punch);
 	menu->addElement((UIElement*)title);
+	menu->addElement((UIElement*)txt_input);
 	menu->addElement((UIElement*)btn_1);
+	menu->addElement((UIElement*)btn_2);
+	menu->addElement((UIElement*)btn_3);
 
 	mgs->ui->add((UIElement*)menu);
 

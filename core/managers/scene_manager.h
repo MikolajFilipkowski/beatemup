@@ -12,13 +12,15 @@ class SceneManager : private Manager {
 private:
 	Map<int, Scene*> scenes;
 	Scene* currentScene;
+	int nextSceneIdx;
 
-	SceneManager(Managers* managers) : Manager(managers), currentScene(nullptr) {}
+	SceneManager(Managers* managers) : Manager(managers), currentScene(nullptr), nextSceneIdx(0) {}
 	~SceneManager() override;
 	void destroy() override;
+	void changeScene();
 public:
 	void add(int idx, Scene* scene);
-	void load(int idx);
+	void load(int idx, bool instant = false);
 	Scene* getCurrentScene();
 
 	void update(float dt);

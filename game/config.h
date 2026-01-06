@@ -9,6 +9,9 @@ constexpr float IC_SIZE = 50.0f;
 constexpr float IC_OFF_X = -64.0f;
 constexpr float IC_OFF_Y = 8.0f;
 
+constexpr float MENU_BTN_H = 56.0f;
+constexpr float MENU_BTN_GAP = 8.0f;
+
 // Dziala podobnie do enum class, ale automatycznie rzutuje na inta
 
 namespace RES {

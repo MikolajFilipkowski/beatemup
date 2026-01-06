@@ -109,10 +109,10 @@ void Player::fixedUpdate(float fixed_dt)
 		pos.x += 6;
 	}
 	if (mgs->input->getAction(Action::UP)) {
-		pos.z = clamp(pos.z - 3, 280.0f, 400.0f);
+		pos.z = clamp(pos.z - 3, 220.0f, 400.0f);
 	}
 	if (mgs->input->getAction(Action::DOWN)) {
-		pos.z = clamp(pos.z + 3, 280.0f, 400.0f);
+		pos.z = clamp(pos.z + 3, 220.0f, 400.0f);
 	}
 
 	if (jumpRequested && isGrounded) {

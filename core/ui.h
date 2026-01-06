@@ -16,6 +16,7 @@ protected:
 	FDims size;
 	bool active;
 	bool focused;
+	bool focusable;
 	Managers* mgs;
 public:
 	UIElement(Managers* mgs, Vector2 position, FDims size);
@@ -33,7 +34,10 @@ public:
 	bool isActive() const { return active; }
 	void setActive(bool ac) { active = ac; }
 	bool isFocused() const { return focused; }
-	void setFocused(bool fc) { focused = fc; }
+	virtual void setFocused(bool fc);
+
+	bool isFocusable() const { return focusable; }
+	void setFocusable(bool fc) { focusable = fc; }
 
 	bool isMouseOver(Vector2 mousePos);
 };
@@ -41,37 +45,52 @@ public:
 class UITextElement : public UIElement {
 protected:
 	char buffer[MAX_TEXTSIZE];
-	int charCount;
 	int maxCharCount;
 	Font font;
+	ColorRGBA plholder_clr;
+	char* plholder_txt;
 public:
 	UITextElement(Managers* mgs, Vector2 position, FDims size, Font font, int maxChars = 255);
 	void setText(const char* text);
 	char* getText() const;
 	void setFont(Font font);
 	Font getFont() const;
-	virtual void draw() override;
-};
 
-class UITextInput : public UITextElement {
-public:
-	UITextInput(Managers* mgs, Vector2 position, FDims size, Font font, int maxChars = 255);
+	int getCharCount() const;
+	int getMaxCharCount() const;
+
+	void setPlaceholder(const char* text, ColorRGBA clr);
+
+	void centerPos(Vector2 parent_pos, FDims parent_size);
+	void leftPos(Vector2 parent_pos, FDims parent_size);
+
 	virtual void draw() override;
-	virtual void handleEvents(SDL_Event& ev) override;
 };
 
 class UIContainer : public UIElement {
 protected:
 	ArrayList<UIElement*> array;
+	int focusedElement;
 	
 public:
-	UIContainer(Managers* mgs, Vector2 position, FDims size) : UIElement(mgs, position, size) {}
+	UIContainer(Managers* mgs, Vector2 position, FDims size) : UIElement(mgs, position, size), focusedElement(-1) {}
 	virtual ~UIContainer();
 	void addElement(UIElement* el);
+	void setFocusedElement(int idx);
+	int getFocusedElement() const;
+
+	int getElementCount() const;
+	int getFocusableCount() const;
 
 	virtual void update(float dt) override;
 	virtual void draw() override;
 	virtual void handleEvents(SDL_Event& ev) override;
+
+	void detectScroll(SDL_Event& ev);
+	virtual void onScrollEv(int y);
+
+	void detectHover(SDL_Event& ev);
+	virtual void onHoverEv(int elIdx);
 };
 
 class UIBackgroundContainer : public UIContainer {
@@ -119,9 +138,19 @@ public:
 	virtual void handleEvents(SDL_Event& ev) override;
 	virtual void update(float dt) override;
 	virtual void draw() override;
-	virtual void changeText();
 	virtual void setText(const char* text);
 	
 	bool isPressed() const;
 	bool isHovered() const;
+};
+
+class UITextInput : public UISpriteBackgroundContainer {
+protected:
+	UITextElement txt_el;
+public:
+	UITextInput(Managers* mgs, Vector2 position, FDims size, Font font, int maxChars = 255, Vector2 padding = {0,0});
+	virtual void draw() override;
+	virtual void handleEvents(SDL_Event& ev) override;
+	void setPlaceholder(const char* text, ColorRGBA clr);
+	virtual void setFocused(bool fc) override;
 };

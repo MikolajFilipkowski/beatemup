@@ -337,6 +337,8 @@ void DisplayManager::drawFilledRect(Vector2 pos, FDims dims, ColorRGBA fill_colo
 
 void DisplayManager::drawString(int charset_key, Vector2 pos, const char* text, float scale, float spacing, FDims maxSize, ColorRGBA clr)
 {
+	if (text == nullptr || *text == '\0') return;
+
 	Sprite* sprite = mgs->sprite->get(charset_key);
 	if (sprite == nullptr) return;
 

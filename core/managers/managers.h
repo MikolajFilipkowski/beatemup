@@ -19,17 +19,6 @@ class Managers {
 private:
 	Manager** array[MGS_LEN];
 	int arrLen;
-public:
-	DisplayManager* display = nullptr;
-	SpriteManager* sprite = nullptr;
-	ObjectManager* object = nullptr;
-	TimeManager* time = nullptr;
-	InputManager* input = nullptr;
-	AnimationManager* anim = nullptr;
-	SceneManager* scene = nullptr;
-	UIManager* ui = nullptr;
-
-	Engine* engine = nullptr;
 
 	Managers() :
 		arrLen(MGS_LEN)
@@ -43,4 +32,15 @@ public:
 		array[6] = (Manager**)&scene;
 		array[7] = (Manager**)&ui;
 	}
+public:
+	DisplayManager* display = nullptr;
+	SpriteManager* sprite = nullptr;
+	ObjectManager* object = nullptr;
+	TimeManager* time = nullptr;
+	InputManager* input = nullptr;
+	AnimationManager* anim = nullptr;
+	SceneManager* scene = nullptr;
+	UIManager* ui = nullptr;
+
+	Engine* engine = nullptr;
 };

@@ -62,7 +62,7 @@ bool Game::onStart(Managers* managers) {
 
 	MenuScene* menu = new MenuScene(mgs);
 	mgs->scene->add(SceneID::MENU, menu);
-	mgs->scene->load(SceneID::MENU);
+	mgs->scene->load(SceneID::MENU, true);
 
 	return true;
 }
@@ -71,16 +71,16 @@ void Game::onUpdate(float dt) {
 	Rect vp = mgs->display->getActiveCamera()->getViewport();
 	//printf("%.2f %.2f : %.2f %.2f\n", vp.x, vp.y, vp.x + vp.w, vp.y + vp.h);
 
-	mgs->scene->getCurrentScene()->update(dt);
+	mgs->scene->update(dt);
 	mgs->ui->update(dt);
 }
 
 void Game::onFixedUpdate(float fixed_dt) {
-	mgs->scene->getCurrentScene()->fixedUpdate(fixed_dt);
+	mgs->scene->fixedUpdate(fixed_dt);
 }
 
 void Game::onDraw() {
-	mgs->scene->getCurrentScene()->draw();
+	mgs->scene->draw();
 	mgs->ui->draw();
 
 	/*Dims logDims = mgs->display->getLogDims();

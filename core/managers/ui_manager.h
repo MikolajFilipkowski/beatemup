@@ -21,4 +21,7 @@ public:
 	void update(float dt);
 	void draw();
 	void clear();
+
+	ColorRGBA calcPulse(ColorRGBA clr);
+	ColorRGBA calcAlphaPulse(ColorRGBA clr);
 };

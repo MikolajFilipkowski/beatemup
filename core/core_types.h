@@ -18,7 +18,9 @@ constexpr float FPS_INTERVAL = 1.0f;
 constexpr int MAX_TEXTSIZE = 256;
 constexpr float BTN_PR_DUR = .15f;
 constexpr int BTN_FC_BRD = 60;
-constexpr float BTN_PULSE_SPD = 2.5;
+constexpr float PULSE_SPD = 3.0f;
+constexpr int PULSE_CHANGE = 60;
+constexpr int PULSE_ALPHA_CHANGE = 60;
 
 class Managers;
 
