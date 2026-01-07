@@ -25,6 +25,11 @@ private:
 
 	Vector2 worldToScreen(Vector3 worldPos) const;
 	SDL_FRect worldToRect(Vector3 worldPos, FDims dims) const;
+
+	void drawStringOutline(Vector2 pos, const char* text, const Font& font, const Sprite*& sprite, FDims maxSize);
+	void drawOutline(const Vector2& pos, const SDL_Rect& src, SDL_FRect& dest, const Outline& ol, SDL_Texture* tx);
+	bool checkStringBounds(const FDims& maxSize, const Vector2& starting_pos, 
+		const Font& font, const Vector2& pos, const Dims& charDims);
 public:
 	bool init(const char* title, Dims winDims, Dims logicalDims = {}, bool fullscreen = false);
 	void present();
@@ -62,6 +67,5 @@ public:
 	void drawLine(Vector2 start, Vector2 dest, ColorRGBA color);
 	void drawRect(Vector2 pos, FDims dims, ColorRGBA color, int thickness = 1);
 	void drawFilledRect(Vector2 pos, FDims dims, ColorRGBA fill_color, ColorRGBA outline_color, int thickness = 1);
-	void drawString(int charset_key, Vector2 pos, const char* text, float scale = 1.0f, 
-		float spacing = 1.0f, FDims maxSize = { 0,0 }, ColorRGBA clr = ColorRGBA::white());
+	void drawString(int charset_key, Vector2 pos, const char* text, const Font& font, FDims maxSize = { 0,0 });
 };

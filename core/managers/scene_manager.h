@@ -12,9 +12,11 @@ class SceneManager : private Manager {
 private:
 	Map<int, Scene*> scenes;
 	Scene* currentScene;
+	int currSceneIdx;
 	int nextSceneIdx;
 
-	SceneManager(Managers* managers) : Manager(managers), currentScene(nullptr), nextSceneIdx(0) {}
+	SceneManager(Managers* managers) 
+		: Manager(managers), currentScene(nullptr), nextSceneIdx(0), currSceneIdx(0) {}
 	~SceneManager() override;
 	void destroy() override;
 	void changeScene();
@@ -22,6 +24,7 @@ public:
 	void add(int idx, Scene* scene);
 	void load(int idx, bool instant = false);
 	Scene* getCurrentScene();
+	int getCurrentSceneIdx() const;
 
 	void update(float dt);
 	void fixedUpdate(float fixed_dt);

@@ -231,7 +231,7 @@
     <Image Include="game\assets\autumn\autumn_walk.bmp">
       <Filter>game\assets\autumn</Filter>
     </Image>
-    <Image Include="game\assets\punch.bmp">
+    <Image Include="game\assets\punch_icon.bmp">
       <Filter>game\assets</Filter>
     </Image>
     <Image Include="game\assets\shadow.bmp">
@@ -239,6 +239,21 @@
     </Image>
     <Image Include="game\assets\menu_bg.bmp">
       <Filter>game\assets</Filter>
+    </Image>
+    <Image Include="game\assets\ui\big_frame.bmp">
+      <Filter>game\assets\ui</Filter>
+    </Image>
+    <Image Include="game\assets\ui\button.bmp">
+      <Filter>game\assets\ui</Filter>
+    </Image>
+    <Image Include="game\assets\ui\punch.bmp">
+      <Filter>game\assets\ui</Filter>
+    </Image>
+    <Image Include="game\assets\ui\small_frame.bmp">
+      <Filter>game\assets\ui</Filter>
+    </Image>
+    <Image Include="game\assets\ui\text_input.bmp">
+      <Filter>game\assets\ui</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
@@ -277,6 +292,9 @@
     </Filter>
     <Filter Include="game\assets\levels\menu">
       <UniqueIdentifier>{cc68c9d4-0ade-4006-8497-8a82bf77eee2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\assets\ui">
+      <UniqueIdentifier>{ee6d2c7e-ebf2-4e4e-ab5c-5c1f9e217ca3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

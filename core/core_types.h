@@ -21,6 +21,9 @@ constexpr int BTN_FC_BRD = 60;
 constexpr float PULSE_SPD = 3.0f;
 constexpr int PULSE_CHANGE = 60;
 constexpr int PULSE_ALPHA_CHANGE = 60;
+constexpr float TEXT_CUR_BLINK_SPD = 7.0f;
+constexpr float TEXT_CUR_SCALE = .1f;
+constexpr float TEXT_CUR_PAD_LEFT = 5.0f;
 
 class Managers;
 
@@ -29,22 +32,6 @@ typedef SDL_RendererFlip Flip;
 constexpr SDL_RendererFlip NO_FLIP = SDL_FLIP_NONE;
 constexpr SDL_RendererFlip H_FLIP = SDL_FLIP_HORIZONTAL;
 constexpr SDL_RendererFlip V_FLIP = SDL_FLIP_VERTICAL;
-
-struct Dims {
-	int width, height;
-};
-
-struct FDims {
-	float width, height;
-
-	operator Dims() const {
-		return {(int)width, (int)height};
-	}
-};
-
-struct DimsF {
-	float width, height;
-};
 
 struct Vector2 {
 	float x, y;
@@ -155,6 +142,42 @@ struct Vector3 {
 	}
 };
 
+struct Dims {
+	int width, height;
+};
+
+struct FDims {
+	float width, height;
+
+	operator Dims() const {
+		return { (int)width, (int)height };
+	}
+
+	FDims operator+(const Vector2& vec) const {
+		return { width + vec.x, height + vec.y };
+	}
+
+	FDims& operator+=(const Vector2& vec) {
+		width += vec.x;
+		height += vec.y;
+		return *this;
+	}
+
+	FDims operator-(const Vector2& vec) const {
+		return { width - vec.x, height - vec.y };
+	}
+
+	FDims& operator-=(const Vector2& vec) {
+		width -= vec.x;
+		height -= vec.y;
+		return *this;
+	}
+};
+
+struct DimsF {
+	float width, height;
+};
+
 struct Transform {
 	Vector3 pos;
 	double rotation;
@@ -248,6 +271,34 @@ struct AnimationClip {
 	SDL_Rect* frames;
 	int frameCount;
 	float frameDuration;
+};
+
+struct Outline {
+	ColorRGBA color;
+	float size;
+
+	Outline() : color(ColorRGBA::transparent()), size(0.0f) {}
+	Outline(ColorRGBA color, float size) : color(color), size(size) {}
+};
+
+struct Font {
+	int key;
+	int chSize;
+	float scale;
+	float spacing;
+	ColorRGBA color;
+	Outline outline;
+	float baseline;
+
+	Font() : key(0), chSize(0), scale(0), 
+		spacing(0), color(ColorRGBA::black()), outline(Outline()), baseline(0) {}
+
+	Font(int key, int chSize, float scale, float spacing, ColorRGBA color, Outline outline, float baseline) 
+		: key(key), chSize(chSize), scale(scale),spacing(spacing), color(color), outline(outline), baseline(baseline) {}
+
+	Font(int key, int chSize, float scale, float spacing, ColorRGBA color)
+		: key(key), chSize(chSize), scale(scale), spacing(spacing), color(color), outline(Outline()), baseline(0) {
+	}
 };
 
 struct Rigidbody {

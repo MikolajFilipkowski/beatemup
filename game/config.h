@@ -7,7 +7,7 @@ constexpr float CAMERA_THR = .25f;
 
 constexpr float IC_SIZE = 50.0f;
 constexpr float IC_OFF_X = -64.0f;
-constexpr float IC_OFF_Y = 8.0f;
+constexpr float IC_OFF_Y = 0.0f;
 
 constexpr float MENU_BTN_H = 56.0f;
 constexpr float MENU_BTN_GAP = 8.0f;
@@ -22,7 +22,11 @@ namespace RES {
 		CH_32,
 		CH_64,
 		SHADOW,
-		PUNCH_ICON,
+		PUNCH,
+		UI_BIG_FRAME,
+		UI_SMALL_FRAME,
+		UI_BUTTON,
+		UI_TEXT_INPUT,
 		MENU_BOXES,
 		MENU_WHEELS,
 		MENU_BUILDINGS,

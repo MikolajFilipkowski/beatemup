@@ -76,8 +76,13 @@
     <Image Include="game\assets\player\ply_jump.bmp" />
     <Image Include="game\assets\player\ply_walk.bmp" />
     <Image Include="game\assets\player\ply_attack2.bmp" />
-    <Image Include="game\assets\punch.bmp" />
+    <Image Include="game\assets\punch_icon.bmp" />
     <Image Include="game\assets\shadow.bmp" />
+    <Image Include="game\assets\ui\big_frame.bmp" />
+    <Image Include="game\assets\ui\button.bmp" />
+    <Image Include="game\assets\ui\punch.bmp" />
+    <Image Include="game\assets\ui\small_frame.bmp" />
+    <Image Include="game\assets\ui\text_input.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\application.h" />
@@ -130,7 +135,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v145</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -191,7 +196,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

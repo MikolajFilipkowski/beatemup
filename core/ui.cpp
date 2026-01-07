@@ -20,7 +20,7 @@ bool UIElement::isMouseOver(Vector2 mousePos)
 }
 
 UITextElement::UITextElement(Managers* mgs, Vector2 position, FDims size, Font font, int maxChars)
-	: UIElement(mgs, position, size), font(font), plholder_clr(font.color), plholder_txt(nullptr)
+	: UIElement(mgs, position, size), font(font), plholder_txt(nullptr), pl_font(font)
 {
 	maxCharCount = (maxChars >= MAX_TEXTSIZE) ? MAX_TEXTSIZE - 1 : maxChars;
 	memset(buffer, 0, MAX_TEXTSIZE);
@@ -59,7 +59,7 @@ int UITextElement::getMaxCharCount() const
 void UITextElement::setPlaceholder(const char* text, ColorRGBA clr)
 {
 	plholder_txt = copy_string(text);
-	plholder_clr = clr;
+	pl_font = { font.key, font.chSize, font.scale, font.spacing, clr, font.outline, font.baseline };
 }
 
 void UITextElement::centerPos(Vector2 parent_pos, FDims parent_size)
@@ -69,11 +69,11 @@ void UITextElement::centerPos(Vector2 parent_pos, FDims parent_size)
 	const float h = font.chSize * font.scale;
 	const float w = len * h * font.spacing;
 
-	const float mid_x = (2 * parent_pos.x + parent_size.width) / 2.0f;
-	const float mid_y = (2 * parent_pos.y + parent_size.height) / 2.0f;
+	const float mid_x = parent_pos.x + (parent_size.width / 2.0f);
+	const float mid_y = parent_pos.y + (parent_size.height / 2.0f);
 
-	const float x = mid_x - (w / 2);
-	const float y = mid_y - font.chSize;
+	const float x = mid_x - (w / 2.0f);
+	const float y = mid_y - h/2;
 
 	setSize({ w,h });
 	setPosition({ x,y });
@@ -98,19 +98,29 @@ void UITextElement::leftPos(Vector2 parent_pos, FDims parent_size)
 void UITextElement::draw()
 {
 	if (getCharCount() == 0 && !focused) {
-		mgs->display->drawString(font.key, pos, plholder_txt, font.scale, font.spacing, size, plholder_clr);
+		mgs->display->drawString(font.key, pos, plholder_txt, pl_font, size);
+
 		return;
 	}
 
-	float wt = mgs->time->getWorldTime();
-	char tempBuffer[MAX_TEXTSIZE];
-	strcpy_s(tempBuffer, MAX_TEXTSIZE, buffer);
+	//mgs->display->drawRect(pos, size, ColorRGBA::red(), 2);
 
-	if (focused && sinf(wt * 7.0f) > 0) {
-		strcat_s(tempBuffer, MAX_TEXTSIZE, "|");
+	float wt = mgs->time->getWorldTime();
+
+	if (focused && sinf(wt * TEXT_CUR_BLINK_SPD) > 0) {
+		const float h = font.chSize * font.scale;
+		const float w = getCharCount() * h * font.spacing;
+		
+		mgs->display->drawFilledRect(
+			{ pos.x + w + TEXT_CUR_PAD_LEFT, pos.y - font.baseline },
+			{ font.chSize * font.scale * TEXT_CUR_SCALE, size.height },
+			font.color,
+			ColorRGBA::black(),
+			0
+		);
 	}
 
-	mgs->display->drawString(font.key, pos, tempBuffer, font.scale, font.spacing, size, font.color);
+	mgs->display->drawString(font.key, pos, buffer, font, size);
 }
 
 UIContainer::~UIContainer()
@@ -163,20 +173,12 @@ int UIContainer::getFocusableCount() const
 
 void UIContainer::update(float dt)
 {
-	if (!active) return;
-	for (auto& el : array) {
-		if (el->isActive())
-			el->update(dt);
-	}
+	updateElements(dt);
 }
 
 void UIContainer::draw()
 {
-	if (!active) return;
-	for (auto& el : array) {
-		if (el->isActive())
-			el->draw();
-	}
+	drawElements();
 }
 
 void UIContainer::handleEvents(SDL_Event& ev)
@@ -186,8 +188,32 @@ void UIContainer::handleEvents(SDL_Event& ev)
 	detectScroll(ev);
 	detectHover(ev);
 
+	handleEvElements(ev);
+}
+
+void UIContainer::updateElements(float dt)
+{
+	if (!active) return;
 	for (auto& el : array) {
-		if (el->isActive())
+		if (el != nullptr && el->isActive())
+			el->update(dt);
+	}
+}
+
+void UIContainer::drawElements()
+{
+	if (!active) return;
+	for (auto& el : array) {
+		if (el != nullptr && el->isActive())
+			el->draw();
+	}
+}
+
+void UIContainer::handleEvElements(SDL_Event& ev)
+{
+	if (!active) return;
+	for (auto& el : array) {
+		if (el != nullptr && el->isActive())
 			el->handleEvents(ev);
 	}
 }
@@ -269,10 +295,7 @@ void UIBackgroundContainer::draw()
 
 	mgs->display->drawFilledRect(pos, size, bg, border, borderSize);
 
-	for (auto& el : array) {
-		if (el->isActive())
-			el->draw();
-	}
+	drawElements();
 }
 
 void UIBackgroundContainer::setBackground(ColorRGBA background)
@@ -310,10 +333,7 @@ void UISpriteBackgroundContainer::draw()
 	if (spriteKey != 0)
 		mgs->display->drawSprite(spriteKey, pos, size);
 
-	for (auto& el : array) {
-		if (el->isActive())
-			el->draw();
-	}
+	drawElements();
 }
 
 void UISpriteBackgroundContainer::setSprite(int sprite_key)
@@ -425,13 +445,28 @@ void UIButton::draw()
 
 	mgs->display->drawFilledRect(pos, size, dp_bg, dp_border, borderSize);
 
-	if (spriteKey != 0)
+	if (spriteKey != 0) {
+		Sprite* spr = mgs->sprite->get(spriteKey);
+
 		mgs->display->drawSprite(spriteKey, pos, size);
 
-	for (auto& el : array) {
-		if (el->isActive())
-			el->draw();
+		if (focused) {
+			SDL_SetTextureBlendMode(spr->texture, SDL_BLENDMODE_ADD);
+
+			ColorRGBA pulse = mgs->ui->calcPulse(ColorRGBA::black());
+			SDL_SetTextureColorMod(spr->texture, pulse.r, pulse.g, pulse.b);
+
+			mgs->display->drawSprite(spriteKey, pos, size);
+
+			SDL_SetTextureBlendMode(spr->texture, SDL_BLENDMODE_BLEND);
+		}
+
+		SDL_SetTextureColorMod(spr->texture, 0xFF, 0xFF, 0xFF);
+		SDL_SetTextureAlphaMod(spr->texture, 0xFF);
 	}
+		
+
+	drawElements();
 
 	txt_el.draw();
 }
@@ -458,7 +493,7 @@ UITextInput::UITextInput(Managers* mgs, Vector2 position, FDims size, Font font,
 {
 	focusable = true;
 	txt_el.setFocusable(true);
-	txt_el.leftPos({pos.x + padding.x, pos.y + padding.y}, {size.width - 2 * padding.x, size.height - 2 * padding.y});
+	txt_el.leftPos(pos + padding, size - (padding * 2));
 }
 
 void UITextInput::draw()

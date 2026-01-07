@@ -17,6 +17,7 @@ private:
 	void destroy() override;
 public:
 	void add(UIElement* el);
+	void remove(UIElement* el);
 	void handleEvents(SDL_Event& ev);
 	void update(float dt);
 	void draw();

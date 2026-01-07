@@ -23,6 +23,7 @@ void SceneManager::changeScene()
 		if (currentScene != nullptr)
 			currentScene->destroy();
 
+		currSceneIdx = nextSceneIdx;
 		nextSceneIdx = 0;
 
 		currentScene = scene;
@@ -47,6 +48,11 @@ void SceneManager::load(int idx, bool instant)
 Scene* SceneManager::getCurrentScene()
 {
 	return currentScene;
+}
+
+int SceneManager::getCurrentSceneIdx() const
+{
+	return currSceneIdx;
 }
 
 void SceneManager::update(float dt)

@@ -82,7 +82,6 @@ protected:
 	Map(const Map&) = delete;
 	Map& operator=(const Map&) = delete;
 	bool compareKeys(const K& key1, const K& key2) const;
-	constexpr bool isStringMap() const;
 public:
 	Map(int size = DEFAULT_ARR_CAPACITY);
 	~Map();
@@ -298,18 +297,12 @@ inline const T* ArrayList<T>::end() const {
 template<typename K, typename V>
 inline bool Map<K, V>::compareKeys(const K& key1, const K& key2) const
 {
-	if constexpr (isStringMap()) {
+	if constexpr (is_str<K>()) {
 		return strcmp(key1, key2) == 0;
 	}
 	else {
 		return key1 == key2;
 	}
-}
-
-template<typename K, typename V>
-inline constexpr bool Map<K, V>::isStringMap() const
-{
-	return is_str<K>();
 }
 
 template<typename K, typename V>
@@ -362,7 +355,7 @@ inline void Map<K, V>::put(const K key, const V& value) {
 		}
 	}
 
-	if constexpr (isStringMap()) {
+	if constexpr (is_str<K>()) {
 		array.add({ copy_string(key), value });
 	} else {
 		array.add({ key, value });
@@ -373,7 +366,7 @@ template<typename K, typename V>
 inline void Map<K, V>::remove(const K key) {
 	for (int i = 0; i < array.count(); i++) {
 		if (compareKeys(key, array[i].key)) {
-			if constexpr (isStringMap()) {
+			if constexpr (is_str<K>()) {
 				delete[] array[i].key;
 				array[i].key = nullptr;
 			}
@@ -385,7 +378,7 @@ inline void Map<K, V>::remove(const K key) {
 
 template<typename K, typename V>
 inline void Map<K, V>::clear() {
-	if constexpr (isStringMap()) {
+	if constexpr (is_str<K>()) {
 		for (KVPair<K, V>& item : array) {
 			delete[] item.key;
 			item.key = nullptr;
@@ -413,7 +406,7 @@ inline V& Map<K, V>::operator[](const K key) {
 		}
 	}
 
-	if constexpr (isStringMap())
+	if constexpr (is_str<K>())
 		array.add({ copy_string(key), V() });
 	else
 		array.add({ key, V()});

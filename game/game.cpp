@@ -10,7 +10,7 @@ Game::Game() : Application() {}
 bool Game::onStart(Managers* managers) {
 	mgs = managers;
 
-	mgs->display->setIcon("game/assets/punch.bmp");
+	mgs->display->setIcon("game/assets/punch_icon.bmp");
 
 	ActionBinding* jump = new ActionBinding(1);
 	(*jump)[0] = { InputType::KEYBOARD, SDL_SCANCODE_SPACE };

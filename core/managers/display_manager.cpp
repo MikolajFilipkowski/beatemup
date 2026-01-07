@@ -45,6 +45,72 @@ SDL_FRect DisplayManager::worldToRect(Vector3 worldPos, FDims dims) const
 	return rect;
 }
 
+void DisplayManager::drawStringOutline(Vector2 pos, const char* text, const Font& font, const Sprite*& sprite, FDims maxSize)
+{
+	Dims charDims = { sprite->width / 16 , sprite->height / 16 };
+
+	const ColorRGBA& clr = font.outline.color;
+
+	int ch;
+	SDL_Rect src = { 0, 0, charDims.width, charDims.height };
+	SDL_FRect dest = {
+		0, 0,
+		charDims.width * font.scale,
+		charDims.height * font.scale
+	};
+
+	Vector2 starting_pos = pos;
+
+	float advX = dest.w * font.spacing;
+
+	SDL_SetTextureColorMod(sprite->texture, clr.r, clr.g, clr.b);
+	SDL_SetTextureAlphaMod(sprite->texture, clr.a);
+
+	while (*text) {
+		ch = *text & 255;
+		src.x = (ch % 16) * charDims.width;
+		src.y = (ch / 16) * charDims.height;
+
+		if (!checkStringBounds(maxSize, starting_pos, font, pos, charDims)) break;
+
+		dest.x = pos.x;
+		dest.y = pos.y;
+
+		drawOutline(pos, src, dest, font.outline, sprite->texture);
+
+		pos.x += advX;
+		text++;
+	};
+}
+
+void DisplayManager::drawOutline(const Vector2& pos, const SDL_Rect& src, SDL_FRect& dest, const Outline& ol, SDL_Texture* tx)
+{
+	for (int x = -1; x <= 1; x++) {
+		for (int y = -1; y <= 1; y++) {
+			if (x == 0 && y == 0) continue;
+
+			dest.x = pos.x + x * ol.size;
+			dest.y = pos.y + y * ol.size;
+			SDL_RenderCopyF(sdlRenderer, tx, &src, &dest);
+		}
+	}
+}
+
+bool DisplayManager::checkStringBounds(const FDims& maxSize, const Vector2& starting_pos, 
+	const Font& font, const Vector2& pos, const Dims& charDims)
+{
+	const float w = charDims.width * font.spacing + pos.x;
+	const float h = charDims.height * font.spacing + pos.y;
+	if (maxSize.width != 0 && maxSize.height != 0) {
+		if ((w > maxSize.width + starting_pos.x) || 
+			(h > maxSize.height + starting_pos.y)
+			) {
+			return false;
+		}
+	}
+	return true;
+}
+
 bool DisplayManager::init(const char* title, Dims winDims, Dims logicalDims, bool fullscreen)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -335,54 +401,44 @@ void DisplayManager::drawFilledRect(Vector2 pos, FDims dims, ColorRGBA fill_colo
 	drawRect(pos, dims, outline_color, thickness);
 }
 
-void DisplayManager::drawString(int charset_key, Vector2 pos, const char* text, float scale, float spacing, FDims maxSize, ColorRGBA clr)
+void DisplayManager::drawString(int charset_key, Vector2 pos, const char* text, const Font& font, FDims maxSize)
 {
 	if (text == nullptr || *text == '\0') return;
-
-	Sprite* sprite = mgs->sprite->get(charset_key);
+	const Sprite* sprite = mgs->sprite->get(charset_key);
 	if (sprite == nullptr) return;
 
-	int charW = sprite->width / 16;
-	int charH = sprite->height / 16;
+	Dims charDims = { sprite->width / 16 , sprite->height / 16 };
+
+	const ColorRGBA& clr = font.color;
+
+	int ch;
+	SDL_Rect src = { 0, 0, charDims.width, charDims.height };
+	SDL_FRect dest = { 
+		0, 0, 
+		charDims.width * font.scale, 
+		charDims.height * font.scale 
+	};
+
+	pos -= {0, font.baseline * font.scale};
+	Vector2 starting_pos = pos;
+
+	float advX = dest.w * font.spacing;
+
+	if (font.outline.size > 0)
+		drawStringOutline(pos, text, font, sprite, maxSize);
 
 	SDL_SetTextureColorMod(sprite->texture, clr.r, clr.g, clr.b);
 	SDL_SetTextureAlphaMod(sprite->texture, clr.a);
 
-	int ch;
-	SDL_Rect src;
-	SDL_FRect dest;
-	src.w = charW;
-	src.h = charH;
-
-	Vector2 starting_pos = pos;
-
-	dest.w = charW * scale;
-	dest.h = charH * scale;
-
-	float advX = dest.w * spacing;
-
 	while (*text) {
 		ch = *text & 255;
+		src.x = (ch % 16) * charDims.width;
+		src.y = (ch / 16) * charDims.height;
 
-		if (ch == '\n') {
-			pos.x = starting_pos.x;
-			pos.y += (float)charH * scale;
-			text++;
-			continue;
-		}
+		if (!checkStringBounds(maxSize, starting_pos, font, pos, charDims)) break;
 
-		src.x = (ch % 16) * charW;
-		src.y = (ch / 16) * charH;
 		dest.x = pos.x;
 		dest.y = pos.y;
-
-		if (maxSize.width != 0 && maxSize.height != 0) {
-			if ((charW * spacing + pos.x > maxSize.width + starting_pos.x)
-				|| (charH * spacing + pos.y > maxSize.height + starting_pos.y)
-				) {
-				break;
-			}
-		}
 
 		SDL_RenderCopyF(sdlRenderer, sprite->texture, &src, &dest);
 

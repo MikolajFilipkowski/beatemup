@@ -2,13 +2,7 @@
 
 #include "core_types.h"
 
-struct Font {
-	int key;
-	int chSize;
-	float scale;
-	float spacing;
-	ColorRGBA color;
-};
+
 
 class UIElement {
 protected:
@@ -47,7 +41,7 @@ protected:
 	char buffer[MAX_TEXTSIZE];
 	int maxCharCount;
 	Font font;
-	ColorRGBA plholder_clr;
+	Font pl_font;
 	char* plholder_txt;
 public:
 	UITextElement(Managers* mgs, Vector2 position, FDims size, Font font, int maxChars = 255);
@@ -71,9 +65,9 @@ class UIContainer : public UIElement {
 protected:
 	ArrayList<UIElement*> array;
 	int focusedElement;
-	
 public:
-	UIContainer(Managers* mgs, Vector2 position, FDims size) : UIElement(mgs, position, size), focusedElement(-1) {}
+	UIContainer(Managers* mgs, Vector2 position, FDims size) 
+		: UIElement(mgs, position, size), focusedElement(-1) {}
 	virtual ~UIContainer();
 	void addElement(UIElement* el);
 	void setFocusedElement(int idx);
@@ -85,6 +79,10 @@ public:
 	virtual void update(float dt) override;
 	virtual void draw() override;
 	virtual void handleEvents(SDL_Event& ev) override;
+
+	void updateElements(float dt);
+	void drawElements();
+	void handleEvElements(SDL_Event& ev);
 
 	void detectScroll(SDL_Event& ev);
 	virtual void onScrollEv(int y);
@@ -132,9 +130,11 @@ protected:
 	bool hovered;
 	float afterPress;
 	void (*onClick)(SDL_Event& ev, UIButton* button, Managers* mgs);
+	Vector2 padding;
 public:
-	UIButton(Managers* mgs, Vector2 position, FDims size, Font font, 
-		void (*onClick)(SDL_Event& ev, UIButton* button, Managers* mgs) = nullptr);
+	UIButton(Managers* mgs, Vector2 position, FDims size, Font font,
+		void (*onClick)(SDL_Event& ev, UIButton* button, Managers* mgs) = nullptr
+		);
 	virtual void handleEvents(SDL_Event& ev) override;
 	virtual void update(float dt) override;
 	virtual void draw() override;
