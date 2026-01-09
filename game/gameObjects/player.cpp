@@ -3,8 +3,8 @@
 
 #define PLY_ASSETS "game/assets/player/"
 
-Player::Player(Managers* mgs, Transform tr) 
-	: AnimatableObject(mgs, tr), jumpRequested(false), 
+Player::Player(Managers* mgs, InputBuffer* buff, Transform tr) 
+	: AnimatableObject(mgs, tr), iBuffer(buff), hp(DEF_HP), jumpRequested(false), 
 	isGrounded(true), isAttacking(false), attackTimer(0.0f) {}
 
 Player::~Player()
@@ -50,32 +50,32 @@ void Player::update(float dt)
 		}
 	}
 
-	if (mgs->input->getAction(Action::LEFT)) {
+	if (mgs->input->getAction(ActionBind::LEFT)) {
 		transform.flip = H_FLIP;
 	}
-	if (mgs->input->getAction(Action::RIGHT)) {
+	if (mgs->input->getAction(ActionBind::RIGHT)) {
 		transform.flip = NO_FLIP;
 	}
 	
-	if (mgs->input->getAction(Action::JUMP) && isGrounded) {
+	if (mgs->input->getAction(ActionBind::JUMP) && isGrounded) {
 		jumpRequested = true;
 	}
 
-	if (mgs->input->getActionDown(Action::ACT_X) && isGrounded && !jumpRequested) {
+	if (mgs->input->getActionDown(ActionBind::ACT_X) && isGrounded && !jumpRequested) {
 		isAttacking = true;
 		AnimationClip* anim = mgs->anim->get(RES::PLY_ATTACK_2);
 		attackTimer = anim->frameDuration * anim->frameCount;
 		setAnim(RES::PLY_ATTACK_2);
 	}
-	else if (mgs->input->getActionDown(Action::ACT_Y) && isGrounded && !jumpRequested) {
+	else if (mgs->input->getActionDown(ActionBind::ACT_Y) && isGrounded && !jumpRequested) {
 		isAttacking = true;
 		AnimationClip* anim = mgs->anim->get(RES::PLY_ATTACK_1);
 		attackTimer = anim->frameDuration * anim->frameCount;
 		setAnim(RES::PLY_ATTACK_1);
 	}
 
-	bool isWalking = mgs->input->getAction(Action::UP) || mgs->input->getAction(Action::DOWN);
-	bool isMoving = mgs->input->getAction(Action::LEFT) || mgs->input->getAction(Action::RIGHT);
+	bool isWalking = mgs->input->getAction(ActionBind::UP) || mgs->input->getAction(ActionBind::DOWN);
+	bool isMoving = mgs->input->getAction(ActionBind::LEFT) || mgs->input->getAction(ActionBind::RIGHT);
 
 	if (!isAttacking) {
 		if (isGrounded) {
@@ -102,16 +102,16 @@ void Player::fixedUpdate(float fixed_dt)
 	rb.prevPos = rb.currPos;
 	Vector3& pos = rb.currPos;
 
-	if (mgs->input->getAction(Action::LEFT)) {
+	if (mgs->input->getAction(ActionBind::LEFT)) {
 		pos.x -= 6;
 	}
-	if (mgs->input->getAction(Action::RIGHT)) {
+	if (mgs->input->getAction(ActionBind::RIGHT)) {
 		pos.x += 6;
 	}
-	if (mgs->input->getAction(Action::UP)) {
+	if (mgs->input->getAction(ActionBind::UP)) {
 		pos.z = clamp(pos.z - 3, 220.0f, 400.0f);
 	}
-	if (mgs->input->getAction(Action::DOWN)) {
+	if (mgs->input->getAction(ActionBind::DOWN)) {
 		pos.z = clamp(pos.z + 3, 220.0f, 400.0f);
 	}
 
@@ -140,5 +140,6 @@ void Player::draw()
 {
 	float ply_w = (float)mgs->anim->get(currentAnimKey)->frames[currentAnimFrame].w;
 	drawShadow(RES::SHADOW, ply_w, { 96, 32 });
+
 	mgs->display->drawAnimFrame(currentAnimKey, currentAnimFrame, transform);
 }

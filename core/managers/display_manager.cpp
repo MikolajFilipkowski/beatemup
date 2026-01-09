@@ -63,8 +63,7 @@ void DisplayManager::drawStringOutline(Vector2 pos, const char* text, const Font
 
 	float advX = dest.w * font.spacing;
 
-	SDL_SetTextureColorMod(sprite->texture, clr.r, clr.g, clr.b);
-	SDL_SetTextureAlphaMod(sprite->texture, clr.a);
+	setSpriteModColor(sprite, clr);
 
 	while (*text) {
 		ch = *text & 255;
@@ -313,6 +312,12 @@ void DisplayManager::setDrawColor(ColorRGBA color)
 	SDL_SetRenderDrawColor(sdlRenderer, color.r, color.g, color.b, color.a);
 }
 
+void DisplayManager::setSpriteModColor(const Sprite* spr, const ColorRGBA& color)
+{
+	SDL_SetTextureColorMod(spr->texture, color.r, color.g, color.b);
+	SDL_SetTextureAlphaMod(spr->texture, color.a);
+}
+
 void DisplayManager::drawSprite(int sprite_key, Vector2 pos, FDims dims)
 {
 	Sprite* sprite = mgs->sprite->get(sprite_key);
@@ -427,8 +432,7 @@ void DisplayManager::drawString(int charset_key, Vector2 pos, const char* text, 
 	if (font.outline.size > 0)
 		drawStringOutline(pos, text, font, sprite, maxSize);
 
-	SDL_SetTextureColorMod(sprite->texture, clr.r, clr.g, clr.b);
-	SDL_SetTextureAlphaMod(sprite->texture, clr.a);
+	setSpriteModColor(sprite, clr);
 
 	while (*text) {
 		ch = *text & 255;
@@ -446,6 +450,5 @@ void DisplayManager::drawString(int charset_key, Vector2 pos, const char* text, 
 		text++;
 	};
 
-	SDL_SetTextureColorMod(sprite->texture, 0xFF, 0xFF, 0xFF);
-	SDL_SetTextureAlphaMod(sprite->texture, 0xFF);
+	setSpriteModColor(sprite, ColorRGBA::white());
 }

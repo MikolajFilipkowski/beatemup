@@ -5,29 +5,43 @@
 
 InputManager::InputManager(Managers* managers) : Manager(managers) {
 	keyboardState = SDL_GetKeyboardState(&numkeyCount);
-	prevKeyboardState = new Uint8[numkeyCount];
-	memset(prevKeyboardState, 0, numkeyCount);
+	pressedNow = new bool[numkeyCount];
+	releasedNow = new bool[numkeyCount];
+	memset(pressedNow, 0, numkeyCount);
+	memset(releasedNow, 0, numkeyCount);
 
-	prevMouseState = 0;
 	mouseState = SDL_GetMouseState(NULL, NULL);
+	mousePressedNow = new bool[MAX_MOUSE_BUTTONS + 1];
+	mouseReleasedNow = new bool[MAX_MOUSE_BUTTONS + 1];
+	memset(mousePressedNow, 0, MAX_MOUSE_BUTTONS + 1);
+	memset(mouseReleasedNow, 0, MAX_MOUSE_BUTTONS + 1);
 }
 
 InputManager::~InputManager() {
-	for (auto& pair : bindings) {
-		delete pair.value;
-		pair.value = nullptr;
-	}
 	destroy();
 }
 
 void InputManager::destroy() {
-	delete[] prevKeyboardState;
-	prevKeyboardState = nullptr;
+	delete[] pressedNow;
+	delete[] releasedNow;
+	delete[] mousePressedNow;
+	delete[] mouseReleasedNow;
+	pressedNow = nullptr;
+	releasedNow = nullptr;
+	mousePressedNow = nullptr;
+	mouseReleasedNow = nullptr;
+
+	for (auto& pair : bindings) {
+		delete pair.value;
+		pair.value = nullptr;
+	}
+	bindings.clear();
 }
 
 void InputManager::updateMouseState()
 {
-	prevMouseState = mouseState;
+	memset(mousePressedNow, 0, MAX_MOUSE_BUTTONS + 1);
+	memset(mouseReleasedNow, 0, MAX_MOUSE_BUTTONS + 1);
 
 	int rawX, rawY;
 	float logX, logY;
@@ -72,8 +86,37 @@ bool InputManager::checkActionState(int action,
 	return false;
 }
 
+void InputManager::updateKeyDown(SDL_Event& ev)
+{
+	if (ev.key.repeat != 0) return;
+	pressedNow[ev.key.keysym.scancode] = true;
+}
+
+void InputManager::updateKeyUp(SDL_Event& ev)
+{
+	if (ev.key.repeat != 0) return;
+	releasedNow[ev.key.keysym.scancode] = true;
+}
+
+void InputManager::updateMouseDown(SDL_Event& ev)
+{
+	Uint8 b = ev.button.button;
+	if (b > MAX_MOUSE_BUTTONS) return;
+
+	mousePressedNow[b] = true;
+}
+
+void InputManager::updateMouseUp(SDL_Event& ev)
+{
+	Uint8 b = ev.button.button;
+	if (b > MAX_MOUSE_BUTTONS) return;
+
+	mouseReleasedNow[b] = true;
+}
+
 void InputManager::updateState() {
-	memcpy(prevKeyboardState, keyboardState, numkeyCount);
+	memset(pressedNow, 0, numkeyCount);
+	memset(releasedNow, 0, numkeyCount);
 
 	updateMouseState();
 }
@@ -85,13 +128,13 @@ bool InputManager::getKey(Uint8 key) const {
 
 bool InputManager::getKeyUp(Uint8 key) const {
 	if (key >= numkeyCount) return false;
-	return !keyboardState[key] && prevKeyboardState[key];
+	return releasedNow[key];
 }
 
 bool InputManager::getKeyDown(Uint8 key) const {
 	if (key >= numkeyCount) return false;
 	
-	return keyboardState[key] && !prevKeyboardState[key];
+	return pressedNow[key];
 }
 
 bool InputManager::getMouseButton(Uint8 button) const
@@ -101,12 +144,14 @@ bool InputManager::getMouseButton(Uint8 button) const
 
 bool InputManager::getMouseButtonDown(Uint8 button) const
 {
-	return (SDL_BUTTON(button) & mouseState) && !(SDL_BUTTON(button) & prevMouseState);
+	if (button > MAX_MOUSE_BUTTONS) return false;
+	return mousePressedNow[button];
 }
 
 bool InputManager::getMouseButtonUp(Uint8 button) const
 {
-	return !(SDL_BUTTON(button) & mouseState) && (SDL_BUTTON(button) & prevMouseState);
+	if (button > MAX_MOUSE_BUTTONS) return false;
+	return mouseReleasedNow[button];
 }
 
 bool InputManager::isMouseOver(Rect rect)

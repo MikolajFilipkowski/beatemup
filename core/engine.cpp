@@ -72,10 +72,20 @@ void Engine::handleEvents()
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
 		case SDL_KEYDOWN:
+			mgs.input->updateKeyDown(event);
 			if (event.key.keysym.sym == SDLK_ESCAPE && app->onEscPressed()) 
 				stop();
 			if (event.key.keysym.sym == SDLK_F11 && !app->fullscreenDisabled)
 				mgs.display->toggleFullscreen();
+			break;
+		case SDL_KEYUP:
+			mgs.input->updateKeyUp(event);
+			break;
+		case SDL_MOUSEBUTTONDOWN:
+			mgs.input->updateMouseDown(event);
+			break;
+		case SDL_MOUSEBUTTONUP:
+			mgs.input->updateMouseUp(event);
 			break;
 		case SDL_WINDOWEVENT:
 			if (event.window.event == SDL_WINDOWEVENT_RESIZED) 

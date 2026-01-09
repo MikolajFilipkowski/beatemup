@@ -97,3 +97,16 @@ void SpriteManager::setSpriteColor(int key, ColorRGBA clr)
 	SDL_SetTextureColorMod(spr->texture, clr.r, clr.g, clr.b);
 	SDL_SetTextureAlphaMod(spr->texture, clr.a);
 }
+
+Uint64 SpriteManager::loadedSpritesSize() const
+{
+	Uint64 size = 0;
+
+	for (auto& spr : spriteMap) {
+		int w, h;
+		SDL_QueryTexture(spr.value->texture, NULL, NULL, &w, &h);
+		size += (Uint64)w * (Uint64)h * 4ULL;
+	}
+
+	return size;
+}

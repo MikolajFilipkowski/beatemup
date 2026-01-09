@@ -11,6 +11,7 @@ class ObjectManager : private Manager {
 	friend class Engine;
 private:
 	ArrayList<GameObject*> objectArray;
+	Map<int, ActionData*> actionsMap;
 
 	ObjectManager(Managers* managers) : Manager(managers) {}
 	~ObjectManager() override;
@@ -19,6 +20,9 @@ private:
 public:
 	void add(GameObject* object);
 	void remove(GameObject* object);
+
+	void addAction(int key, ActionData* action);
+	ActionData* getAction(int key);
 
 	void updateAll(float dt);
 	void fixedUpdateAll(float fixed_dt);

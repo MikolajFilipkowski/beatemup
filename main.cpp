@@ -16,5 +16,8 @@ int main(int argc, char **argv) {
 	engine->init("Beat 'em up!", {1280, 720}, {0,0}, false);
 	engine->run(game);
 
+	delete game;
+	delete engine;
+
 	return 0;
 }

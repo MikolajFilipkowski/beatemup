@@ -6,12 +6,12 @@
 
 class UIElement {
 protected:
+	Managers* mgs;
 	Vector2 pos;
 	FDims size;
 	bool active;
 	bool focused;
 	bool focusable;
-	Managers* mgs;
 public:
 	UIElement(Managers* mgs, Vector2 position, FDims size);
 	UIElement(const UIElement&) = delete;
@@ -41,8 +41,8 @@ protected:
 	char buffer[MAX_TEXTSIZE];
 	int maxCharCount;
 	Font font;
-	Font pl_font;
 	char* plholder_txt;
+	Font pl_font;
 public:
 	UITextElement(Managers* mgs, Vector2 position, FDims size, Font font, int maxChars = 255);
 	void setText(const char* text);

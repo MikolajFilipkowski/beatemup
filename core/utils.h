@@ -63,12 +63,6 @@ public:
 	const T* end() const;
 };
 
-/*template <typename T>
-struct KVPair {
-	const char* key;
-	T value;
-};*/
-
 template <typename K, typename V>
 struct KVPair {
 	K key;
@@ -98,6 +92,26 @@ public:
 	KVPair<K, V>* end();
 	const KVPair<K, V>* begin() const;
 	const KVPair<K, V>* end() const;
+};
+
+template <typename T>
+class CircularQueue {
+protected:
+	T* array;
+	int size;
+	int itemCount;
+	int read;
+	int write;
+public:
+	CircularQueue(int queueSize);
+	virtual ~CircularQueue();
+	void push(const T& value);
+	T pop();
+	const T& peek() const;
+	const T& peekAt(int idxFromRead) const;
+	void clear();
+	int count() const;
+	int maxSize() const;
 };
 
 template<typename T>
@@ -147,7 +161,7 @@ inline void ArrayList<T>::resize(int newCapacity) {
 }
 
 template<typename T>
-inline ArrayList<T>::ArrayList(int capacity) : arrCapacity(capacity), arrCount(0) {
+inline ArrayList<T>::ArrayList(int capacity) : arrCount(0), arrCapacity(capacity) {
 	array = new T[capacity];
 }
 
@@ -315,7 +329,7 @@ inline Map<K, V>::~Map() {
 
 template<typename K, typename V>
 inline V& Map<K, V>::get(K key) {
-	if (key == NULL) {
+	if (key == 0) {
 		assert(false && "Key must not be null");
 		return array[0].value;
 	}
@@ -436,4 +450,76 @@ template<typename K, typename V>
 inline const KVPair<K, V>* Map<K, V>::end() const
 {
 	return array.end();
+}
+
+template<typename T>
+inline CircularQueue<T>::CircularQueue(int queueSize)
+{
+	array = new T[queueSize];
+	size = queueSize;
+	itemCount = 0;
+	read = 0;
+	write = 0;
+}
+
+template<typename T>
+inline CircularQueue<T>::~CircularQueue()
+{
+	delete[] array;
+}
+
+template<typename T>
+inline void CircularQueue<T>::push(const T& value)
+{
+	array[write] = value;
+	write = (write + 1) % size;
+
+	if (itemCount < size)
+		itemCount++;
+	else
+		read = (read + 1) % size;
+}
+
+template<typename T>
+inline T CircularQueue<T>::pop()
+{
+	assert(itemCount > 0 && "Queue index out of bounds");
+
+	T val = array[read];
+	itemCount--;
+	read = (read + 1) % size;
+	return val;
+}
+
+template<typename T>
+inline const T& CircularQueue<T>::peek() const
+{
+	return array[read];
+}
+
+template<typename T>
+inline const T& CircularQueue<T>::peekAt(int idxFromRead) const
+{
+	assert(idxFromRead < count() && "Queue index out of bounds");
+	return array[(read + idxFromRead) % size];
+}
+
+template<typename T>
+inline void CircularQueue<T>::clear()
+{
+	itemCount = 0;
+	read = 0;
+	write = 0;
+}
+
+template<typename T>
+inline int CircularQueue<T>::count() const
+{
+	return itemCount;
+}
+
+template<typename T>
+inline int CircularQueue<T>::maxSize() const
+{
+	return size;
 }

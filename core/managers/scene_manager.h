@@ -16,7 +16,7 @@ private:
 	int nextSceneIdx;
 
 	SceneManager(Managers* managers) 
-		: Manager(managers), currentScene(nullptr), nextSceneIdx(0), currSceneIdx(0) {}
+		: Manager(managers), currentScene(nullptr), currSceneIdx(0), nextSceneIdx(0) {}
 	~SceneManager() override;
 	void destroy() override;
 	void changeScene();

@@ -18,6 +18,7 @@ private:
 	float fpsTimer;
 	float fps;
 	float worldTime;
+	int worldFrame;
 
 	TimeManager(Managers* managers);
 	~TimeManager() override;
@@ -29,8 +30,9 @@ public:
 	float getFixedDt() const;
 	float getFPS() const;
 	float getWorldTime() const;
-	void setWorldTime(float wt);
 	float getAccum() const;
 	float getIFactor() const;
+	int getWorldFrame() const;
+	void resetWorldVars();
 };
 

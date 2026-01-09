@@ -13,10 +13,7 @@ void PlayerCamera::update(float dt)
 {
 	assert(ply != nullptr && "Player is nullptr");
 
-	rb.currPos;
-
 	transform.pos = getIPos();
-
 }
 
 void PlayerCamera::fixedUpdate(float fixed_dt)

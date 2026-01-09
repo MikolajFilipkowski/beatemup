@@ -16,7 +16,12 @@ void ObjectManager::destroy()
 		object = nullptr;
 	}
 
+	for (auto& pair : actionsMap) {
+		delete pair.value;
+	}
+
 	objectArray.clear();
+	actionsMap.clear();
 }
 
 void ObjectManager::startIfNeeded(GameObject*& object)
@@ -37,12 +42,23 @@ void ObjectManager::remove(GameObject* object)
 	object->setRemovalFlag(true);
 }
 
+void ObjectManager::addAction(int key, ActionData* action)
+{
+	if (actionsMap.containsKey(key)) return;
+
+	actionsMap.put(key, action);
+}
+
+ActionData* ObjectManager::getAction(int key) {
+	return actionsMap.get(key);
+}
+
 void ObjectManager::updateAll(float dt)
 {
 	for (GameObject*& object : objectArray) {
 		if (object != nullptr && !object->getRemovalFlag()) {
-			object->update(dt);
 			startIfNeeded(object);
+			object->update(dt);
 		}
 	}
 }

@@ -53,6 +53,12 @@
     <ClCompile Include="game\scenes\menu_scene.cpp">
       <Filter>game\scenes</Filter>
     </ClCompile>
+    <ClCompile Include="game\game_loader.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
+    <ClCompile Include="game\input_buffer.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\managers\display_manager.h">
@@ -120,6 +126,12 @@
     </ClInclude>
     <ClInclude Include="game\scenes\menu_scene.h">
       <Filter>game\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="game\game_loader.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\input_buffer.h">
+      <Filter>game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -255,6 +267,9 @@
     <Image Include="game\assets\ui\text_input.bmp">
       <Filter>game\assets\ui</Filter>
     </Image>
+    <Image Include="game\assets\circle.bmp">
+      <Filter>game\assets</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -296,8 +311,14 @@
     <Filter Include="game\assets\ui">
       <UniqueIdentifier>{ee6d2c7e-ebf2-4e4e-ab5c-5c1f9e217ca3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="game\data">
+      <UniqueIdentifier>{c2029dd4-2d7d-4e23-a3d7-a28e8a9c03f3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CREDITS.txt" />
+    <Text Include="game\data\actions.cfg">
+      <Filter>game\data</Filter>
+    </Text>
   </ItemGroup>
 </Project>

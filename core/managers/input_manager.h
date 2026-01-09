@@ -7,14 +7,20 @@ extern "C" {
 #include "manager.h"
 #include "../core_types.h"
 
+static constexpr int MAX_MOUSE_BUTTONS = 12;
+
 class InputManager : private Manager {
 	friend class Engine;
 private:
 	Map<int, ActionBinding*> bindings;
 	Uint8 const* keyboardState;
-	Uint8* prevKeyboardState;
+	bool* pressedNow;
+	bool* releasedNow;
+
 	Uint32 mouseState;
-	Uint32 prevMouseState;
+	bool* mousePressedNow;
+	bool* mouseReleasedNow;
+
 	int numkeyCount;
 	float mouseX;
 	float mouseY;
@@ -27,6 +33,10 @@ private:
 	bool checkActionState(int action, 
 		bool (InputManager::*keyFun)(Uint8) const, bool (InputManager::*mouseFun)(Uint8) const);
 public:
+	void updateKeyDown(SDL_Event& ev);
+	void updateKeyUp(SDL_Event& ev);
+	void updateMouseDown(SDL_Event& ev);
+	void updateMouseUp(SDL_Event& ev);
 	void updateState();
 	bool getKey(Uint8 key) const;
 	bool getKeyUp(Uint8 key) const;

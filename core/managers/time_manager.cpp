@@ -4,7 +4,7 @@
 
 TimeManager::TimeManager(Managers* managers) : Manager(managers),
 	lastTick(0), dt(0.0f), fixedDt(FIXED_DT), accumulator(0.0f),
-	frameCount(0), fpsTimer(0.0f), fps(0.0f), worldTime(0.0f) {
+	frameCount(0), fpsTimer(0.0f), fps(0.0f), worldTime(0.0f), worldFrame(0) {
 }
 
 TimeManager::~TimeManager() {}
@@ -34,6 +34,7 @@ void TimeManager::tick()
 
 	fpsTimer += dt;
 	frameCount++;
+	worldFrame++;
 
 	if (fpsTimer > FPS_INTERVAL) {
 		fps = frameCount / fpsTimer;
@@ -75,11 +76,6 @@ float TimeManager::getWorldTime() const
 	return worldTime;
 }
 
-void TimeManager::setWorldTime(float wt)
-{
-	worldTime = wt;
-}
-
 float TimeManager::getAccum() const
 {
 	return accumulator;
@@ -88,4 +84,15 @@ float TimeManager::getAccum() const
 float TimeManager::getIFactor() const
 {
 	return clamp(accumulator / fixedDt, 0.0f, 1.0f);
+}
+
+int TimeManager::getWorldFrame() const
+{
+	return worldFrame;
+}
+
+void TimeManager::resetWorldVars()
+{
+	worldFrame = 0;
+	worldTime = 0.0f;
 }

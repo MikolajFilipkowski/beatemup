@@ -61,6 +61,7 @@ public:
 	void setBorderless(bool isBorderlessed);
 
 	void setDrawColor(ColorRGBA color);
+	void setSpriteModColor(const Sprite* spr, const ColorRGBA& color);
 	void drawSprite(int sprite_key, Vector2 pos, FDims dims = {0,0});
 	void drawSprite(int sprite_key, Transform tr);
 	void drawAnimFrame(int anim_key, int frameIdx, Transform tr);

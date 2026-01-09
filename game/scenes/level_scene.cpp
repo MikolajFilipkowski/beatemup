@@ -9,6 +9,7 @@
 void LevelScene::start()
 {
 	mgs->display->showCursor(false);
+	iBuffer->clear();
 
 	mgs->sprite->load(MENU_ASSETS "boxes.bmp", RES::MENU_BOXES);
 	mgs->sprite->load(MENU_ASSETS "buildings.bmp", RES::MENU_BUILDINGS);
@@ -32,7 +33,7 @@ void LevelScene::start()
 		NO_FLIP,
 		{2.5f, 2.5f}
 	};
-	Player* ply = new Player(mgs, tr);
+	Player* ply = new Player(mgs, iBuffer, tr);
 
 	PlayerCamera* cam = new PlayerCamera(mgs, ply, { 0,0,500.0f });
 	mgs->display->setActiveCamera((Camera*)cam);
@@ -40,6 +41,7 @@ void LevelScene::start()
 
 void LevelScene::update(float dt)
 {
+	iBuffer->update();
 	mgs->object->updateAll(dt);
 }
 

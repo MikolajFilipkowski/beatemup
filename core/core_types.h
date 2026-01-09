@@ -7,6 +7,12 @@ extern "C" {
 #include"./SDL2/include/SDL.h"
 }
 
+#ifndef _WIN32
+	#define strcpy_s(dest, size, src) strcpy(dest, src)
+	#define strcat_s(dest, size, src) strcat(dest, src)
+	#define sprintf_s snprintf
+#endif // !_WIN32
+
 constexpr float DEFAULT_FOV = 90.0f;
 constexpr float DEFAULT_CAM_Z = 500.0f;
 constexpr float FIXED_DT = 0.01f;
@@ -236,27 +242,27 @@ struct Rect {
 struct ColorRGBA {
 	Uint8 r, g, b, a;
 
-	static ColorRGBA black() {
+	static constexpr ColorRGBA black() {
 		return { 0, 0, 0, 0xFF };
 	}
 
-	static ColorRGBA white() {
+	static constexpr ColorRGBA white() {
 		return { 0xFF, 0xFF, 0xFF, 0xFF };
 	}
 
-	static ColorRGBA transparent() {
+	static constexpr ColorRGBA transparent() {
 		return { 0, 0, 0, 0 };
 	}
 
-	static ColorRGBA red() {
+	static constexpr ColorRGBA red() {
 		return { 0xFF, 0, 0, 0xFF };
 	}
 
-	static ColorRGBA green() {
+	static constexpr ColorRGBA green() {
 		return { 0, 0xFF, 0, 0xFF };
 	}
 
-	static ColorRGBA blue() {
+	static constexpr ColorRGBA blue() {
 		return { 0, 0, 0xFF, 0xFF };
 	}
 };
@@ -326,14 +332,48 @@ struct InputBinding {
 
 typedef Array<InputBinding> ActionBinding;
 
+struct ActionFrame {
+	Rect hitbox;
+	Rect hurtbox;
+	Vector3 vel;
+	float duration;
+	float damage;
+
+	ActionFrame() : hitbox(), hurtbox(), vel(Vector3::zero()), duration(0.0f), damage(0.0f) {}
+};
+
+struct ActionData {
+	int priority;
+	int inputWindow;
+	int conditions;
+	bool interrupt;
+	int owner;
+	Array<int>* sequence;
+	Array<ActionFrame>* frames;
+
+	ActionData(int prio = 0, int win = 0, int cond = 0, bool inter = false,
+		int own = 0, Array<int>* seq = nullptr, Array<ActionFrame>* fr = nullptr
+	) : priority(prio), inputWindow(win), conditions(cond), 
+		interrupt(inter), owner(own), sequence(seq), frames(fr) {}
+
+	~ActionData() {
+		delete sequence;
+		delete frames;
+	}
+};
+
+struct ActiveAction {
+	int actionKey;
+	int currentFrame;
+	bool hasHit;
+};
+
 struct BackgroundLayer {
 	int spriteKey;
 	float scrollFactor;
 	FDims dims;
 	int copies;
 };
-
-
 
 class Scene {
 protected:
@@ -362,11 +402,11 @@ public:
 
 class GameObject {
 protected:
+	Managers* mgs;
 	Transform transform;
 	Rigidbody rb;
 	bool removalPending;
 	bool hasStarted;
-	Managers* mgs;
 public:
 	GameObject(const GameObject&) = delete;
 	GameObject& operator=(const GameObject&) = delete;

@@ -224,6 +224,7 @@ void MenuScene::loadMainMenu(const Dims& log_dims)
 	txt_input->setPlaceholder("Pseudonim", { 0x77, 0x77, 0x77, 0xFF });
 
 	menu->addElement((UIElement*)txt_input);
+
 	loadMainButtons(el_w, el_h, dy, log_dims);
 
 	mgs->ui->add((UIElement*)menu);

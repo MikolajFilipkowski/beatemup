@@ -31,9 +31,11 @@
     <ClCompile Include="core\managers\ui_manager.cpp" />
     <ClCompile Include="core\ui.cpp" />
     <ClCompile Include="core\utils.cpp" />
+    <ClCompile Include="game\game_loader.cpp" />
     <ClCompile Include="game\game.cpp" />
     <ClCompile Include="game\gameObjects\player.cpp" />
     <ClCompile Include="game\gameObjects\player_camera.cpp" />
+    <ClCompile Include="game\input_buffer.cpp" />
     <ClCompile Include="game\scenes\level_scene.cpp" />
     <ClCompile Include="game\scenes\menu_scene.cpp" />
     <ClCompile Include="main.cpp" />
@@ -48,6 +50,7 @@
     <Image Include="game\assets\autumn\autumn_jump.bmp" />
     <Image Include="game\assets\autumn\autumn_walk.bmp" />
     <Image Include="game\assets\charsets\def_8.bmp" />
+    <Image Include="game\assets\circle.bmp" />
     <Image Include="game\assets\doyle\doyle_attack1.bmp" />
     <Image Include="game\assets\doyle\doyle_attack2.bmp" />
     <Image Include="game\assets\doyle\doyle_attack3.bmp" />
@@ -101,15 +104,18 @@
     <ClInclude Include="core\managers\ui_manager.h" />
     <ClInclude Include="core\ui.h" />
     <ClInclude Include="core\utils.h" />
+    <ClInclude Include="game\game_loader.h" />
     <ClInclude Include="game\config.h" />
     <ClInclude Include="game\game.h" />
     <ClInclude Include="game\gameObjects\player.h" />
     <ClInclude Include="game\gameObjects\player_camera.h" />
+    <ClInclude Include="game\input_buffer.h" />
     <ClInclude Include="game\scenes\level_scene.h" />
     <ClInclude Include="game\scenes\menu_scene.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CREDITS.txt" />
+    <Text Include="game\data\actions.cfg" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -117,6 +123,7 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>szablon2</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>beatemup</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
