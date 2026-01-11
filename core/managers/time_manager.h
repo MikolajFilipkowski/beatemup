@@ -10,17 +10,17 @@ extern "C" {
 class TimeManager : private Manager {
 	friend class Engine;
 private:
-	Uint32 lastTick;
-	float dt;
-	float fixedDt;
-	float accumulator;
-	int frameCount;
-	float fpsTimer;
-	float fps;
-	float worldTime;
-	int worldFrame;
+	Uint32 m_LastTick{ 0 };
+	float m_Dt{ 0 };
+	float m_FixedDt{ FIXED_DT };
+	float m_Accumulator{ 0 };
+	int m_FrameCount{ 0 };
+	float m_FpsTimer{ 0 };
+	float m_Fps{ 0 };
+	float m_WorldTime{ 0 };
+	int m_WorldFrame{ 0 };
 
-	TimeManager(Managers* managers);
+	TimeManager(Managers* a_Managers);
 	~TimeManager() override;
 	void destroy() override;
 public:

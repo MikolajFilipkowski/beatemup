@@ -11,13 +11,10 @@
 extern "C"
 #endif
 int main(int argc, char **argv) {
-	Engine* engine = new Engine();
-	Game* game = new Game();
-	engine->init("Beat 'em up!", {1280, 720}, {0,0}, false);
-	engine->run(game);
-
-	delete game;
-	delete engine;
+	Engine engine{};
+	Game game{};
+	engine.init("Beat 'em up!", {1280, 720}, {0,0}, false);
+	engine.run(&game);
 
 	return 0;
 }

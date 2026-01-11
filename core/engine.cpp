@@ -4,62 +4,62 @@
 
 #include <stdio.h>
 
-Engine::Engine() : running(false), mgs{}, app(nullptr) {
-	mgs.engine = this;
+Engine::Engine() {
+	m_Mgs.engine = this;
 }
 
-bool Engine::init(const char* title, Dims screenDims, Dims logicalDims, bool isFullscreen)
+bool Engine::init(const char* a_Title, Dims a_ScreenDims, Dims a_LogDims, bool a_Fullscreen)
 {
-	mgs.display = new DisplayManager(&mgs);
-	mgs.sprite = new SpriteManager(&mgs);
-	mgs.object = new ObjectManager(&mgs);
-	mgs.time = new TimeManager(&mgs);
-	mgs.input = new InputManager(&mgs);
-	mgs.anim = new AnimationManager(&mgs);
-	mgs.scene = new SceneManager(&mgs);
-	mgs.ui = new UIManager(&mgs);
-	mgs.engine = this;
+	m_Mgs.display = new DisplayManager(&m_Mgs);
+	m_Mgs.sprite = new SpriteManager(&m_Mgs);
+	m_Mgs.object = new ObjectManager(&m_Mgs);
+	m_Mgs.time = new TimeManager(&m_Mgs);
+	m_Mgs.input = new InputManager(&m_Mgs);
+	m_Mgs.anim = new AnimationManager(&m_Mgs);
+	m_Mgs.scene = new SceneManager(&m_Mgs);
+	m_Mgs.ui = new UIManager(&m_Mgs);
+	m_Mgs.engine = this;
 
-	bool displayInitialized = mgs.display->init(title, screenDims, logicalDims, isFullscreen);
+	bool displayInitialized = m_Mgs.display->init(a_Title, a_ScreenDims, a_LogDims, a_Fullscreen);
 
 	if (!displayInitialized) {
 		return false;
 	}
 
-	running = true;
+	m_Running = true;
 
 	return true;
 }
 
-void Engine::run(Application* application)
+void Engine::run(Application* a_App)
 {
-	if (application == nullptr) return;
-	app = application;
+	if (a_App == nullptr) return;
+	m_App = a_App;
 
-	mgs.time->lastTick = SDL_GetTicks();
+	m_Mgs.time->m_LastTick = SDL_GetTicks();
 
-	bool appInitialized = app->onStart(&mgs);
+	bool appInitialized = m_App->onStart(&m_Mgs);
 	if (!appInitialized) stop();
 
-	while (running) {
-		mgs.time->tick();
+	while (m_Running) {
+		m_Mgs.time->tick();
 
-		mgs.input->updateState();
+		m_Mgs.input->updateState();
 		handleEvents();
 
-		while (mgs.time->step()) {
-			app->onFixedUpdate(mgs.time->getFixedDt());
+		while (m_Mgs.time->step()) {
+			m_App->onFixedUpdate(m_Mgs.time->getFixedDt());
 		}
 
-		app->onUpdate(mgs.time->getDt());
+		m_App->onUpdate(m_Mgs.time->getDt());
 
-		mgs.object->refreshObjects();
+		m_Mgs.object->refreshObjects();
 
-		mgs.display->clear();
+		m_Mgs.display->clear();
 
-		app->onDraw();
+		m_App->onDraw();
 
-		mgs.display->present();
+		m_Mgs.display->present();
 	}
 
 	destroy();
@@ -72,55 +72,67 @@ void Engine::handleEvents()
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
 		case SDL_KEYDOWN:
-			mgs.input->updateKeyDown(event);
-			if (event.key.keysym.sym == SDLK_ESCAPE && app->onEscPressed()) 
+			m_Mgs.input->updateKeyDown(event);
+			if (event.key.keysym.scancode == EXIT_KEY && m_App->onEscPressed()) 
 				stop();
-			if (event.key.keysym.sym == SDLK_F11 && !app->fullscreenDisabled)
-				mgs.display->toggleFullscreen();
+			if (event.key.keysym.scancode == FULLSCREEN_KEY && !m_App->m_FullscreenDisabled)
+				m_Mgs.display->toggleFullscreen();
+			if (event.key.keysym.scancode == DEBUG_KEY)
+				m_DebugMode = !m_DebugMode;
 			break;
 		case SDL_KEYUP:
-			mgs.input->updateKeyUp(event);
+			m_Mgs.input->updateKeyUp(event);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			mgs.input->updateMouseDown(event);
+			m_Mgs.input->updateMouseDown(event);
 			break;
 		case SDL_MOUSEBUTTONUP:
-			mgs.input->updateMouseUp(event);
+			m_Mgs.input->updateMouseUp(event);
 			break;
 		case SDL_WINDOWEVENT:
 			if (event.window.event == SDL_WINDOWEVENT_RESIZED) 
-				mgs.display->updateScreenDims();
+				m_Mgs.display->updateScreenDims();
 			break;
 		case SDL_QUIT:
 			stop();
 			break;
 		};
 
-		mgs.ui->handleEvents(event);
+		m_Mgs.ui->handleEvents(event);
 	};
 }
 
 void Engine::stop()
 {
-	running = false;
+	m_Running = false;
 }
 
 void Engine::destroy()
 {
-	if (app != nullptr) {
-		app->onDestroy();
+	if (m_App != nullptr) {
+		m_App->onDestroy();
 	}
 
-	for (int i = mgs.arrLen - 1; i >= 0; i--) {
-		if (*mgs.array[i]) {
-			(*mgs.array[i])->destroy();
-			delete (*mgs.array[i]);
-			*mgs.array[i] = nullptr;
+	for (int i = m_Mgs.m_ArrLen - 1; i >= 0; i--) {
+		if (*m_Mgs.m_Array[i]) {
+			(*m_Mgs.m_Array[i])->destroy();
+			delete (*m_Mgs.m_Array[i]);
+			*m_Mgs.m_Array[i] = nullptr;
 		}
 	}
 }
 
+bool Engine::inDebugMode() const
+{
+	return m_DebugMode;
+}
+
+void Engine::setDebugMode(bool a_Debug)
+{
+	m_DebugMode = a_Debug;
+}
+
 bool Engine::isRunning() const
 {
-	return running;
+	return m_Running;
 }

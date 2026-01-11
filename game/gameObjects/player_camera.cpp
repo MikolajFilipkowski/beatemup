@@ -3,32 +3,32 @@
 #include "player.h"
 #include <cstdio>
 
-PlayerCamera::PlayerCamera(Managers* mgs, Player* ply, Vector3 pos) : Camera(mgs, pos), ply(ply) {
+PlayerCamera::PlayerCamera(Managers* a_Managers, Player* a_Ply, Vector3 a_Pos) : Camera(a_Managers, a_Pos), m_Player(a_Ply) {
 
 }
 
 PlayerCamera::~PlayerCamera(){}
 
-void PlayerCamera::update(float dt)
+void PlayerCamera::update(float a_Dt)
 {
-	assert(ply != nullptr && "Player is nullptr");
+	assert(m_Player != nullptr && "Player is nullptr");
 
-	transform.pos = getIPos();
+	m_Transform.pos = getIPos();
 }
 
-void PlayerCamera::fixedUpdate(float fixed_dt)
+void PlayerCamera::fixedUpdate(float a_FixedDt)
 {
-	assert(ply != nullptr && "Player is nullptr");
+	assert(m_Player != nullptr && "Player is nullptr");
 
-	float plyX = ply->getPosition().x;
-	float scrW = (float)mgs->display->getLogWidth();
+	float plyX = m_Player->getPosition().x;
+	float scrW = (float)m_Mgs->display->getLogWidth();
 
-	float plyCamDist = plyX - rb.currPos.x;
+	float plyCamDist = plyX - m_Rb.currPos.x;
 
 	float threshold = scrW * CAMERA_THR;
 
-	rb.prevPos = rb.currPos;
-	float targetX = rb.currPos.x;
+	m_Rb.prevPos = m_Rb.currPos;
+	float targetX = m_Rb.currPos.x;
 
 	// jesli gracz daleko od srodka kamera podaza w jego strone
 	if (plyCamDist > threshold) {
@@ -38,6 +38,6 @@ void PlayerCamera::fixedUpdate(float fixed_dt)
 		targetX = plyX + threshold;
 	}
 
-	float dx = targetX - rb.currPos.x;
-	rb.currPos.x += dx * CAMERA_LERP;
+	float dx = targetX - m_Rb.currPos.x;
+	m_Rb.currPos.x += dx * CAMERA_LERP;
 }

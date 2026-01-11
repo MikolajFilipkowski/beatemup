@@ -17,30 +17,30 @@ class Engine;
 class Managers {
 	friend class Engine;
 private:
-	Manager** array[MGS_LEN];
-	int arrLen;
+	Manager** m_Array[MGS_LEN];
+	int m_ArrLen;
 
 	Managers() :
-		arrLen(MGS_LEN)
+		m_ArrLen(MGS_LEN)
 	{
-		array[0] = (Manager**)&display;
-		array[1] = (Manager**)&sprite;
-		array[2] = (Manager**)&object;
-		array[3] = (Manager**)&time;
-		array[4] = (Manager**)&input;
-		array[5] = (Manager**)&anim;
-		array[6] = (Manager**)&scene;
-		array[7] = (Manager**)&ui;
+		m_Array[0] = (Manager**)&display;
+		m_Array[1] = (Manager**)&sprite;
+		m_Array[2] = (Manager**)&object;
+		m_Array[3] = (Manager**)&time;
+		m_Array[4] = (Manager**)&input;
+		m_Array[5] = (Manager**)&anim;
+		m_Array[6] = (Manager**)&scene;
+		m_Array[7] = (Manager**)&ui;
 	}
 public:
-	DisplayManager* display = nullptr;
-	SpriteManager* sprite = nullptr;
-	ObjectManager* object = nullptr;
-	TimeManager* time = nullptr;
-	InputManager* input = nullptr;
-	AnimationManager* anim = nullptr;
-	SceneManager* scene = nullptr;
-	UIManager* ui = nullptr;
+	DisplayManager* display{};
+	SpriteManager* sprite{};
+	ObjectManager* object{};
+	TimeManager* time{};
+	InputManager* input{};
+	AnimationManager* anim{};
+	SceneManager* scene{};
+	UIManager* ui{};
 
-	Engine* engine = nullptr;
+	Engine* engine{};
 };

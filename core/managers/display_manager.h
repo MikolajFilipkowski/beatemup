@@ -10,40 +10,38 @@ extern "C" {
 class DisplayManager : private Manager {
 	friend class Engine;
 private:
-	SDL_Window* sdlWindow;
-	SDL_Renderer* sdlRenderer;
-	Dims screenDims;
-	Dims logDims;
-	Camera* activeCamera;
-	bool fullscreenEnabled;
-	bool borderlessFullscreen;
+	SDL_Window* m_Window{};
+	SDL_Renderer* m_Renderer{};
+	Dims m_ScreenDims{};
+	Dims m_LogDims{};
+	Camera* m_ActiveCamera{};
+	bool m_FullscreenEnabled{ false };
+	bool m_Borderless{ true };
 
-	DisplayManager(Managers* managers) : Manager(managers), sdlWindow(nullptr), sdlRenderer(nullptr),
-		screenDims{}, logDims{}, activeCamera(nullptr), fullscreenEnabled(false), borderlessFullscreen(true) {}
+	DisplayManager(Managers* a_Managers) : Manager(a_Managers) {}
 	~DisplayManager() override;
 	void destroy() override;
 
-	Vector2 worldToScreen(Vector3 worldPos) const;
-	SDL_FRect worldToRect(Vector3 worldPos, FDims dims) const;
+	Vector2 worldToScreen(Vector3 a_WorldPos) const;
+	SDL_FRect worldToRect(Vector3 a_WorldPos, FDims a_Dims) const;
 
-	void drawStringOutline(Vector2 pos, const char* text, const Font& font, const Sprite*& sprite, FDims maxSize);
-	void drawOutline(const Vector2& pos, const SDL_Rect& src, SDL_FRect& dest, const Outline& ol, SDL_Texture* tx);
-	bool checkStringBounds(const FDims& maxSize, const Vector2& starting_pos, 
-		const Font& font, const Vector2& pos, const Dims& charDims);
+	void drawStringOutline(Vector2 a_Pos, const char* a_Text, const Font& a_Font, const Sprite*& a_Sprite, FDims a_MaxSize);
+	void drawOutline(const Vector2& a_Pos, const SDL_Rect& a_Src, SDL_FRect& a_Dest, const Outline& a_Outline, SDL_Texture* a_Texture);
+	bool checkStringBounds(const FDims& a_MaxSize, const Vector2& a_StartingPos, 
+		const Font& a_Font, const Vector2& a_Pos, const Dims& a_CharDims);
 public:
-	bool init(const char* title, Dims winDims, Dims logicalDims = {}, bool fullscreen = false);
+	bool init(const char* a_Title, Dims a_WinDims, Dims a_LogDims = {}, bool a_Fullscreen = false);
 	void present();
 	void clear();
 
-	SDL_Renderer* getSDL_Renderer();
-	SDL_Texture* createTexture(SDL_Surface* surface);
+	SDL_Texture* createTexture(SDL_Surface* a_Surface);
 
-	void setIcon(const char* fileName, ColorRGBA clr = ColorRGBA::black());
+	void setIcon(const char* a_FileName, ColorRGBA a_Color = ColorRGBA::black());
 
 	Camera* getActiveCamera() const;
-	void setActiveCamera(Camera* camera);
+	void setActiveCamera(Camera* a_Camera);
 
-	void showCursor(bool shown);
+	void showCursor(bool a_Shown);
 	bool cursorShown() const;
 
 	Dims getScreenDims() const;
@@ -55,18 +53,18 @@ public:
 	Vector2 getLogScale();
 
 	bool isFullscreen() const;
-	void setFullscreen(bool isFullscreened);
+	void setFullscreen(bool a_Fullscreen);
 	void toggleFullscreen();
 	Uint32 getFullscreenType() const;
-	void setBorderless(bool isBorderlessed);
+	void setBorderless(bool a_Borderless);
 
-	void setDrawColor(ColorRGBA color);
-	void setSpriteModColor(const Sprite* spr, const ColorRGBA& color);
-	void drawSprite(int sprite_key, Vector2 pos, FDims dims = {0,0});
-	void drawSprite(int sprite_key, Transform tr);
-	void drawAnimFrame(int anim_key, int frameIdx, Transform tr);
-	void drawLine(Vector2 start, Vector2 dest, ColorRGBA color);
-	void drawRect(Vector2 pos, FDims dims, ColorRGBA color, int thickness = 1);
-	void drawFilledRect(Vector2 pos, FDims dims, ColorRGBA fill_color, ColorRGBA outline_color, int thickness = 1);
-	void drawString(int charset_key, Vector2 pos, const char* text, const Font& font, FDims maxSize = { 0,0 });
+	void setDrawColor(ColorRGBA a_Color);
+	void setSpriteModColor(const Sprite* a_Sprite, const ColorRGBA& a_Color);
+	void drawSprite(int a_SpriteKey, Vector2 a_Pos, FDims a_Dims = {0,0});
+	void drawSprite(int a_SpriteKey, Transform a_Transform);
+	void drawAnimFrame(int a_AnimKey, int a_FrameIdx, Transform tr);
+	void drawLine(Vector2 a_Start, Vector2 a_Dest, ColorRGBA a_Color);
+	void drawRect(Vector2 a_Pos, FDims a_Dims, ColorRGBA a_Color, int a_Thickness = 1);
+	void drawFilledRect(Vector2 a_Pos, FDims a_Dims, ColorRGBA a_FillColor, ColorRGBA a_OutlineColor, int a_Thickness = 1);
+	void drawString(int a_CharsetKey, Vector2 a_Pos, const char* a_Text, const Font& a_Font, FDims a_MaxSize = { 0,0 });
 };

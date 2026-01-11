@@ -1,37 +1,39 @@
 #include "input_buffer.h"
 
 #include <cstdio>
+#include "./gameObjects/player.h"
 
-InputBuffer::InputBuffer(Managers* mgs) : mgs(mgs), buffer(DEF_BUFFER_SIZE) {
-	debFont = { RES::CH_32, 32, 1.0, 1.0, {0xDD, 0xDD, 0xDD, 0xFF}, Outline(), 12 };
+InputBuffer::InputBuffer(Managers* a_Managers, Player* a_Player) : m_Mgs(a_Managers), m_Player(a_Player) {
+	m_DebugFont = { RES::CH_32, 32, 1.0, 1.0, {0xDD, 0xDD, 0xDD, 0xFF}, Outline(), 12 };
+	m_SmallDebugFont = { RES::CH_16, 16, .5, 1.0, {0xDD, 0xDD, 0xDD, 0xFF}, Outline(), 0 };
 }
 
 int InputBuffer::count() const {
-	return buffer.count();
+	return m_Buffer.count();
 }
 
-bool InputBuffer::matches(int actionId, int worldFrame) const
+bool InputBuffer::matches(int a_ActionId, int a_WorldFrame) const
 {
-	if (actionId <= 0 || count() == 0) 
+	if (a_ActionId <= 0 || count() == 0) 
 		return false;
 
-	ActionData* act = mgs->object->getAction(actionId);
-	if (act->sequence == nullptr || act->sequence->count() == 0)
+	ActionData* act = m_Mgs->object->getAction(a_ActionId);
+	if (act->getSequence() == nullptr || act->getSequence()->count() == 0)
 		return false;
 
-	Array<int>*& seq = act->sequence;
+	Array<int>* seq = act->getSequence();
 	int seqId = seq->count() - 1;
 	
-	const InputEntry& lastEntry = buffer.peekAt(count() - 1);
-	if (worldFrame - lastEntry.worldFrame > act->inputWindow)
+	const InputEntry& lastEntry = m_Buffer.peekAt(count() - 1);
+	if (a_WorldFrame - lastEntry.worldFrame > act->inputWindow)
 		return false;
 
-	for (int i = 0; i < buffer.count(); i++) {
-		const InputEntry& entry = buffer.peekAt(count() - 1 - i);
+	for (int i = 0; i < m_Buffer.count(); i++) {
+		const InputEntry& entry = m_Buffer.peekAt(count() - 1 - i);
 
-		if (entry.bind != seq->get(seqId)) 
+		if (entry.logicalBind != seq->get(seqId)) 
 			continue;
-		if (worldFrame - entry.worldFrame > act->inputWindow)
+		if (a_WorldFrame - entry.worldFrame > act->inputWindow)
 			return false;
 
 		seqId--;
@@ -43,28 +45,45 @@ bool InputBuffer::matches(int actionId, int worldFrame) const
 
 void InputBuffer::update()
 {
-	int wf = mgs->time->getWorldFrame();
+	int wf = m_Mgs->time->getWorldFrame();
 
-	for (int i = 1; i < ActionBind::BIND_COUNT; i++) {
-		if (mgs->input->getActionDown(i)) {
-			buffer.push({ i, wf });
-		}
+	FacingDir dir = m_Player->getFacingDir();
+
+	if (m_Mgs->input->getInputDown(InputBind::RIGHT)) {
+		int bind = (dir == FacingDir::RIGHT) ? ActionBind::FORWARD : ActionBind::BACKWARD;
+		m_Buffer.push({ bind, InputBind::RIGHT, wf });
 	}
+
+	if (m_Mgs->input->getInputDown(InputBind::LEFT)) {
+		int bind = (dir == FacingDir::LEFT) ? ActionBind::FORWARD : ActionBind::BACKWARD;
+		m_Buffer.push({ bind, InputBind::LEFT, wf });
+	}
+
+	if (m_Mgs->input->getInputDown(InputBind::UP))
+		m_Buffer.push({ ActionBind::UP, InputBind::UP, wf });
+	if (m_Mgs->input->getInputDown(InputBind::DOWN))
+		m_Buffer.push({ ActionBind::DOWN, InputBind::DOWN, wf });
+	if (m_Mgs->input->getInputDown(InputBind::JUMP))
+		m_Buffer.push({ ActionBind::JUMP, InputBind::JUMP, wf });
+	if (m_Mgs->input->getInputDown(InputBind::ACT_X))
+		m_Buffer.push({ ActionBind::ACT_X, InputBind::ACT_X, wf });
+	if (m_Mgs->input->getInputDown(InputBind::ACT_Y))
+		m_Buffer.push({ ActionBind::ACT_Y, InputBind::ACT_Y, wf });
 }
 
 void InputBuffer::clear()
 {
-	buffer.clear();
+	m_Buffer.clear();
 }
 
 void InputBuffer::drawBuffer()
 {
-	float size = mgs->display->getLogWidth() / (float)(DEF_BUFFER_SIZE + 2);
-	int wf = mgs->time->getWorldFrame();
+	float size = m_Mgs->display->getLogWidth() / (float)(DEF_BUFFER_SIZE + 2);
+	int wf = m_Mgs->time->getWorldFrame();
 
 	for (int i = 0; i < count(); i++) {
-		const InputEntry& entry = buffer.peekAt(i);
-		char ch = bindToChar(entry.bind);
+		const InputEntry& entry = m_Buffer.peekAt(i);
+		char ch = bindToChar(entry.logicalBind);
 		if (ch == '\0') return;
 
 		char txt[2] = { ch, '\0' };
@@ -72,12 +91,12 @@ void InputBuffer::drawBuffer()
 		const float x = size * (i + 1);
 		const float y = DEBUG_BUFF_Y;
 
-		const float ch_x = (x + size / 2.0f) - (debFont.chSize * debFont.scale) / 2.0f;
-		const float ch_y = (y + size / 2.0f) - ((debFont.chSize - debFont.baseline) * debFont.scale) / 2.0f;
+		const float chX = (x + size / 2.0f) - (m_DebugFont.chSize * m_DebugFont.scale) / 2.0f;
+		const float chY = (y + size / 2.0f) - ((m_DebugFont.chSize - m_DebugFont.baseline) * m_DebugFont.scale) / 2.0f;
 
-		Sprite* spr = mgs->sprite->get(RES::CIRCLE);
-		mgs->display->setSpriteModColor(spr, ColorRGBA::black());
-		mgs->display->drawSprite(RES::CIRCLE, { x, y }, { size, size });
+		Sprite* spr = m_Mgs->sprite->get(RES::CIRCLE);
+		m_Mgs->display->setSpriteModColor(spr, ColorRGBA::black());
+		m_Mgs->display->drawSprite(RES::CIRCLE, { x, y }, { size, size });
 		
 		ColorRGBA clr = Colors::vividBlue;
 
@@ -89,20 +108,26 @@ void InputBuffer::drawBuffer()
 			clr.b = clamp(clr.b + dist, 0, 0xFF);
 		}
 
-		mgs->display->setSpriteModColor(spr, clr);
+		m_Mgs->display->setSpriteModColor(spr, clr);
 
-		mgs->display->drawSprite(RES::CIRCLE, { x + 3, y + 3 }, { size - 6, size - 6 });
-		mgs->display->drawString(RES::CH_32, { ch_x, ch_y }, txt, debFont);
-		//mgs->display->drawRect({ ch_x, ch_y }, { debFont.chSize * debFont.scale, debFont.chSize * debFont.scale }, ColorRGBA::red(), 2);
-		mgs->display->setSpriteModColor(spr, ColorRGBA::white());
+		m_Mgs->display->drawSprite(RES::CIRCLE, { x + 3, y + 3 }, { size - 6, size - 6 });
+		m_Mgs->display->drawString(RES::CH_32, { chX, chY }, txt, m_DebugFont);
+
+		if (entry.physicalBind == InputBind::RIGHT || entry.physicalBind == InputBind::LEFT) {
+			char smCh = (entry.physicalBind == InputBind::RIGHT) ? 'R' : 'L';
+			char smTxt[2] = { smCh, '\0' };
+			m_Mgs->display->drawString(RES::CH_16, { x + size * .65f, y + size * .65f }, smTxt, m_SmallDebugFont);
+		}
+		//m_Mgs->display->drawRect({ ch_x, ch_y }, { debFont.chSize * debFont.scale, debFont.chSize * debFont.scale }, ColorRGBA::red(), 2);
+		m_Mgs->display->setSpriteModColor(spr, ColorRGBA::white());
 	}
 }
 
-char InputBuffer::bindToChar(int bind)
+char InputBuffer::bindToChar(int a_Bind)
 {
-	switch (bind) {
-	case ActionBind::LEFT: return 'L';
-	case ActionBind::RIGHT: return 'R';
+	switch (a_Bind) {
+	case ActionBind::FORWARD: return 'F';
+	case ActionBind::BACKWARD: return 'B';
 	case ActionBind::UP: return 'U';
 	case ActionBind::DOWN: return 'D';
 	case ActionBind::JUMP: return 'J';

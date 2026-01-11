@@ -5,8 +5,8 @@
 
 #define CH_ASSETS "game/assets/charsets/"
 
-Game::Game() : Application(), gmLoader(nullptr), iBuffer(nullptr), debugMode(false) {
-	infoFont = {
+Game::Game() : Application() {
+	m_InfoFont = {
 		RES::CH_16,
 		16,
 		.75f,
@@ -15,160 +15,143 @@ Game::Game() : Application(), gmLoader(nullptr), iBuffer(nullptr), debugMode(fal
 	};
 }
 
-bool Game::onStart(Managers* managers) {
-	mgs = managers;
+bool Game::onStart(Managers* a_Managers) {
+	m_Mgs = a_Managers;
+	m_GameLoader.init(m_Mgs);
 
-	mgs->display->setIcon("game/assets/punch_icon.bmp");
+	m_Mgs->display->setIcon("game/assets/punch_icon.bmp");
 
 	setupBindings();
 	loadCharsets();
 
-	mgs->sprite->load("game/assets/circle.bmp", RES::CIRCLE);
-	mgs->sprite->load("game/assets/shadow.bmp", RES::SHADOW);
+	m_Mgs->sprite->load("game/assets/circle.bmp", RES::CIRCLE);
+	m_Mgs->sprite->load("game/assets/shadow.bmp", RES::SHADOW);
 
-	gmLoader = new GameLoader(mgs);
-	gmLoader->loadActionData("game/data/actions.cfg");
+	m_GameLoader.loadActionData("game/data/actions.cfg");
 
-	iBuffer = new InputBuffer(mgs);
+	m_Mgs->object->setGravity(GRAVITY);
 
-	LevelScene* level = new LevelScene(mgs, iBuffer);
-	mgs->scene->add(SceneID::LEVEL, level);
+	LevelScene* level = new LevelScene(m_Mgs);
+	m_Mgs->scene->add(SceneID::LEVEL, level);
 
-	MenuScene* menu = new MenuScene(mgs);
-	mgs->scene->add(SceneID::MENU, menu);
-	mgs->scene->load(SceneID::MENU, true);
+	MenuScene* menu = new MenuScene(m_Mgs);
+	m_Mgs->scene->add(SceneID::MENU, menu);
+	m_Mgs->scene->load(SceneID::MENU, true);
 
 	return true;
 }
 
-void Game::onUpdate(float dt) {
-	//Rect vp = mgs->display->getActiveCamera()->getViewport();
+void Game::onUpdate(float a_Dt) {
+	//Rect vp = m_Mgs->display->getActiveCamera()->getViewport();
 	//printf("%.2f %.2f : %.2f %.2f\n", vp.x, vp.y, vp.x + vp.w, vp.y + vp.h);
 
-	mgs->scene->update(dt);
-	mgs->ui->update(dt);
+	m_Mgs->scene->update(a_Dt);
+	m_Mgs->ui->update(a_Dt);
 
-	if (mgs->input->getKeyDown(DEBUG_KEY))
-		debugMode = !debugMode;
-	if (mgs->input->getKeyDown(NEW_GAME_KEY))
-		mgs->scene->load(SceneID::LEVEL, false);
+	if (m_Mgs->input->getKeyDown(NEW_GAME_KEY))
+		m_Mgs->scene->load(SceneID::LEVEL, false);
 }
 
-void Game::onFixedUpdate(float fixed_dt) {
-	mgs->scene->fixedUpdate(fixed_dt);
+void Game::onFixedUpdate(float a_FixedDt) {
+	m_Mgs->scene->fixedUpdate(a_FixedDt);
 }
 
 void Game::onDraw() {
-	mgs->scene->draw();
-	mgs->ui->draw();
+	m_Mgs->scene->draw();
+	m_Mgs->ui->draw();
 
-	float wt = mgs->time->getWorldTime();
-	float fps = mgs->time->getFPS();
+	float wt = m_Mgs->time->getWorldTime();
+	float fps = m_Mgs->time->getFPS();
 	//size_t length = 0;
 
-	float log_w = (float)mgs->display->getLogWidth();
+	float log_w = (float)m_Mgs->display->getLogWidth();
 
 	char buff[32];
 	sprintf_s(buff, 31, "FPS: %.0f", fps);
 	//length = strlen(buff);
 
-	float dy = infoFont.chSize * infoFont.scale;
+	float dy = m_InfoFont.chSize * m_InfoFont.scale;
 
-	mgs->display->drawString(RES::CH_16, { 5,3 }, buff, infoFont);
+	m_Mgs->display->drawString(RES::CH_16, { 5,3 }, buff, m_InfoFont);
 
 	sprintf_s(buff, 31, "Czas gry: %.1f", wt);
-	mgs->display->drawString(RES::CH_16, { 5,3 + dy }, buff, infoFont);
+	m_Mgs->display->drawString(RES::CH_16, { 5,3 + dy }, buff, m_InfoFont);
 
-	const char* req = "Wymagania: 1234A";
-	float req_size = strlen(req) * infoFont.chSize * infoFont.spacing * infoFont.scale;
-	mgs->display->drawString(RES::CH_16, { log_w - 5 - req_size,3 }, req, infoFont);
-
-	if (inDebugMode()) 
-		iBuffer->drawBuffer();
+	const char* req = "Wymagania: 1234AJ";
+	float req_size = strlen(req) * m_InfoFont.chSize * m_InfoFont.spacing * m_InfoFont.scale;
+	m_Mgs->display->drawString(RES::CH_16, { log_w - 5 - req_size,3 }, req, m_InfoFont);
 	
 
 	//sprintf_s(buff, 31, "Czas trwania: %.2f", fps);
 
 	//float posX = f.chSize * f.scale * f.spacing * (float)length;
-	//mgs->display->drawString(RES::CH_16, { posX, 0 }, buff, f);
+	//m_Mgs->display->drawString(RES::CH_16, { posX, 0 }, buff, f);
 
-	//Uint64 txtSize = mgs->sprite->loadedSpritesSize();
+	//Uint64 txtSize = m_Mgs->sprite->loadedSpritesSize();
 	//printf("%lf\n", txtSize / (1024.0 * 1024.0));
 
-	/*Dims logDims = mgs->display->getLogDims();
-	mgs->display->drawFilledRect({ 4, 4 }, { (float)logDims.width - 8.0f, 64.0f }, ColorRGBA::blue(), ColorRGBA::red());
+	/*Dims logDims = m_Mgs->display->getLogDims();
+	m_Mgs->display->drawFilledRect({ 4, 4 }, { (float)logDims.width - 8.0f, 64.0f }, ColorRGBA::blue(), ColorRGBA::red());
 
 	char text[128];
 
-	sprintf(text, "Czas trwania = %.1lf s  %.0lf klatek/s", mgs->time->getWorldTime(), mgs->time->getFPS());
-	mgs->display->drawString(RES::CH_16, { (float)((logDims.width / 2) - strlen(text) * 24 / 2), 10 }, text, 1.25f);
+	sprintf(text, "Czas trwania = %.1lf s  %.0lf klatek/s", m_Mgs->time->getWorldTime(), m_Mgs->time->getFPS());
+	m_Mgs->display->drawString(RES::CH_16, { (float)((logDims.width / 2) - strlen(text) * 24 / 2), 10 }, text, 1.25f);
 
 
 	sprintf(text, "Esc - wyjscie, F11 - fullscreen");
-	mgs->display->drawString(RES::CH_16, { (float)((logDims.width / 2) - strlen(text) * 16 / 2), 40 }, text, 1.0f);*/
+	m_Mgs->display->drawString(RES::CH_16, { (float)((logDims.width / 2) - strlen(text) * 16 / 2), 40 }, text, 1.0f);*/
 }
 
 void Game::onDestroy() {
-	delete gmLoader;
-	delete iBuffer;
-
-	gmLoader = nullptr;
-	iBuffer = nullptr;
+	
 }
 
-bool Game::inDebugMode() const
-{
-	return debugMode;
-}
 
-void Game::setDebugMode(bool d)
-{
-	debugMode = d;
-}
 
 void Game::setupBindings()
 {
-	ActionBinding* jump = new ActionBinding(1);
+	InputBinds* jump = new InputBinds(1);
 	(*jump)[0] = { InputType::KEYBOARD, SDL_SCANCODE_SPACE };
-	mgs->input->addBinding(ActionBind::JUMP, jump);
+	m_Mgs->input->addBinding(InputBind::JUMP, jump);
 
-	ActionBinding* left = new ActionBinding(2);
+	InputBinds* left = new InputBinds(2);
 	(*left)[0] = { InputType::KEYBOARD, SDL_SCANCODE_A };
 	(*left)[1] = { InputType::KEYBOARD, SDL_SCANCODE_LEFT };
-	mgs->input->addBinding(ActionBind::LEFT, left);
+	m_Mgs->input->addBinding(InputBind::LEFT, left);
 
-	ActionBinding* right = new ActionBinding(2);
+	InputBinds* right = new InputBinds(2);
 	(*right)[0] = { InputType::KEYBOARD, SDL_SCANCODE_D };
 	(*right)[1] = { InputType::KEYBOARD, SDL_SCANCODE_RIGHT };
-	mgs->input->addBinding(ActionBind::RIGHT, right);
+	m_Mgs->input->addBinding(InputBind::RIGHT, right);
 
-	ActionBinding* up = new ActionBinding(2);
+	InputBinds* up = new InputBinds(2);
 	(*up)[0] = { InputType::KEYBOARD, SDL_SCANCODE_W };
 	(*up)[1] = { InputType::KEYBOARD, SDL_SCANCODE_UP };
-	mgs->input->addBinding(ActionBind::UP, up);
+	m_Mgs->input->addBinding(InputBind::UP, up);
 
-	ActionBinding* down = new ActionBinding(2);
+	InputBinds* down = new InputBinds(2);
 	(*down)[0] = { InputType::KEYBOARD, SDL_SCANCODE_S };
 	(*down)[1] = { InputType::KEYBOARD, SDL_SCANCODE_DOWN };
-	mgs->input->addBinding(ActionBind::DOWN, down);
+	m_Mgs->input->addBinding(InputBind::DOWN, down);
 
-	ActionBinding* act_x = new ActionBinding(3);
+	InputBinds* act_x = new InputBinds(3);
 	(*act_x)[0] = { InputType::MOUSE, SDL_BUTTON_LEFT };
 	(*act_x)[1] = { InputType::KEYBOARD, SDL_SCANCODE_X };
 	(*act_x)[2] = { InputType::KEYBOARD, SDL_SCANCODE_K };
-	mgs->input->addBinding(ActionBind::ACT_X, act_x);
+	m_Mgs->input->addBinding(InputBind::ACT_X, act_x);
 
-	ActionBinding* act_y = new ActionBinding(3);
+	InputBinds* act_y = new InputBinds(3);
 	(*act_y)[0] = { InputType::MOUSE, SDL_BUTTON_RIGHT };
 	(*act_y)[1] = { InputType::KEYBOARD, SDL_SCANCODE_C };
 	(*act_y)[2] = { InputType::KEYBOARD, SDL_SCANCODE_L };
-	mgs->input->addBinding(ActionBind::ACT_Y, act_y);
+	m_Mgs->input->addBinding(InputBind::ACT_Y, act_y);
 }
 
 void Game::loadCharsets()
 {
-	mgs->sprite->load(CH_ASSETS "def_8.bmp", RES::CH_8, true);
-	mgs->sprite->load(CH_ASSETS "ps2p_16.bmp", RES::CH_16, true);
-	mgs->sprite->load(CH_ASSETS "thf_32.bmp", RES::CH_32, true);
-	mgs->sprite->load(CH_ASSETS "yg_64.bmp", RES::CH_64, true);
+	m_Mgs->sprite->load(CH_ASSETS "def_8.bmp", RES::CH_8, true);
+	m_Mgs->sprite->load(CH_ASSETS "ps2p_16.bmp", RES::CH_16, true);
+	m_Mgs->sprite->load(CH_ASSETS "thf_32.bmp", RES::CH_32, true);
+	m_Mgs->sprite->load(CH_ASSETS "yg_64.bmp", RES::CH_64, true);
 }

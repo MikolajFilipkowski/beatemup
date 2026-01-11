@@ -4,32 +4,32 @@
 #include "../engine.h"
 #include <stdio.h>
 
-void SpriteManager::load(const char* fileName, int key, bool isCharset)
+void SpriteManager::load(const char* a_FileName, int a_Key, bool a_IsCharset)
 {
-	if (spriteMap.containsKey(key))
+	if (m_SpriteMap.containsKey(a_Key))
 		return;
 
-	SDL_Surface* surface = SDL_LoadBMP(fileName);
+	SDL_Surface* surface = SDL_LoadBMP(a_FileName);
 
 	if (surface == NULL) {
-		mgs->engine->stop();
-		printf("SDL_LoadBMP(%s) error: %s\n", fileName, SDL_GetError());
+		m_Mgs->engine->stop();
+		printf("SDL_LoadBMP(%s) error: %s\n", a_FileName, SDL_GetError());
 		return;
 	}
 
-	if (isCharset)
+	if (a_IsCharset)
 		SDL_SetColorKey(surface, true, 0x000000);
 
 	int width = surface->w;
 	int height = surface->h;
 
-	SDL_Texture* texture = mgs->display->createTexture(surface);
+	SDL_Texture* texture = m_Mgs->display->createTexture(surface);
 
 	SDL_FreeSurface(surface);
 
 	if (texture == NULL) {
-		mgs->engine->stop();
-		printf("SDL_CreateTextureFromSurface(%s) error: %s\n", fileName, SDL_GetError());
+		m_Mgs->engine->stop();
+		printf("SDL_CreateTextureFromSurface(%s) error: %s\n", a_FileName, SDL_GetError());
 		return;
 	}
 
@@ -38,12 +38,12 @@ void SpriteManager::load(const char* fileName, int key, bool isCharset)
 	sprite->width = width;
 	sprite->height = height;
 
-	spriteMap.put(key, sprite);
+	m_SpriteMap.put(a_Key, sprite);
 }
 
-void SpriteManager::loadCharset(const char* fileName, int key)
+void SpriteManager::loadCharset(const char* a_FileName, int a_Key)
 {
-	load(fileName, key, true);
+	load(a_FileName, a_Key, true);
 }
 
 SpriteManager::~SpriteManager()
@@ -53,7 +53,7 @@ SpriteManager::~SpriteManager()
 
 void SpriteManager::destroy()
 {
-	for (auto& pair : spriteMap) {
+	for (auto& pair : m_SpriteMap) {
 		if (pair.value == nullptr) continue;
 
 		SDL_DestroyTexture(pair.value->texture);
@@ -61,17 +61,17 @@ void SpriteManager::destroy()
 		pair.value = nullptr;
 	}
 
-	spriteMap.clear();
+	m_SpriteMap.clear();
 }
 
-void SpriteManager::unload(int key)
+void SpriteManager::unload(int a_Key)
 {
-	if (!spriteMap.containsKey(key))
+	if (!m_SpriteMap.containsKey(a_Key))
 		return;
 
-	Sprite* sprite = spriteMap.get(key);
+	Sprite* sprite = m_SpriteMap.get(a_Key);
 
-	spriteMap.remove(key);
+	m_SpriteMap.remove(a_Key);
 
 	if (sprite == nullptr) {
 
@@ -84,25 +84,25 @@ void SpriteManager::unload(int key)
 	sprite = nullptr;
 }
 
-Sprite* SpriteManager::get(int key)
+Sprite* SpriteManager::get(int a_Key)
 {
-	return spriteMap.get(key);
+	return m_SpriteMap.get(a_Key);
 }
 
-void SpriteManager::setSpriteColor(int key, ColorRGBA clr)
+void SpriteManager::setSpriteColor(int a_Key, ColorRGBA a_Color)
 {
-	if (!spriteMap.containsKey(key)) return;
+	if (!m_SpriteMap.containsKey(a_Key)) return;
 
-	Sprite* spr = get(key);
-	SDL_SetTextureColorMod(spr->texture, clr.r, clr.g, clr.b);
-	SDL_SetTextureAlphaMod(spr->texture, clr.a);
+	Sprite* spr = get(a_Key);
+	SDL_SetTextureColorMod(spr->texture, a_Color.r, a_Color.g, a_Color.b);
+	SDL_SetTextureAlphaMod(spr->texture, a_Color.a);
 }
 
 Uint64 SpriteManager::loadedSpritesSize() const
 {
 	Uint64 size = 0;
 
-	for (auto& spr : spriteMap) {
+	for (auto& spr : m_SpriteMap) {
 		int w, h;
 		SDL_QueryTexture(spr.value->texture, NULL, NULL, &w, &h);
 		size += (Uint64)w * (Uint64)h * 4ULL;

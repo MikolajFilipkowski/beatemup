@@ -10,13 +10,13 @@ extern "C" {
 class AnimationManager : private Manager {
 	friend class Engine;
 private:
-	Map<int, AnimationClip*> animMap;
+	Map<int, AnimationClip*> m_AnimMap{};
 
-	AnimationManager(Managers* managers) : Manager(managers) {}
+	AnimationManager(Managers* a_Managers) : Manager(a_Managers) {}
 	~AnimationManager() override;
 	void destroy() override;
 public:
-	void createFromSheet(int animKey, int spriteKey, int frameCount, float frameDuration);
-	AnimationClip* get(int key);
-	void remove(int key);
+	void createFromSheet(int a_AnimKey, int a_SpriteKey, int a_FrameCount, float a_FrameDuration);
+	AnimationClip* get(int a_Key);
+	void remove(int a_Key);
 };

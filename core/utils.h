@@ -6,57 +6,57 @@
 constexpr int DEFAULT_ARR_CAPACITY = 16;
 constexpr int SCALE_MUL = 2;
 
-char* copy_string(const char* str);
+char* copy_string(const char* a_Str);
 
-int clamp(int value, int min, int max);
-float clamp(float value, float min, float max);
+int clamp(int a_Val, int a_Min, int a_Max);
+float clamp(float a_Val, float a_Min, float a_Max);
 
 template <typename T>
-constexpr bool is_str() { return false; }
+constexpr bool isStr() { return false; }
 
 template <>
-constexpr bool is_str<const char*>() { return true; }
+constexpr bool isStr<const char*>() { return true; }
 
 template <>
-constexpr bool is_str<char*>() { return true; }
+constexpr bool isStr<char*>() { return true; }
 
 template <typename T>
 class Array {
 private:
-	T* array;
-	int arrCount;
+	T* m_Array;
+	int m_ArrCount;
 public:
-	Array(int count);
+	Array(int a_Count);
 	Array(const Array&) = delete;
 	Array& operator=(const Array&) = delete;
 	~Array();
-	T& get(int index);
-	T& operator[](int index);
+	T& get(int a_Index);
+	T& operator[](int a_Index);
 	int count() const;
 };
 
 template <typename T>
 class ArrayList {
 private:
-	T* array;
-	int arrCount;
-	int arrCapacity;
-	void resize(int newCapacity);
+	T* m_Array;
+	int m_ArrCount{ 0 };
+	int m_ArrCapacity;
+	void resize(int a_Capacity);
 	ArrayList(const ArrayList&) = delete;
 	ArrayList& operator=(const ArrayList&) = delete;
 public:
-	ArrayList(int capacity = DEFAULT_ARR_CAPACITY);
+	ArrayList(int a_Capacity = DEFAULT_ARR_CAPACITY);
 	~ArrayList();
-	T& get(int index);
-	void add(const T& item);
-	void insert(int index, const T& item);
-	void removeAt(int index);
-	void remove(T& item);
-	void removeIf(bool (*cond)(const T&), void (*onRemove)(T&) = nullptr);
+	T& get(int a_Index);
+	void add(const T& a_Item);
+	void insert(int a_Index, const T& a_Item);
+	void removeAt(int a_Index);
+	void remove(T& a_Item);
+	void removeIf(bool (*a_Condition)(const T&), void (*a_OnRemove)(T&) = nullptr);
 	int count() const;
 	void clear();
-	void sort(bool (*compare)(const T&, const T&));
-	T& operator[](int index);
+	void sort(bool (*a_Compare)(const T&, const T&));
+	T& operator[](int a_Index);
 	T* begin();
 	T* end();
 	const T* begin() const;
@@ -72,22 +72,22 @@ struct KVPair {
 template <typename K, typename V>
 class Map {
 protected:
-	ArrayList<KVPair<K,V>> array;
+	ArrayList<KVPair<K,V>> m_Array;
 	Map(const Map&) = delete;
 	Map& operator=(const Map&) = delete;
-	bool compareKeys(const K& key1, const K& key2) const;
+	bool compareKeys(const K& a_Key1, const K& a_Key2) const;
 public:
 	Map(int size = DEFAULT_ARR_CAPACITY);
 	~Map();
 
-	V& get(const K key);
-	V& getByIndex(int index);
-	bool containsKey(const K key) const;
-	void put(const K key, const V& value);
-	void remove(const K key);
+	V& get(const K a_Key);
+	V& getByIndex(int a_Index);
+	bool containsKey(const K a_Key) const;
+	void put(const K a_Key, const V& a_Val);
+	void remove(const K a_Key);
 	void clear();
-	const V& operator[](const K key) const;
-	V& operator[](const K key);
+	const V& operator[](const K a_Key) const;
+	V& operator[](const K a_Key);
 	KVPair<K, V>* begin();
 	KVPair<K, V>* end();
 	const KVPair<K, V>* begin() const;
@@ -97,39 +97,39 @@ public:
 template <typename T>
 class CircularQueue {
 protected:
-	T* array;
-	int size;
-	int itemCount;
-	int read;
-	int write;
+	T* m_Array;
+	int m_Size;
+	int m_ItemCount;
+	int m_Read;
+	int m_Write;
 public:
-	CircularQueue(int queueSize);
+	CircularQueue(int a_Size);
 	virtual ~CircularQueue();
-	void push(const T& value);
+	void push(const T& a_Val);
 	T pop();
 	const T& peek() const;
-	const T& peekAt(int idxFromRead) const;
+	const T& peekAt(int a_idxFromRead) const;
 	void clear();
 	int count() const;
 	int maxSize() const;
 };
 
 template<typename T>
-inline Array<T>::Array(int count) : arrCount(count) {
-	array = new T[arrCount];
+inline Array<T>::Array(int count) : m_ArrCount(count) {
+	m_Array = new T[m_ArrCount];
 }
 
 template<typename T>
 inline Array<T>::~Array() {
-	delete[] array;
-	array = nullptr;
+	delete[] m_Array;
+	m_Array = nullptr;
 }
 
 template<typename T>
 inline T& Array<T>::get(int index) {
-	assert(index >= 0 && index < arrCount && "Index out of bounds");
+	assert(index >= 0 && index < m_ArrCount && "Index out of bounds");
 
-	return array[index];
+	return m_Array[index];
 }
 
 template <typename T>
@@ -140,89 +140,89 @@ inline T& Array<T>::operator[](int index) {
 template<typename T>
 inline int Array<T>::count() const
 {
-	return arrCount;
+	return m_ArrCount;
 }
 
 template<typename T>
-inline void ArrayList<T>::resize(int newCapacity) {
-	if (newCapacity < 2) newCapacity = 2;
+inline void ArrayList<T>::resize(int a_Capacity) {
+	if (a_Capacity < 2) a_Capacity = 2;
 
-	int toCopy = (arrCount < newCapacity) ? arrCount : newCapacity;
-	T* newArray = new T[newCapacity];
+	int toCopy = (m_ArrCount < a_Capacity) ? m_ArrCount : a_Capacity;
+	T* newArray = new T[a_Capacity];
 
 	for (int i = 0; i < toCopy; i++) {
-		newArray[i] = array[i];
+		newArray[i] = m_Array[i];
 	}
 
-	delete[] array;
-	array = newArray;
-	arrCapacity = newCapacity;
-	arrCount = toCopy;
+	delete[] m_Array;
+	m_Array = newArray;
+	m_ArrCapacity = a_Capacity;
+	m_ArrCount = toCopy;
 }
 
 template<typename T>
-inline ArrayList<T>::ArrayList(int capacity) : arrCount(0), arrCapacity(capacity) {
-	array = new T[capacity];
+inline ArrayList<T>::ArrayList(int a_Capacity) : m_ArrCapacity(a_Capacity) {
+	m_Array = new T[a_Capacity];
 }
 
 template<typename T>
 inline ArrayList<T>::~ArrayList() {
-	delete[] array;
-	array = nullptr;
+	delete[] m_Array;
+	m_Array = nullptr;
 }
 
 template<typename T>
-inline T& ArrayList<T>::get(int index) {
-	assert(index >= 0 && index < arrCount && "Index out of bounds");
+inline T& ArrayList<T>::get(int a_Index) {
+	assert(a_Index >= 0 && a_Index < m_ArrCount && "Index out of bounds");
 
-	return array[index];
+	return m_Array[a_Index];
 }
 
 template<typename T>
-inline void ArrayList<T>::add(const T& item) {
-	if (arrCount >= arrCapacity)
-		resize(arrCapacity * SCALE_MUL);
+inline void ArrayList<T>::add(const T& a_Item) {
+	if (m_ArrCount >= m_ArrCapacity)
+		resize(m_ArrCapacity * SCALE_MUL);
 
-	array[arrCount] = item;
-	arrCount++;
+	m_Array[m_ArrCount] = a_Item;
+	m_ArrCount++;
 }
 
 template<typename T>
-inline void ArrayList<T>::insert(int index, const T& item) {
-	assert(index >= 0 && index <= arrCount && "Index out of bounds");
+inline void ArrayList<T>::insert(int a_Index, const T& a_Item) {
+	assert(a_Index >= 0 && a_Index <= m_ArrCount && "Index out of bounds");
 
-	if (arrCount >= arrCapacity)
-		resize(arrCapacity * SCALE_MUL);
+	if (m_ArrCount >= m_ArrCapacity)
+		resize(m_ArrCapacity * SCALE_MUL);
 
-	for (int i = arrCount; i > index; i--) {
-		array[i] = array[i - 1];
+	for (int i = m_ArrCount; i > a_Index; i--) {
+		m_Array[i] = m_Array[i - 1];
 	}
 
-	arrCount++;
-	array[index] = item;
+	m_ArrCount++;
+	m_Array[a_Index] = a_Item;
 }
 
 template<typename T>
-inline void ArrayList<T>::removeAt(int index) {
-	assert(index >= 0 && index < arrCount && "Index out of bounds");
+inline void ArrayList<T>::removeAt(int a_Index) {
+	assert(a_Index >= 0 && a_Index < m_ArrCount && "Index out of bounds");
 
-	for (int i = index; i < arrCount - 1; i++) {
-		array[i] = array[i + 1];
+	for (int i = a_Index; i < m_ArrCount - 1; i++) {
+		m_Array[i] = m_Array[i + 1];
 	}
 
-	arrCount--;
+	m_ArrCount--;
 
-	if (arrCount > DEFAULT_ARR_CAPACITY &&
-		arrCount < arrCapacity / (SCALE_MUL * 2)
+	if (m_ArrCount > DEFAULT_ARR_CAPACITY &&
+		m_ArrCount < m_ArrCapacity / (SCALE_MUL * 2)
 		) {
-		resize(arrCapacity / SCALE_MUL);
+		resize(m_ArrCapacity / SCALE_MUL);
 	}
 }
 
 template<typename T>
-inline void ArrayList<T>::remove(T& item) {
-	for (int i = 0; i < arrCount; i++) {
-		if (array[i] == item) {
+inline void ArrayList<T>::remove(T& a_Item) {
+	for (int i = 0; i < m_ArrCount; i++) {
+		if (m_Array[i] == a_Item) {
 			removeAt(i);
 			break;
 		}
@@ -231,48 +231,48 @@ inline void ArrayList<T>::remove(T& item) {
 
 template<typename T>
 inline void ArrayList<T>::removeIf(
-	bool (*cond)(const T&), 
-	void (*onRemove)(T&)
+	bool (*a_Condition)(const T&), 
+	void (*a_OnRemove)(T&)
 ) {
 	int i = 0, j = 0;
 
-	for (; i < arrCount; i++) {
-		if (!cond(array[i])) {
-			array[j++] = array[i];
+	for (; i < m_ArrCount; i++) {
+		if (!a_Condition(m_Array[i])) {
+			m_Array[j++] = m_Array[i];
 		}
 		else {
-			if (onRemove != nullptr)
-				onRemove(array[i]);
+			if (a_OnRemove != nullptr)
+				a_OnRemove(m_Array[i]);
 		}
 	}
 
-	arrCount = j;
+	m_ArrCount = j;
 }
 
 template<typename T>
 inline int ArrayList<T>::count() const {
-	return arrCount;
+	return m_ArrCount;
 }
 
 template<typename T>
 inline void ArrayList<T>::clear() {
-	arrCount = 0;
+	m_ArrCount = 0;
 	resize(DEFAULT_ARR_CAPACITY);
 }
 
 // Bubble sort z flag¹ swapped
 template<typename T>
-inline void ArrayList<T>::sort(bool(*compare)(const T&, const T&)) {
+inline void ArrayList<T>::sort(bool(*a_Compare)(const T&, const T&)) {
 	bool swapped = false;
 
-	for (int i = 0; i < arrCount - 1; i++) {
-		for (int j = 0; j < arrCount - i - 1; j++) {
+	for (int i = 0; i < m_ArrCount - 1; i++) {
+		for (int j = 0; j < m_ArrCount - i - 1; j++) {
 			swapped = false;
 
-			if (compare(array[j], array[j + 1])) {
-				T temp = array[j];
-				array[j] = array[j + 1];
-				array[j + 1] = temp;
+			if (a_Compare(m_Array[j], m_Array[j + 1])) {
+				T temp = m_Array[j];
+				m_Array[j] = m_Array[j + 1];
+				m_Array[j + 1] = temp;
 
 				swapped = true;
 			}
@@ -282,45 +282,45 @@ inline void ArrayList<T>::sort(bool(*compare)(const T&, const T&)) {
 }
 
 template<typename T>
-inline T& ArrayList<T>::operator[](int index) {
-	return get(index);
+inline T& ArrayList<T>::operator[](int a_Index) {
+	return get(a_Index);
 }
 
 template<typename T>
 inline T* ArrayList<T>::begin()
 {
-	return array;
+	return m_Array;
 }
 
 template<typename T>
 inline T* ArrayList<T>::end()
 {
-	return array + arrCount;
+	return m_Array + m_ArrCount;
 }
 
 template<typename T>
 inline const T* ArrayList<T>::begin() const {
-	return array;
+	return m_Array;
 }
 
 template<typename T>
 inline const T* ArrayList<T>::end() const {
-	return array + arrCount;
+	return m_Array + m_ArrCount;
 }
 
 template<typename K, typename V>
-inline bool Map<K, V>::compareKeys(const K& key1, const K& key2) const
+inline bool Map<K, V>::compareKeys(const K& a_Key1, const K& a_Key2) const
 {
-	if constexpr (is_str<K>()) {
-		return strcmp(key1, key2) == 0;
+	if constexpr (isStr<K>()) {
+		return strcmp(a_Key1, a_Key2) == 0;
 	}
 	else {
-		return key1 == key2;
+		return a_Key1 == a_Key2;
 	}
 }
 
 template<typename K, typename V>
-inline Map<K,V>::Map(int size) : array(size) {}
+inline Map<K,V>::Map(int a_Size) : m_Array(a_Size) {}
 
 template<typename K, typename V>
 inline Map<K, V>::~Map() {
@@ -328,32 +328,32 @@ inline Map<K, V>::~Map() {
 }
 
 template<typename K, typename V>
-inline V& Map<K, V>::get(K key) {
-	if (key == 0) {
+inline V& Map<K, V>::get(K a_Key) {
+	if (a_Key == 0) {
 		assert(false && "Key must not be null");
-		return array[0].value;
+		return m_Array[0].value;
 	}
 
-	for (KVPair<K,V>& item : array) {
-		if (compareKeys(key, item.key))
+	for (KVPair<K,V>& item : m_Array) {
+		if (compareKeys(a_Key, item.key))
 			return item.value;
 	}
 
 	assert(false && "Key does not exists");
-	return array[0].value;
+	return m_Array[0].value;
 }
 
 template<typename K, typename V>
-inline V& Map<K, V>::getByIndex(int index)
+inline V& Map<K, V>::getByIndex(int a_Index)
 {
-	return array.get(index).value;
+	return m_Array.get(a_Index).value;
 }
 
 template<typename K, typename V>
-inline bool Map<K, V>::containsKey(const K key) const
+inline bool Map<K, V>::containsKey(const K a_Key) const
 {
-	for (const KVPair<K, V>& item : array) {
-		if (compareKeys(key, item.key))
+	for (const KVPair<K, V>& item : m_Array) {
+		if (compareKeys(a_Key, item.key))
 			return true;
 	}
 
@@ -361,30 +361,30 @@ inline bool Map<K, V>::containsKey(const K key) const
 }
 
 template<typename K, typename V>
-inline void Map<K, V>::put(const K key, const V& value) {
-	for (KVPair<K, V>& item : array) {
-		if (compareKeys(key, item.key)) {
-			item.value = value;
+inline void Map<K, V>::put(const K a_Key, const V& a_Val) {
+	for (KVPair<K, V>& item : m_Array) {
+		if (compareKeys(a_Key, item.key)) {
+			item.value = a_Val;
 			return;
 		}
 	}
 
-	if constexpr (is_str<K>()) {
-		array.add({ copy_string(key), value });
+	if constexpr (isStr<K>()) {
+		m_Array.add({ copy_string(a_Key), a_Val });
 	} else {
-		array.add({ key, value });
+		m_Array.add({ a_Key, a_Val });
 	}
 }
 
 template<typename K, typename V>
-inline void Map<K, V>::remove(const K key) {
-	for (int i = 0; i < array.count(); i++) {
-		if (compareKeys(key, array[i].key)) {
-			if constexpr (is_str<K>()) {
-				delete[] array[i].key;
-				array[i].key = nullptr;
+inline void Map<K, V>::remove(const K a_Key) {
+	for (int i = 0; i < m_Array.count(); i++) {
+		if (compareKeys(a_Key, m_Array[i].key)) {
+			if constexpr (isStr<K>()) {
+				delete[] m_Array[i].key;
+				m_Array[i].key = nullptr;
 			}
-			array.removeAt(i);
+			m_Array.removeAt(i);
 			return;
 		}
 	}
@@ -392,19 +392,19 @@ inline void Map<K, V>::remove(const K key) {
 
 template<typename K, typename V>
 inline void Map<K, V>::clear() {
-	if constexpr (is_str<K>()) {
-		for (KVPair<K, V>& item : array) {
+	if constexpr (isStr<K>()) {
+		for (KVPair<K, V>& item : m_Array) {
 			delete[] item.key;
 			item.key = nullptr;
 		}
 	}
-	array.clear();
+	m_Array.clear();
 }
 
 template<typename K, typename V>
-inline const V& Map<K, V>::operator[](const K key) const {
-	for (const KVPair<K, V>& item : array) {
-		if (compareKeys(item.key, key)) {
+inline const V& Map<K, V>::operator[](const K a_Key) const {
+	for (const KVPair<K, V>& item : m_Array) {
+		if (compareKeys(item.key, a_Key)) {
 			return item.value;
 		}
 	}
@@ -413,113 +413,113 @@ inline const V& Map<K, V>::operator[](const K key) const {
 }
 
 template<typename K, typename V>
-inline V& Map<K, V>::operator[](const K key) {
-	for (KVPair<K, V>& item : array) {
-		if (compareKeys(item.key, key)) {
+inline V& Map<K, V>::operator[](const K a_Key) {
+	for (KVPair<K, V>& item : m_Array) {
+		if (compareKeys(item.key, a_Key)) {
 			return item.value;
 		}
 	}
 
-	if constexpr (is_str<K>())
-		array.add({ copy_string(key), V() });
+	if constexpr (isStr<K>())
+		m_Array.add({ copy_string(a_Key), V() });
 	else
-		array.add({ key, V()});
+		m_Array.add({ a_Key, V()});
 
-	return array[array.count() - 1].value;
+	return m_Array[m_Array.count() - 1].value;
 }
 
 template<typename K, typename V>
 inline KVPair<K, V>* Map<K, V>::begin()
 {
-	return array.begin();
+	return m_Array.begin();
 }
 
 template<typename K, typename V>
 inline KVPair<K, V>* Map<K, V>::end()
 {
-	return array.end();
+	return m_Array.end();
 }
 
 template<typename K, typename V>
 inline const KVPair<K, V>* Map<K, V>::begin() const
 {
-	return array.begin();
+	return m_Array.begin();
 }
 
 template<typename K, typename V>
 inline const KVPair<K, V>* Map<K, V>::end() const
 {
-	return array.end();
+	return m_Array.end();
 }
 
 template<typename T>
-inline CircularQueue<T>::CircularQueue(int queueSize)
+inline CircularQueue<T>::CircularQueue(int a_Size)
 {
-	array = new T[queueSize];
-	size = queueSize;
-	itemCount = 0;
-	read = 0;
-	write = 0;
+	m_Array = new T[a_Size];
+	m_Size = a_Size;
+	m_ItemCount = 0;
+	m_Read = 0;
+	m_Write = 0;
 }
 
 template<typename T>
 inline CircularQueue<T>::~CircularQueue()
 {
-	delete[] array;
+	delete[] m_Array;
 }
 
 template<typename T>
-inline void CircularQueue<T>::push(const T& value)
+inline void CircularQueue<T>::push(const T& a_Val)
 {
-	array[write] = value;
-	write = (write + 1) % size;
+	m_Array[m_Write] = a_Val;
+	m_Write = (m_Write + 1) % m_Size;
 
-	if (itemCount < size)
-		itemCount++;
+	if (m_ItemCount < m_Size)
+		m_ItemCount++;
 	else
-		read = (read + 1) % size;
+		m_Read = (m_Read + 1) % m_Size;
 }
 
 template<typename T>
 inline T CircularQueue<T>::pop()
 {
-	assert(itemCount > 0 && "Queue index out of bounds");
+	assert(m_ItemCount > 0 && "Queue index out of bounds");
 
-	T val = array[read];
-	itemCount--;
-	read = (read + 1) % size;
+	T val = m_Array[m_Read];
+	m_ItemCount--;
+	m_Read = (m_Read + 1) % m_Size;
 	return val;
 }
 
 template<typename T>
 inline const T& CircularQueue<T>::peek() const
 {
-	return array[read];
+	return m_Array[m_Read];
 }
 
 template<typename T>
-inline const T& CircularQueue<T>::peekAt(int idxFromRead) const
+inline const T& CircularQueue<T>::peekAt(int a_IdxFromRead) const
 {
-	assert(idxFromRead < count() && "Queue index out of bounds");
-	return array[(read + idxFromRead) % size];
+	assert(a_IdxFromRead < count() && "Queue index out of bounds");
+	return m_Array[(m_Read + a_IdxFromRead) % m_Size];
 }
 
 template<typename T>
 inline void CircularQueue<T>::clear()
 {
-	itemCount = 0;
-	read = 0;
-	write = 0;
+	m_ItemCount = 0;
+	m_Read = 0;
+	m_Write = 0;
 }
 
 template<typename T>
 inline int CircularQueue<T>::count() const
 {
-	return itemCount;
+	return m_ItemCount;
 }
 
 template<typename T>
 inline int CircularQueue<T>::maxSize() const
 {
-	return size;
+	return m_Size;
 }

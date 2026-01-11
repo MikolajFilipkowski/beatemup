@@ -4,6 +4,12 @@
 
 #define ASSETS "game/assets/"
 
+inline constexpr float GRAVITY = 4500.0f;
+inline constexpr float PLY_SPEED = 450.0f;
+inline constexpr float JUMP_FORCE = -2000.0f;
+inline constexpr float Z_AXIS_MUL = .6f;
+inline constexpr float IN_AIR_MUL = .85f;
+
 inline constexpr float CAMERA_LERP = .2f;
 inline constexpr float CAMERA_THR = .25f;
 
@@ -19,10 +25,11 @@ inline constexpr int BUFFER_CLR_DECAY = 60;
 
 inline constexpr SDL_Scancode NEW_GAME_KEY = SDL_SCANCODE_N;
 
-inline constexpr SDL_Scancode DEBUG_KEY = SDL_SCANCODE_F3;
 inline constexpr float DEBUG_BUFF_Y = 120.0f;
 
 inline constexpr float DEF_HP = 100.0f;
+
+inline constexpr FDims SHADOW_DIMS = { 96, 32 };
 
 
 // Dziala podobnie do enum class, ale automatycznie rzutuje na inta
@@ -56,8 +63,8 @@ namespace RES {
 		PLY_IDLE = (int)ANIMS_OFFSET,
 		PLY_WALK,
 		PLY_JUMP,
-		PLY_ATTACK_1,
-		PLY_ATTACK_2,
+		PLY_HEAVY_ATT,
+		PLY_LIGHT_ATT,
 		PLY_ATTACK_3,
 	};
 }
@@ -71,12 +78,27 @@ namespace Colors {
 	inline constexpr ColorRGBA vividBlue = { 0x1A, 0x43, 0xD9, 0xFF };
 }
 
-namespace ActionBind {
+namespace InputBind {
 	enum {
 		NONE = 0,
 		JUMP,
 		LEFT,
 		RIGHT,
+		UP,
+		DOWN,
+		ACT_X,
+		ACT_Y,
+
+		INPUT_COUNT
+	};
+}
+
+namespace ActionBind {
+	enum {
+		NONE = 0,
+		JUMP,
+		FORWARD,
+		BACKWARD,
 		UP,
 		DOWN,
 		ACT_X,
@@ -91,6 +113,7 @@ namespace Actions {
 		NONE,
 		IDLE,
 		WALK,
+		JUMP,
 		LIGHT_ATTACK,
 		HEAVY_ATTACK
 	};

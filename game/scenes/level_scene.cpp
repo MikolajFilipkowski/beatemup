@@ -2,22 +2,21 @@
 
 #include "assert.h"
 #include "../gameObjects/player.h"
-#include "../gameObjects/player_camera.h"
+
 
 #define MENU_ASSETS "game/assets/levels/menu/"
 
 void LevelScene::start()
 {
-	mgs->display->showCursor(false);
-	iBuffer->clear();
+	m_Mgs->display->showCursor(false);
 
-	mgs->sprite->load(MENU_ASSETS "boxes.bmp", RES::MENU_BOXES);
-	mgs->sprite->load(MENU_ASSETS "buildings.bmp", RES::MENU_BUILDINGS);
-	mgs->sprite->load(MENU_ASSETS "road.bmp", RES::MENU_ROAD);
-	mgs->sprite->load(MENU_ASSETS "sky.bmp", RES::MENU_SKY);
-	mgs->sprite->load(MENU_ASSETS "wall1.bmp", RES::MENU_WALL1);
-	mgs->sprite->load(MENU_ASSETS "wall2.bmp", RES::MENU_WALL2);
-	mgs->sprite->load(MENU_ASSETS "wheels.bmp", RES::MENU_WHEELS);
+	m_Mgs->sprite->load(MENU_ASSETS "boxes.bmp", RES::MENU_BOXES);
+	m_Mgs->sprite->load(MENU_ASSETS "buildings.bmp", RES::MENU_BUILDINGS);
+	m_Mgs->sprite->load(MENU_ASSETS "road.bmp", RES::MENU_ROAD);
+	m_Mgs->sprite->load(MENU_ASSETS "sky.bmp", RES::MENU_SKY);
+	m_Mgs->sprite->load(MENU_ASSETS "wall1.bmp", RES::MENU_WALL1);
+	m_Mgs->sprite->load(MENU_ASSETS "wall2.bmp", RES::MENU_WALL2);
+	m_Mgs->sprite->load(MENU_ASSETS "wheels.bmp", RES::MENU_WHEELS);
 
 	addLayer(RES::MENU_SKY, 0.1f, 1280.0f, 720.0f);
 	addLayer(RES::MENU_BUILDINGS, 0.2f, 1280.0f, 720.0f);
@@ -33,35 +32,40 @@ void LevelScene::start()
 		NO_FLIP,
 		{2.5f, 2.5f}
 	};
-	Player* ply = new Player(mgs, iBuffer, tr);
 
-	PlayerCamera* cam = new PlayerCamera(mgs, ply, { 0,0,500.0f });
-	mgs->display->setActiveCamera((Camera*)cam);
+	m_Player = new Player(m_Mgs, tr);
+
+	m_Camera = new PlayerCamera(m_Mgs, m_Player, { 0,0,500.0f });
+	m_Mgs->display->setActiveCamera((Camera*)m_Camera);
 }
 
-void LevelScene::update(float dt)
+void LevelScene::update(float a_Dt)
 {
-	iBuffer->update();
-	mgs->object->updateAll(dt);
+	m_Mgs->object->updateAll(a_Dt);
 }
 
-void LevelScene::fixedUpdate(float fixed_dt)
+void LevelScene::fixedUpdate(float a_FixedDt)
 {
-	mgs->object->fixedUpdateAll(fixed_dt);
+	m_Mgs->object->fixedUpdateAll(a_FixedDt);
 }
 
 void LevelScene::draw()
 {
 	drawBackground();
-	mgs->object->drawAll();
+	m_Mgs->object->drawAll();
+
+	if (m_Mgs->engine->inDebugMode()) {
+		m_Player->getIBuffer().drawBuffer();
+		m_Player->drawActionName();
+	}	
 }
 
 void LevelScene::destroy()
 {
-	mgs->object->clear();
+	m_Mgs->object->clear();
 }
 
-void LevelScene::loadFromFile(const char* fileName)
+void LevelScene::loadFromFile(const char* a_FileName)
 {
-	assert(mgs->scene->getCurrentScene() == this && "Scene should be loaded before being displayed!");
+	assert(m_Mgs->scene->getCurrentScene() == this && "Scene should be loaded before being displayed!");
 }

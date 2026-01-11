@@ -2,27 +2,27 @@
 
 #include "utils.h"
 
-char* copy_string(const char* str) {
-	if (str == nullptr) return nullptr;
+char* copy_string(const char* a_Str) {
+	if (a_Str == nullptr) return nullptr;
 
-	size_t len = strlen(str) + 1;
+	size_t len = strlen(a_Str) + 1;
 	char* new_str = new char[len];
 
-	strcpy(new_str, str);
+	strcpy(new_str, a_Str);
 
 	return new_str;
 }
 
-int clamp(int value, int min, int max)
+int clamp(int a_Val, int a_Min, int a_Max)
 {
-	if (value < min) return min;
-	if (value > max) return max;
-	return value;
+	if (a_Val < a_Min) return a_Min;
+	if (a_Val > a_Max) return a_Max;
+	return a_Val;
 }
 
-float clamp(float value, float min, float max)
+float clamp(float a_Val, float a_Min, float a_Max)
 {
-	if (value < min) return min;
-	if (value > max) return max;
-	return value;
+	if (a_Val < a_Min) return a_Min;
+	if (a_Val > a_Max) return a_Max;
+	return a_Val;
 }

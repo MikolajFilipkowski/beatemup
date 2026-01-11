@@ -10,23 +10,23 @@ extern "C" {
 class SceneManager : private Manager {
 	friend class Engine;
 private:
-	Map<int, Scene*> scenes;
-	Scene* currentScene;
-	int currSceneIdx;
-	int nextSceneIdx;
+	Map<int, Scene*> m_Scenes{};
+	Scene* m_CurrentScene{};
+	int m_CurrSceneIdx{ 0 };
+	int m_NextSceneIdx{ 0 };
 
-	SceneManager(Managers* managers) 
-		: Manager(managers), currentScene(nullptr), currSceneIdx(0), nextSceneIdx(0) {}
+	SceneManager(Managers* a_Managers) 
+		: Manager(a_Managers) {}
 	~SceneManager() override;
 	void destroy() override;
 	void changeScene();
 public:
-	void add(int idx, Scene* scene);
-	void load(int idx, bool instant = false);
+	void add(int a_Key, Scene* a_Scene);
+	void load(int a_Key, bool a_Instant = false);
 	Scene* getCurrentScene();
 	int getCurrentSceneIdx() const;
 
-	void update(float dt);
-	void fixedUpdate(float fixed_dt);
+	void update(float a_Dt);
+	void fixedUpdate(float a_FixedDt);
 	void draw();
 };

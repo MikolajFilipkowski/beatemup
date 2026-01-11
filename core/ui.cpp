@@ -5,91 +5,91 @@
 #include <cstdio>
 
 
-UIElement::UIElement(Managers* mgs, Vector2 position, FDims size)
-	: mgs(mgs), pos(position), size(size), active(true), focused(false), focusable(false) {}
+UIElement::UIElement(Managers* m_Mgs, Vector2 a_Pos, FDims a_Size)
+	: m_Mgs(m_Mgs), m_Pos(a_Pos), m_Size(a_Size) {}
 
-void UIElement::setFocused(bool fc) {
-	if (focusable)
-		focused = fc; 
+void UIElement::setFocused(bool a_Focused) {
+	if (m_Focusable)
+		m_Focused = a_Focused; 
 }
 
-bool UIElement::isMouseOver(Vector2 mousePos)
+bool UIElement::isMouseOver(Vector2 a_MousePos)
 {
-	Rect rect = { pos.x, pos.y, size.width, size.height };
-	return rect.contains(mousePos);
+	Rect rect = { m_Pos.x, m_Pos.y, m_Size.width, m_Size.height };
+	return rect.contains(a_MousePos);
 }
 
-UITextElement::UITextElement(Managers* mgs, Vector2 position, FDims size, Font font, int maxChars)
-	: UIElement(mgs, position, size), font(font), plholder_txt(nullptr), pl_font(font)
+UITextElement::UITextElement(Managers* m_Mgs, Vector2 a_Pos, FDims a_Size, Font a_Font, int a_MaxChars)
+	: UIElement(m_Mgs, a_Pos, a_Size), m_Font(a_Font), m_PlaceholderFont(a_Font)
 {
-	maxCharCount = (maxChars >= MAX_TEXTSIZE) ? MAX_TEXTSIZE - 1 : maxChars;
-	memset(buffer, 0, MAX_TEXTSIZE);
+	m_MaxCharCount = (a_MaxChars >= MAX_TEXTSIZE) ? MAX_TEXTSIZE - 1 : a_MaxChars;
+	memset(m_Buffer, 0, MAX_TEXTSIZE);
 }
 
-void UITextElement::setText(const char* text)
+void UITextElement::setText(const char* a_Text)
 {
-	strcpy_s(buffer, maxCharCount, text);
-	buffer[maxCharCount] = '\0';
+	strcpy_s(m_Buffer, m_MaxCharCount, a_Text);
+	m_Buffer[m_MaxCharCount] = '\0';
 }
 
 char* UITextElement::getText() const {
-	return (char*)buffer;
+	return (char*)m_Buffer;
 }
 
-void UITextElement::setFont(Font font)
+void UITextElement::setFont(Font a_Font)
 {
-	this->font = font;
+	this->m_Font = a_Font;
 }
 
 Font UITextElement::getFont() const
 {
-	return font;
+	return m_Font;
 }
 
 int UITextElement::getCharCount() const
 {
-	return (int)strlen(buffer);
+	return (int)strlen(m_Buffer);
 }
 
 int UITextElement::getMaxCharCount() const
 {
-	return maxCharCount;
+	return m_MaxCharCount;
 }
 
-void UITextElement::setPlaceholder(const char* text, ColorRGBA clr)
+void UITextElement::setPlaceholder(const char* a_Text, ColorRGBA a_Color)
 {
-	plholder_txt = copy_string(text);
-	pl_font = { font.key, font.chSize, font.scale, font.spacing, clr, font.outline, font.baseline };
+	m_PlaceholderText = copy_string(a_Text);
+	m_PlaceholderFont = { m_Font.key, m_Font.chSize, m_Font.scale, m_Font.spacing, a_Color, m_Font.outline, m_Font.baseline };
 }
 
-void UITextElement::centerPos(Vector2 parent_pos, FDims parent_size)
+void UITextElement::centerPos(Vector2 a_ParentPos, FDims a_ParentSize)
 {
 	int len = getCharCount();
 
-	const float h = font.chSize * font.scale;
-	const float w = len * h * font.spacing;
+	const float h = m_Font.chSize * m_Font.scale;
+	const float w = len * h * m_Font.spacing;
 
-	const float mid_x = parent_pos.x + (parent_size.width / 2.0f);
-	const float mid_y = parent_pos.y + (parent_size.height / 2.0f);
+	const float midX = a_ParentPos.x + (a_ParentSize.width / 2.0f);
+	const float midY = a_ParentPos.y + (a_ParentSize.height / 2.0f);
 
-	const float x = mid_x - (w / 2.0f);
-	const float y = mid_y - h/2;
+	const float x = midX - (w / 2.0f);
+	const float y = midY - h/2;
 
 	setSize({ w,h });
 	setPosition({ x,y });
 }
 
-void UITextElement::leftPos(Vector2 parent_pos, FDims parent_size)
+void UITextElement::leftPos(Vector2 a_ParentPos, FDims a_ParentSize)
 {
 	int len = getCharCount();
 
-	const float h = font.chSize * font.scale;
-	const float w = len * h * font.spacing;
+	const float h = m_Font.chSize * m_Font.scale;
+	const float w = len * h * m_Font.spacing;
 
-	const float mid_y = (2 * parent_pos.y + parent_size.height) / 2.0f;
+	const float midY = (2 * a_ParentPos.y + a_ParentSize.height) / 2.0f;
 
-	const float x = parent_pos.x;
-	const float y = mid_y - font.chSize;
+	const float x = a_ParentPos.x;
+	const float y = midY - m_Font.chSize;
 
 	setSize({ w,h });
 	setPosition({ x,y });
@@ -97,83 +97,83 @@ void UITextElement::leftPos(Vector2 parent_pos, FDims parent_size)
 
 void UITextElement::draw()
 {
-	if (getCharCount() == 0 && !focused) {
-		mgs->display->drawString(font.key, pos, plholder_txt, pl_font, size);
+	if (getCharCount() == 0 && !m_Focused) {
+		m_Mgs->display->drawString(m_Font.key, m_Pos, m_PlaceholderText, m_PlaceholderFont, m_Size);
 
 		return;
 	}
 
-	//mgs->display->drawRect(pos, size, ColorRGBA::red(), 2);
+	//m_Mgs->display->drawRect(pos, size, ColorRGBA::red(), 2);
 
-	float wt = mgs->time->getWorldTime();
+	float wt = m_Mgs->time->getWorldTime();
 
-	if (focused && sinf(wt * TEXT_CUR_BLINK_SPD) > 0) {
-		const float h = font.chSize * font.scale;
-		const float w = getCharCount() * h * font.spacing;
+	if (m_Focused && sinf(wt * TEXT_CUR_BLINK_SPD) > 0) {
+		const float h = m_Font.chSize * m_Font.scale;
+		const float w = getCharCount() * h * m_Font.spacing;
 		
-		mgs->display->drawFilledRect(
-			{ pos.x + w + TEXT_CUR_PAD_LEFT, pos.y - font.baseline },
-			{ font.chSize * font.scale * TEXT_CUR_SCALE, size.height },
-			font.color,
+		m_Mgs->display->drawFilledRect(
+			{ m_Pos.x + w + TEXT_CUR_PAD_LEFT, m_Pos.y - m_Font.baseline },
+			{ m_Font.chSize * m_Font.scale * TEXT_CUR_SCALE, m_Size.height },
+			m_Font.color,
 			ColorRGBA::black(),
 			0
 		);
 	}
 
-	mgs->display->drawString(font.key, pos, buffer, font, size);
+	m_Mgs->display->drawString(m_Font.key, m_Pos, m_Buffer, m_Font, m_Size);
 }
 
 UIContainer::~UIContainer()
 {
-	for (auto& el : array) {
+	for (auto& el : m_Array) {
 		if (el == nullptr) continue;
 
 		delete el;
 		el = nullptr;
 	}
-	array.clear();
+	m_Array.clear();
 }
 
-void UIContainer::addElement(UIElement* el)
+void UIContainer::addElement(UIElement* a_Element)
 {
-	array.add(el);
+	m_Array.add(a_Element);
 }
 
-void UIContainer::setFocusedElement(int idx)
+void UIContainer::setFocusedElement(int a_Idx)
 {
-	for (auto& el : array) {
+	for (auto& el : m_Array) {
 		el->setFocused(false);
 	}
 	
-	if (idx == -1) return;
+	if (a_Idx == -1) return;
 
-	array[idx]->setFocused(true);
-	focusedElement = idx;
+	m_Array[a_Idx]->setFocused(true);
+	m_FocusedElement = a_Idx;
 }
 
 int UIContainer::getFocusedElement() const
 {
-	return focusedElement;
+	return m_FocusedElement;
 }
 
 int UIContainer::getElementCount() const
 {
-	return array.count();
+	return m_Array.count();
 }
 
 int UIContainer::getFocusableCount() const
 {
 	int counter = 0;
-	for (auto& el : array) {
+	for (auto& el : m_Array) {
 		if (el->isFocusable())
 			counter++;
 	}
 	return counter;
 }
 
-void UIContainer::update(float dt)
+void UIContainer::update(float a_Dt)
 {
-	updateElements(dt);
+	updateElements(a_Dt);
 }
 
 void UIContainer::draw()
@@ -181,93 +181,93 @@ void UIContainer::draw()
 	drawElements();
 }
 
-void UIContainer::handleEvents(SDL_Event& ev)
+void UIContainer::handleEvents(SDL_Event& a_Event)
 {
-	if (!active) return;
+	if (!m_Active) return;
 
-	detectScroll(ev);
-	detectHover(ev);
+	detectScroll(a_Event);
+	detectHover(a_Event);
 
-	handleEvElements(ev);
+	handleEvElements(a_Event);
 }
 
-void UIContainer::updateElements(float dt)
+void UIContainer::updateElements(float a_Dt)
 {
-	if (!active) return;
-	for (auto& el : array) {
+	if (!m_Active) return;
+	for (auto& el : m_Array) {
 		if (el != nullptr && el->isActive())
-			el->update(dt);
+			el->update(a_Dt);
 	}
 }
 
 void UIContainer::drawElements()
 {
-	if (!active) return;
-	for (auto& el : array) {
+	if (!m_Active) return;
+	for (auto& el : m_Array) {
 		if (el != nullptr && el->isActive())
 			el->draw();
 	}
 }
 
-void UIContainer::handleEvElements(SDL_Event& ev)
+void UIContainer::handleEvElements(SDL_Event& a_Event)
 {
-	if (!active) return;
-	for (auto& el : array) {
+	if (!m_Active) return;
+	for (auto& el : m_Array) {
 		if (el != nullptr && el->isActive())
-			el->handleEvents(ev);
+			el->handleEvents(a_Event);
 	}
 }
 
-void UIContainer::detectScroll(SDL_Event& ev)
+void UIContainer::detectScroll(SDL_Event& a_Event)
 {
-	if (!focused && focusable) return;
+	if (!m_Focused && m_Focusable) return;
 
-	if (ev.type == SDL_MOUSEWHEEL) {
-		onScrollEv(ev.wheel.y);
+	if (a_Event.type == SDL_MOUSEWHEEL) {
+		onScrollEv(a_Event.wheel.y);
 	}
 
-	if (mgs->input->getKey(SDL_SCANCODE_DOWN)) {
+	if (m_Mgs->input->getKey(SDL_SCANCODE_DOWN)) {
 		onScrollEv(-1);
 	}
 
-	if (mgs->input->getKey(SDL_SCANCODE_UP)) {
+	if (m_Mgs->input->getKey(SDL_SCANCODE_UP)) {
 		onScrollEv(1);
 	}
 }
 
-void UIContainer::onScrollEv(int y)
+void UIContainer::onScrollEv(int a_Y)
 {
 	int count = getElementCount();
 	if (count <= 1) return;
 
-	int cur = getFocusedElement();
-	if (cur < 0) cur = 0;
+	int curr = getFocusedElement();
+	if (curr < 0) curr = 0;
 
-	int sign = (y > 0) ? -1 : 1;
+	int sign = (a_Y > 0) ? -1 : 1;
 
 	// Zmienia focused element na kolejny w danym kierunku
-	int next = cur;
+	int next = curr;
 	for (int i = 0; i < count; i++) {
 		next += sign + count;
 		next %= count;
 
-		if (array[next]->isFocusable())
+		if (m_Array[next]->isFocusable())
 			break;
 	}
 
 	setFocusedElement(next);
 }
 
-void UIContainer::detectHover(SDL_Event& ev)
+void UIContainer::detectHover(SDL_Event& a_Event)
 {
-	if (!mgs->display->cursorShown()) return;
+	if (!m_Mgs->display->cursorShown()) return;
 
-	if (ev.type == SDL_MOUSEMOTION) {
-		Vector2 mousePos = { (float)ev.motion.x, (float)ev.motion.y };
+	if (a_Event.type == SDL_MOUSEMOTION) {
+		Vector2 mousePos = { (float)a_Event.motion.x, (float)a_Event.motion.y };
 
-		for (int i = 0; i < array.count(); i++) {
-			Vector2& pos = array[i]->getPosition();
-			FDims& size = array[i]->getSize();
+		for (int i = 0; i < m_Array.count(); i++) {
+			Vector2& pos = m_Array[i]->getPosition();
+			FDims& size = m_Array[i]->getSize();
 
 			Rect rect = {
 				pos.x,
@@ -283,62 +283,62 @@ void UIContainer::detectHover(SDL_Event& ev)
 	}
 }
 
-void UIContainer::onHoverEv(int elIdx) {
-	if (array[elIdx]->isFocusable()) {
-		setFocusedElement(elIdx);
+void UIContainer::onHoverEv(int a_ElIdx) {
+	if (m_Array[a_ElIdx]->isFocusable()) {
+		setFocusedElement(a_ElIdx);
 	}
 }
 
 void UIBackgroundContainer::draw()
 {
-	if (!active) return;
+	if (!m_Active) return;
 
-	mgs->display->drawFilledRect(pos, size, bg, border, borderSize);
+	m_Mgs->display->drawFilledRect(m_Pos, m_Size, m_Background, m_Border, m_BorderSize);
 
 	drawElements();
 }
 
-void UIBackgroundContainer::setBackground(ColorRGBA background)
+void UIBackgroundContainer::setBackground(ColorRGBA a_Background)
 {
-	bg = background;
+	m_Background = a_Background;
 }
 
-void UIBackgroundContainer::setBorder(ColorRGBA color, int size)
+void UIBackgroundContainer::setBorder(ColorRGBA a_Color, int a_Size)
 {
-	border = color;
-	borderSize = size;
+	m_Border = a_Color;
+	m_BorderSize = a_Size;
 }
 
 ColorRGBA UIBackgroundContainer::getBackground()
 {
-	return bg;
+	return m_Background;
 }
 
 ColorRGBA UIBackgroundContainer::getBorderColor()
 {
-	return border;
+	return m_Border;
 }
 
 int UIBackgroundContainer::getBorderSize()
 {
-	return borderSize;
+	return m_BorderSize;
 }
 
 void UISpriteBackgroundContainer::draw()
 {
-	if (!active) return;
+	if (!m_Active) return;
 
-	mgs->display->drawFilledRect(pos, size, bg, border, borderSize);
+	m_Mgs->display->drawFilledRect(m_Pos, m_Size, m_Background, m_Border, m_BorderSize);
 
 	if (spriteKey != 0)
-		mgs->display->drawSprite(spriteKey, pos, size);
+		m_Mgs->display->drawSprite(spriteKey, m_Pos, m_Size);
 
 	drawElements();
 }
 
-void UISpriteBackgroundContainer::setSprite(int sprite_key)
+void UISpriteBackgroundContainer::setSprite(int a_SpriteKey)
 {
-	spriteKey = sprite_key;
+	spriteKey = a_SpriteKey;
 }
 
 int UISpriteBackgroundContainer::getSprite()
@@ -346,117 +346,113 @@ int UISpriteBackgroundContainer::getSprite()
 	return spriteKey;
 }
 
-UIButton::UIButton(Managers* mgs, Vector2 position, FDims size, Font font, void (*onClick)(SDL_Event& ev, UIButton* button, Managers* mgs))
-	: UISpriteBackgroundContainer(mgs, position, size), txt_el(mgs, position, size, font), onClick(onClick)
+UIButton::UIButton(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Font a_Font, void (*a_OnClick)(SDL_Event& a_Event, UIButton* a_Button, Managers* a_Managers))
+	: UISpriteBackgroundContainer(a_Managers, a_Pos, a_Size), m_TextElement(a_Managers, a_Pos, a_Size, a_Font), m_OnClick(a_OnClick)
 {
-	pressed = false;
-	hovered = false;
-	focusable = true;
-	afterPress = 0.0f;
-
-	txt_el.centerPos(pos, size);
+	m_Focusable = true;
+	m_TextElement.centerPos(m_Pos, a_Size);
 }
 
-void UIButton::handleEvents(SDL_Event& ev)
+void UIButton::handleEvents(SDL_Event& a_Event)
 {
-	Rect rect = { pos.x, pos.y, size.width, size.height };
+	Rect rect = { m_Pos.x, m_Pos.y, m_Size.width, m_Size.height };
 
-	if (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_RETURN) {
-		if (focused) {
-			if (onClick != nullptr)
-				onClick(ev, this, mgs);
-			pressed = true;
+	if (a_Event.type == SDL_KEYDOWN && a_Event.key.keysym.sym == SDLK_RETURN) {
+		if (m_Focused) {
+			if (m_OnClick != nullptr)
+				m_OnClick(a_Event, this, m_Mgs);
+			m_Pressed = true;
 			return;
 		}
 	}
-	if (ev.type == SDL_KEYUP && ev.key.keysym.sym == SDLK_RETURN) {
-		pressed = false;
-		txt_el.centerPos(pos, size);
+	if (a_Event.type == SDL_KEYUP && a_Event.key.keysym.sym == SDLK_RETURN) {
+		m_Pressed = false;
+		m_TextElement.centerPos(m_Pos, m_Size);
 	}
 
-	if (!mgs->display->cursorShown()) return;
+	if (!m_Mgs->display->cursorShown()) return;
 
-	if (ev.type == SDL_MOUSEBUTTONDOWN && ev.button.button == SDL_BUTTON_LEFT) {
-		float posX = (float)ev.button.x;
-		float posY = (float)ev.button.y;
+	if (a_Event.type == SDL_MOUSEBUTTONDOWN && a_Event.button.button == SDL_BUTTON_LEFT) {
+		float posX = (float)a_Event.button.x;
+		float posY = (float)a_Event.button.y;
 
 		if (rect.contains({ posX, posY })) {
-			if (onClick != nullptr)
-				onClick(ev, this, mgs);
-			pressed = true;
+			if (m_OnClick != nullptr)
+				m_OnClick(a_Event, this, m_Mgs);
+			m_Pressed = true;
 			return;
 		}
 	}
 
-	if (ev.type == SDL_MOUSEBUTTONUP && ev.button.button == SDL_BUTTON_LEFT) {
-		pressed = false;
-		txt_el.centerPos(pos, size);
+	if (a_Event.type == SDL_MOUSEBUTTONUP && a_Event.button.button == SDL_BUTTON_LEFT) {
+		m_Pressed = false;
+		m_TextElement.centerPos(m_Pos, m_Size);
 	}
 	
-	if (ev.type == SDL_MOUSEMOTION) {
-		float posX = (float)ev.motion.x;
-		float posY = (float)ev.motion.y;
+	if (a_Event.type == SDL_MOUSEMOTION) {
+		float posX = (float)a_Event.motion.x;
+		float posY = (float)a_Event.motion.y;
 
 		if (rect.contains({ posX, posY })) {
-			hovered = true;
+			m_Hovered = true;
 		}
 		else {
-			hovered = false;
+			m_Hovered = false;
 		}
 	}
 }
 
-void UIButton::update(float dt)
+void UIButton::update(float a_Dt)
 {
-	if (afterPress > 0.0f) {
-		afterPress -= dt;
+	if (m_AfterPress > 0.0f) {
+		m_AfterPress -= a_Dt;
 
-		if (afterPress <= 0.0f) {
-			pos.x -= 2;
-			pos.y -= 3;
-			txt_el.centerPos(pos, size);
-			afterPress = 0.0f;
+		if (m_AfterPress <= 0.0f) {
+			m_Pos.x -= 2;
+			m_Pos.y -= 3;
+			m_TextElement.centerPos(m_Pos, m_Size);
+			m_AfterPress = 0.0f;
 		}
 	}
 
-	if (pressed) {
-		if (afterPress == 0.0f) {
-			pos.x += 2;
-			pos.y += 3;
-			txt_el.centerPos(pos, size);
+	if (m_Pressed) {
+		if (m_AfterPress == 0.0f) {
+			m_Pos.x += 2;
+			m_Pos.y += 3;
+			m_TextElement.centerPos(m_Pos, m_Size);
 		}
 		
-		pressed = false;
-		afterPress = BTN_PR_DUR;
+		m_Pressed = false;
+		m_AfterPress = BTN_PR_DUR;
 	}
 }
 
 void UIButton::draw()
 {
-	if (!active) return;
+	if (!m_Active) return;
 
-	ColorRGBA dp_bg = bg;
-	ColorRGBA dp_border = border;
+	ColorRGBA dp_bg = m_Background;
+	ColorRGBA dp_border = m_Border;
 
-	if (focused) {
-		dp_bg = mgs->ui->calcPulse(bg);
-		dp_border = mgs->ui->calcAlphaPulse(border);
+	if (m_Focused) {
+		dp_bg = m_Mgs->ui->calcPulse(m_Background);
+		dp_border = m_Mgs->ui->calcAlphaPulse(m_Border);
 	}
 
-	mgs->display->drawFilledRect(pos, size, dp_bg, dp_border, borderSize);
+	m_Mgs->display->drawFilledRect(m_Pos, m_Size, dp_bg, dp_border, m_BorderSize);
 
 	if (spriteKey != 0) {
-		Sprite* spr = mgs->sprite->get(spriteKey);
+		Sprite* spr = m_Mgs->sprite->get(spriteKey);
 
-		mgs->display->drawSprite(spriteKey, pos, size);
+		m_Mgs->display->drawSprite(spriteKey, m_Pos, m_Size);
 
-		if (focused) {
+		if (m_Focused) {
 			SDL_SetTextureBlendMode(spr->texture, SDL_BLENDMODE_ADD);
 
-			ColorRGBA pulse = mgs->ui->calcPulse(ColorRGBA::black());
+			ColorRGBA pulse = m_Mgs->ui->calcPulse(ColorRGBA::black());
 			SDL_SetTextureColorMod(spr->texture, pulse.r, pulse.g, pulse.b);
 
-			mgs->display->drawSprite(spriteKey, pos, size);
+			m_Mgs->display->drawSprite(spriteKey, m_Pos, m_Size);
 
 			SDL_SetTextureBlendMode(spr->texture, SDL_BLENDMODE_BLEND);
 		}
@@ -468,79 +464,79 @@ void UIButton::draw()
 
 	drawElements();
 
-	txt_el.draw();
+	m_TextElement.draw();
 }
 
-void UIButton::setText(const char* text)
+void UIButton::setText(const char* a_Text)
 {
-	txt_el.setText(text);
-	txt_el.centerPos(pos, size);
+	m_TextElement.setText(a_Text);
+	m_TextElement.centerPos(m_Pos, m_Size);
 }
 
 bool UIButton::isPressed() const
 {
-	return pressed;
+	return m_Pressed;
 }
 
 bool UIButton::isHovered() const
 {
-	return hovered;
+	return m_Hovered;
 }
 
-UITextInput::UITextInput(Managers* mgs, Vector2 position, FDims size, Font font, int maxChars, Vector2 padding)
-	: UISpriteBackgroundContainer(mgs, position, size), 
-	txt_el(mgs, position, size, font, maxChars) 
+UITextInput::UITextInput(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Font a_Font, int a_MaxChars, Vector2 a_Padding)
+	: UISpriteBackgroundContainer(a_Managers, a_Pos, a_Size), 
+	m_TextElement(a_Managers, a_Pos, a_Size, a_Font, a_MaxChars) 
 {
-	focusable = true;
-	txt_el.setFocusable(true);
-	txt_el.leftPos(pos + padding, size - (padding * 2));
+	m_Focusable = true;
+	m_TextElement.setFocusable(true);
+	m_TextElement.leftPos(m_Pos + a_Padding, a_Size - (a_Padding * 2));
 }
 
 void UITextInput::draw()
 {
-	if (!active) return;
+	if (!m_Active) return;
 
-	mgs->display->drawFilledRect(pos, size, bg, border, borderSize);
+	m_Mgs->display->drawFilledRect(m_Pos, m_Size, m_Background, m_Border, m_BorderSize);
 
 	if (spriteKey != 0)
-		mgs->display->drawSprite(spriteKey, pos, size);
+		m_Mgs->display->drawSprite(spriteKey, m_Pos, m_Size);
 
-	txt_el.draw();
+	m_TextElement.draw();
 }
 
-void UITextInput::handleEvents(SDL_Event& ev)
+void UITextInput::handleEvents(SDL_Event& a_Event)
 {
-	if (!focused || !active) return;
+	if (!m_Focused || !m_Active) return;
 
-	char* txt = txt_el.getText();
-	int charCount = txt_el.getCharCount();
-	int maxCharCount = txt_el.getMaxCharCount();
+	char* txt = m_TextElement.getText();
+	int charCount = m_TextElement.getCharCount();
+	int maxCharCount = m_TextElement.getMaxCharCount();
 
-	if (ev.type == SDL_KEYDOWN) {
-		if (ev.key.keysym.sym == SDLK_BACKSPACE && charCount > 0) {
+	if (a_Event.type == SDL_KEYDOWN) {
+		if (a_Event.key.keysym.sym == SDLK_BACKSPACE && charCount > 0) {
 			txt[--charCount] = '\0';
 		}
 	}
-	else if (ev.type == SDL_TEXTINPUT) {
+	else if (a_Event.type == SDL_TEXTINPUT) {
 
-		char first = ev.text.text[0];
+		char first = a_Event.text.text[0];
 		if (first < 32) return;
 
 		if (charCount < maxCharCount) {
-			strcat_s(txt, (rsize_t)maxCharCount + 1, ev.text.text);
+			strcat_s(txt, (rsize_t)maxCharCount + 1, a_Event.text.text);
 		}
 	}
 }
 
-void UITextInput::setPlaceholder(const char* text, ColorRGBA clr)
+void UITextInput::setPlaceholder(const char* a_Text, ColorRGBA a_Color)
 {
-	txt_el.setPlaceholder(text, clr);
+	m_TextElement.setPlaceholder(a_Text, a_Color);
 }
 
-void UITextInput::setFocused(bool fc)
+void UITextInput::setFocused(bool a_Focused)
 {
-	if (focusable) {
-		focused = fc;
-		txt_el.setFocused(fc);
+	if (m_Focusable) {
+		m_Focused = a_Focused;
+		m_TextElement.setFocused(a_Focused);
 	}
 }

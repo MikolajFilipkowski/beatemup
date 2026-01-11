@@ -3,18 +3,14 @@
 #include "managers.h"
 #include <stdio.h>
 
-InputManager::InputManager(Managers* managers) : Manager(managers) {
-	keyboardState = SDL_GetKeyboardState(&numkeyCount);
-	pressedNow = new bool[numkeyCount];
-	releasedNow = new bool[numkeyCount];
-	memset(pressedNow, 0, numkeyCount);
-	memset(releasedNow, 0, numkeyCount);
+InputManager::InputManager(Managers* a_Managers) : Manager(a_Managers) {
+	m_KeyboardState = SDL_GetKeyboardState(&m_NumkeyCount);
+	memset(m_PressedNow, 0, m_NumkeyCount);
+	memset(m_ReleasedNow, 0, m_NumkeyCount);
 
-	mouseState = SDL_GetMouseState(NULL, NULL);
-	mousePressedNow = new bool[MAX_MOUSE_BUTTONS + 1];
-	mouseReleasedNow = new bool[MAX_MOUSE_BUTTONS + 1];
-	memset(mousePressedNow, 0, MAX_MOUSE_BUTTONS + 1);
-	memset(mouseReleasedNow, 0, MAX_MOUSE_BUTTONS + 1);
+	m_MouseState = SDL_GetMouseState(NULL, NULL);
+	memset(m_MousePressedNow, 0, MAX_MOUSE_BUTTONS + 1);
+	memset(m_MouseReleasedNow, 0, MAX_MOUSE_BUTTONS + 1);
 }
 
 InputManager::~InputManager() {
@@ -22,63 +18,54 @@ InputManager::~InputManager() {
 }
 
 void InputManager::destroy() {
-	delete[] pressedNow;
-	delete[] releasedNow;
-	delete[] mousePressedNow;
-	delete[] mouseReleasedNow;
-	pressedNow = nullptr;
-	releasedNow = nullptr;
-	mousePressedNow = nullptr;
-	mouseReleasedNow = nullptr;
-
-	for (auto& pair : bindings) {
+	for (auto& pair : m_BindingsMap) {
 		delete pair.value;
 		pair.value = nullptr;
 	}
-	bindings.clear();
+	m_BindingsMap.clear();
 }
 
 void InputManager::updateMouseState()
 {
-	memset(mousePressedNow, 0, MAX_MOUSE_BUTTONS + 1);
-	memset(mouseReleasedNow, 0, MAX_MOUSE_BUTTONS + 1);
+	memset(m_MousePressedNow, 0, MAX_MOUSE_BUTTONS + 1);
+	memset(m_MouseReleasedNow, 0, MAX_MOUSE_BUTTONS + 1);
 
 	int rawX, rawY;
 	float logX, logY;
 
-	mouseState = SDL_GetMouseState(&rawX, &rawY);
+	m_MouseState = SDL_GetMouseState(&rawX, &rawY);
 	
-	Vector2 logStart = mgs->display->getLogStart();
-	Vector2 scale = mgs->display->getLogScale();
-	Dims dims = mgs->display->getLogDims();
+	Vector2 logStart = m_Mgs->display->getLogStart();
+	Vector2 scale = m_Mgs->display->getLogScale();
+	Dims dims = m_Mgs->display->getLogDims();
 
 	// Aby pozycja myszy byla niezalezna od wielkosci (i aspect-ratio) ekranu
 	logX = (rawX - logStart.x) / scale.x;
 	logY = (rawY - logStart.y) / scale.y;
 
-	mouseX = clamp(logX, 0.0f, (float)dims.width);
-	mouseY = clamp(logY, 0.0f, (float)dims.height);
+	m_MouseX = clamp(logX, 0.0f, (float)dims.width);
+	m_MouseY = clamp(logY, 0.0f, (float)dims.height);
 }
 
-bool InputManager::checkActionState(int action, 
-	bool (InputManager::*keyFun)(Uint8) const, bool (InputManager::*mouseFun)(Uint8) const)
+bool InputManager::checkActionState(int a_Action, 
+	bool (InputManager::*a_KeyFunc)(Uint8) const, bool (InputManager::*a_MouseFunc)(Uint8) const)
 {
-	if (!bindings.containsKey(action)) return false;
+	if (!m_BindingsMap.containsKey(a_Action)) return false;
 
-	ActionBinding*& bdg = bindings.get(action);
+	InputBinds*& bdg = m_BindingsMap.get(a_Action);
 
 	if (bdg == nullptr) return false;
 
-	ActionBinding& arr = *bdg;
+	InputBinds& arr = *bdg;
 
 	for (int i = 0; i < arr.count(); i++) {
 		if (arr[i].type == InputType::KEYBOARD
-			&& (this->*keyFun)(arr[i].key)
+			&& (this->*a_KeyFunc)(arr[i].key)
 			) {
 			return true;
 		}
 		if (arr[i].type == InputType::MOUSE
-			&& (this->*mouseFun)(arr[i].key)
+			&& (this->*a_MouseFunc)(arr[i].key)
 			) {
 			return true;
 		}
@@ -86,106 +73,106 @@ bool InputManager::checkActionState(int action,
 	return false;
 }
 
-void InputManager::updateKeyDown(SDL_Event& ev)
+void InputManager::updateKeyDown(SDL_Event& a_Event)
 {
-	if (ev.key.repeat != 0) return;
-	pressedNow[ev.key.keysym.scancode] = true;
+	if (a_Event.key.repeat != 0) return;
+	m_PressedNow[a_Event.key.keysym.scancode] = true;
 }
 
-void InputManager::updateKeyUp(SDL_Event& ev)
+void InputManager::updateKeyUp(SDL_Event& a_Event)
 {
-	if (ev.key.repeat != 0) return;
-	releasedNow[ev.key.keysym.scancode] = true;
+	if (a_Event.key.repeat != 0) return;
+	m_ReleasedNow[a_Event.key.keysym.scancode] = true;
 }
 
-void InputManager::updateMouseDown(SDL_Event& ev)
+void InputManager::updateMouseDown(SDL_Event& a_Event)
 {
-	Uint8 b = ev.button.button;
+	Uint8 b = a_Event.button.button;
 	if (b > MAX_MOUSE_BUTTONS) return;
 
-	mousePressedNow[b] = true;
+	m_MousePressedNow[b] = true;
 }
 
-void InputManager::updateMouseUp(SDL_Event& ev)
+void InputManager::updateMouseUp(SDL_Event& a_Event)
 {
-	Uint8 b = ev.button.button;
+	Uint8 b = a_Event.button.button;
 	if (b > MAX_MOUSE_BUTTONS) return;
 
-	mouseReleasedNow[b] = true;
+	m_MouseReleasedNow[b] = true;
 }
 
 void InputManager::updateState() {
-	memset(pressedNow, 0, numkeyCount);
-	memset(releasedNow, 0, numkeyCount);
+	memset(m_PressedNow, 0, m_NumkeyCount);
+	memset(m_ReleasedNow, 0, m_NumkeyCount);
 
 	updateMouseState();
 }
 
-bool InputManager::getKey(Uint8 key) const {
-	if (key >= numkeyCount) return false;
-	return keyboardState[key];
+bool InputManager::getKey(Uint8 a_Key) const {
+	if (a_Key >= m_NumkeyCount) return false;
+	return m_KeyboardState[a_Key];
 }
 
-bool InputManager::getKeyUp(Uint8 key) const {
-	if (key >= numkeyCount) return false;
-	return releasedNow[key];
+bool InputManager::getKeyUp(Uint8 a_Key) const {
+	if (a_Key >= m_NumkeyCount) return false;
+	return m_ReleasedNow[a_Key];
 }
 
-bool InputManager::getKeyDown(Uint8 key) const {
-	if (key >= numkeyCount) return false;
+bool InputManager::getKeyDown(Uint8 a_Key) const {
+	if (a_Key >= m_NumkeyCount) return false;
 	
-	return pressedNow[key];
+	return m_PressedNow[a_Key];
 }
 
-bool InputManager::getMouseButton(Uint8 button) const
+bool InputManager::getMouseButton(Uint8 a_Button) const
 {
-	return SDL_BUTTON(button) & mouseState;
+	return SDL_BUTTON(a_Button) & m_MouseState;
 }
 
-bool InputManager::getMouseButtonDown(Uint8 button) const
+bool InputManager::getMouseButtonDown(Uint8 a_Button) const
 {
-	if (button > MAX_MOUSE_BUTTONS) return false;
-	return mousePressedNow[button];
+	if (a_Button > MAX_MOUSE_BUTTONS) return false;
+	return m_MousePressedNow[a_Button];
 }
 
-bool InputManager::getMouseButtonUp(Uint8 button) const
+bool InputManager::getMouseButtonUp(Uint8 a_Button) const
 {
-	if (button > MAX_MOUSE_BUTTONS) return false;
-	return mouseReleasedNow[button];
+	if (a_Button > MAX_MOUSE_BUTTONS) return false;
+	return m_MouseReleasedNow[a_Button];
 }
 
-bool InputManager::isMouseOver(Rect rect)
+bool InputManager::isMouseOver(Rect a_Rect)
 {
-	return rect.contains({ (float)mouseX, (float)mouseY });
+	return a_Rect.contains({ (float)m_MouseX, (float)m_MouseY });
 }
 
-void InputManager::addBinding(int action, ActionBinding*& bdg)
+void InputManager::addBinding(int a_Input, InputBinds*& a_Binding)
 {
-	bindings.put(action, bdg);
+	m_BindingsMap.put(a_Input, a_Binding);
 }
 
-void InputManager::removeBinding(int action)
+void InputManager::removeBinding(int a_Input)
 {
-	delete bindings.get(action);
-	bindings.remove(action);
+	delete m_BindingsMap.get(a_Input);
+	m_BindingsMap.remove(a_Input);
 }
 
-bool InputManager::getAction(int action)
+bool InputManager::getInput(int a_Input)
 {
-	return checkActionState(action, &InputManager::getKey, &InputManager::getMouseButton);
+	return checkActionState(a_Input, &InputManager::getKey, &InputManager::getMouseButton);
 }
 
-bool InputManager::getActionDown(int action)
+bool InputManager::getInputDown(int a_Input)
 {
-	return checkActionState(action, &InputManager::getKeyDown, &InputManager::getMouseButtonDown);
+	return checkActionState(a_Input, &InputManager::getKeyDown, &InputManager::getMouseButtonDown);
 }
 
-bool InputManager::getActionUp(int action)
+bool InputManager::getInputUp(int a_Input)
 {
-	return checkActionState(action, &InputManager::getKeyUp, &InputManager::getMouseButtonUp);
+	return checkActionState(a_Input, &InputManager::getKeyUp, &InputManager::getMouseButtonUp);
 }
 
 Vector2 InputManager::getMousePos() const
 {
-	return { (float)mouseX, (float)mouseY };
+	return { (float)m_MouseX, (float)m_MouseY };
 }

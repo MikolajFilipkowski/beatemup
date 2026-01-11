@@ -7,69 +7,69 @@ SceneManager::~SceneManager()
 
 void SceneManager::destroy()
 {
-	for (auto& scene : scenes) {
+	for (auto& scene : m_Scenes) {
 		delete scene.value;
 		scene.value = nullptr;
 	}
-	scenes.clear();
+	m_Scenes.clear();
 }
 
 void SceneManager::changeScene()
 {
-	if (nextSceneIdx == 0) return;
+	if (m_NextSceneIdx == 0) return;
 
-	Scene* scene = scenes.get(nextSceneIdx);
+	Scene* scene = m_Scenes.get(m_NextSceneIdx);
 	if (scene != nullptr) {
-		if (currentScene != nullptr)
-			currentScene->destroy();
+		if (m_CurrentScene != nullptr)
+			m_CurrentScene->destroy();
 
-		currSceneIdx = nextSceneIdx;
-		nextSceneIdx = 0;
+		m_CurrSceneIdx = m_NextSceneIdx;
+		m_NextSceneIdx = 0;
 
-		currentScene = scene;
-		currentScene->start();
+		m_CurrentScene = scene;
+		m_CurrentScene->start();
 	}
 }
 
-void SceneManager::add(int idx, Scene* scene)
+void SceneManager::add(int a_Key, Scene* a_Scene)
 {
-	if (scene == nullptr) return;
+	if (a_Scene == nullptr) return;
 
-	scenes.put(idx, scene);
+	m_Scenes.put(a_Key, a_Scene);
 }
 
-void SceneManager::load(int idx, bool instant)
+void SceneManager::load(int a_Key, bool a_Instant)
 {
-	nextSceneIdx = idx;
+	m_NextSceneIdx = a_Key;
 
-	if (instant) changeScene();
+	if (a_Instant) changeScene();
 }
 
 Scene* SceneManager::getCurrentScene()
 {
-	return currentScene;
+	return m_CurrentScene;
 }
 
 int SceneManager::getCurrentSceneIdx() const
 {
-	return currSceneIdx;
+	return m_CurrSceneIdx;
 }
 
-void SceneManager::update(float dt)
+void SceneManager::update(float a_Dt)
 {
-	if (nextSceneIdx != 0)
+	if (m_NextSceneIdx != 0)
 		changeScene();
-	currentScene->update(dt);
+	m_CurrentScene->update(a_Dt);
 }
 
-void SceneManager::fixedUpdate(float fixed_dt)
+void SceneManager::fixedUpdate(float a_FixedDt)
 {
-	if (nextSceneIdx != 0)
+	if (m_NextSceneIdx != 0)
 		changeScene();
-	currentScene->fixedUpdate(fixed_dt);
+	m_CurrentScene->fixedUpdate(a_FixedDt);
 }
 
 void SceneManager::draw()
 {
-	currentScene->draw();
+	m_CurrentScene->draw();
 }

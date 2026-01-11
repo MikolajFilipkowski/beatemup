@@ -13,71 +13,77 @@ extern "C" {
 	#define sprintf_s snprintf
 #endif // !_WIN32
 
-constexpr float DEFAULT_FOV = 90.0f;
-constexpr float DEFAULT_CAM_Z = 500.0f;
-constexpr float FIXED_DT = 0.01f;
-constexpr float MAX_DT = 0.25f;
-constexpr float FPS_CAP = 240.0f;
-constexpr Uint32 MIN_FRAMETIME = (Uint32)(1000 / FPS_CAP);
-constexpr Uint32 MAX_FRAMETIME = 500;
-constexpr float FPS_INTERVAL = 1.0f;
-constexpr int MAX_TEXTSIZE = 256;
-constexpr float BTN_PR_DUR = .15f;
-constexpr int BTN_FC_BRD = 60;
-constexpr float PULSE_SPD = 3.0f;
-constexpr int PULSE_CHANGE = 60;
-constexpr int PULSE_ALPHA_CHANGE = 60;
-constexpr float TEXT_CUR_BLINK_SPD = 7.0f;
-constexpr float TEXT_CUR_SCALE = .1f;
-constexpr float TEXT_CUR_PAD_LEFT = 5.0f;
+inline constexpr SDL_Scancode FULLSCREEN_KEY = SDL_SCANCODE_F11;
+inline constexpr SDL_Scancode EXIT_KEY = SDL_SCANCODE_ESCAPE;
+inline constexpr SDL_Scancode DEBUG_KEY = SDL_SCANCODE_F3;
+
+inline constexpr float DEFAULT_FOV = 90.0f;
+inline constexpr float DEFAULT_CAM_Z = 500.0f;
+inline constexpr float FIXED_DT = 0.01f;
+inline constexpr float MAX_DT = 0.25f;
+inline constexpr float FPS_CAP = 240.0f;
+inline constexpr Uint32 MIN_FRAMETIME = (Uint32)(1000 / FPS_CAP);
+inline constexpr Uint32 MAX_FRAMETIME = 500;
+inline constexpr float FPS_INTERVAL = 1.0f;
+inline constexpr int MAX_TEXTSIZE = 256;
+inline constexpr float BTN_PR_DUR = .15f;
+inline constexpr int BTN_FC_BRD = 60;
+inline constexpr float PULSE_SPD = 3.0f;
+inline constexpr int PULSE_CHANGE = 60;
+inline constexpr int PULSE_ALPHA_CHANGE = 60;
+inline constexpr float TEXT_CUR_BLINK_SPD = 7.0f;
+inline constexpr float TEXT_CUR_SCALE = .1f;
+inline constexpr float TEXT_CUR_PAD_LEFT = 5.0f;
+
+inline constexpr size_t MAX_ACT_NAME_LEN = 64;
 
 class Managers;
 
 typedef SDL_RendererFlip Flip;
 
-constexpr SDL_RendererFlip NO_FLIP = SDL_FLIP_NONE;
-constexpr SDL_RendererFlip H_FLIP = SDL_FLIP_HORIZONTAL;
-constexpr SDL_RendererFlip V_FLIP = SDL_FLIP_VERTICAL;
+inline constexpr SDL_RendererFlip NO_FLIP = SDL_FLIP_NONE;
+inline constexpr SDL_RendererFlip H_FLIP = SDL_FLIP_HORIZONTAL;
+inline constexpr SDL_RendererFlip V_FLIP = SDL_FLIP_VERTICAL;
 
 struct Vector2 {
-	float x, y;
+	float x{ 0 }, y{ 0 };
 
 	static Vector2 zero() {
 		return { 0.0f, 0.0f };
 	}
 
-	Vector2 operator+(const Vector2& other) const {
-		return { x + other.x, y + other.y };
+	Vector2 operator+(const Vector2& a_Other) const {
+		return { x + a_Other.x, y + a_Other.y };
 	}
 
-	Vector2& operator+=(const Vector2& other) {
-		x += other.x;
-		y += other.y;
+	Vector2& operator+=(const Vector2& a_Other) {
+		x += a_Other.x;
+		y += a_Other.y;
 		return *this;
 	}
 
-	Vector2 operator-(const Vector2& other) const {
-		return { x - other.x, y - other.y };
+	Vector2 operator-(const Vector2& a_Other) const {
+		return { x - a_Other.x, y - a_Other.y };
 	}
 
-	Vector2& operator-=(const Vector2& other) {
-		x -= other.x;
-		y -= other.y;
+	Vector2& operator-=(const Vector2& a_Other) {
+		x -= a_Other.x;
+		y -= a_Other.y;
 		return *this;
 	}
 
-	Vector2 operator*(float scalar) const {
-		return { x * scalar, y * scalar };
+	Vector2 operator*(float a_Scalar) const {
+		return { x * a_Scalar, y * a_Scalar };
 	}
 
-	Vector2& operator*=(float scalar) {
-		x *= scalar;
-		y *= scalar;
+	Vector2& operator*=(float a_Scalar) {
+		x *= a_Scalar;
+		y *= a_Scalar;
 		return *this;
 	}
 
-	friend Vector2 operator*(float scalar, Vector2 vec) {
-		return vec * scalar;
+	friend Vector2 operator*(float a_Scalar, Vector2 a_Vector) {
+		return a_Vector * a_Scalar;
 	}
 
 	float length() const {
@@ -93,47 +99,47 @@ struct Vector2 {
 };
 
 struct Vector3 {
-	float x, y, z;
+	float x{ 0 }, y{ 0 }, z{ 0 };
 
 	static Vector3 zero() {
 		return { 0.0f, 0.0f, 0.0f };
 	}
 
-	Vector3 operator+(const Vector3& other) const {
-		return { x + other.x, y + other.y, z + other.z };
+	Vector3 operator+(const Vector3& a_Other) const {
+		return { x + a_Other.x, y + a_Other.y, z + a_Other.z };
 	}
 
-	Vector3& operator+=(const Vector3& other) {
-		x += other.x;
-		y += other.y;
-		z += other.z;
+	Vector3& operator+=(const Vector3& a_Other) {
+		x += a_Other.x;
+		y += a_Other.y;
+		z += a_Other.z;
 		return *this;
 	}
 
-	Vector3 operator-(const Vector3& other) const {
-		return { x - other.x, y - other.y, z - other.z };
+	Vector3 operator-(const Vector3& a_Other) const {
+		return { x - a_Other.x, y - a_Other.y, z - a_Other.z };
 	}
 
-	Vector3& operator-=(const Vector3& other) {
-		x -= other.x;
-		y -= other.y;
-		z -= other.z;
+	Vector3& operator-=(const Vector3& a_Other) {
+		x -= a_Other.x;
+		y -= a_Other.y;
+		z -= a_Other.z;
 		return *this;
 	}
 
-	Vector3 operator*(float scalar) const {
-		return { x * scalar, y * scalar, z * scalar };
+	Vector3 operator*(float a_Scalar) const {
+		return { x * a_Scalar, y * a_Scalar, z * a_Scalar };
 	}
 
-	Vector3& operator*=(float scalar) {
-		x *= scalar;
-		y *= scalar;
-		z *= scalar;
+	Vector3& operator*=(float a_Scalar) {
+		x *= a_Scalar;
+		y *= a_Scalar;
+		z *= a_Scalar;
 		return *this;
 	}
 
-	friend Vector3 operator*(float scalar, Vector3 vec) {
-		return vec * scalar;
+	friend Vector3 operator*(float a_Scalar, Vector3 a_Vector) {
+		return a_Vector * a_Scalar;
 	}
 
 	float length() const {
@@ -149,46 +155,46 @@ struct Vector3 {
 };
 
 struct Dims {
-	int width, height;
+	int width{ 0 }, height{ 0 };
 };
 
 struct FDims {
-	float width, height;
+	float width{ 0 }, height{ 0 };
 
 	operator Dims() const {
 		return { (int)width, (int)height };
 	}
 
-	FDims operator+(const Vector2& vec) const {
-		return { width + vec.x, height + vec.y };
+	FDims operator+(const Vector2& a_Vector) const {
+		return { width + a_Vector.x, height + a_Vector.y };
 	}
 
-	FDims& operator+=(const Vector2& vec) {
-		width += vec.x;
-		height += vec.y;
+	FDims& operator+=(const Vector2& a_Vector) {
+		width += a_Vector.x;
+		height += a_Vector.y;
 		return *this;
 	}
 
-	FDims operator-(const Vector2& vec) const {
-		return { width - vec.x, height - vec.y };
+	FDims operator-(const Vector2& a_Vector) const {
+		return { width - a_Vector.x, height - a_Vector.y };
 	}
 
-	FDims& operator-=(const Vector2& vec) {
-		width -= vec.x;
-		height -= vec.y;
+	FDims& operator-=(const Vector2& a_Vector) {
+		width -= a_Vector.x;
+		height -= a_Vector.y;
 		return *this;
 	}
 };
 
 struct DimsF {
-	float width, height;
+	float width{ 0 }, height{ 0 };
 };
 
 struct Transform {
-	Vector3 pos;
-	double rotation;
-	Flip flip;
-	Vector2 scale;
+	Vector3 pos{};
+	double rotation{ 0 };
+	Flip flip{ NO_FLIP };
+	Vector2 scale{1.0f, 1.0f};
 
 	static Transform zero() {
 		return { {0,0,0}, 0.0, NO_FLIP, {1.0f, 1.0f} };
@@ -197,19 +203,21 @@ struct Transform {
 
 // Struktura Rect jest dwustronnie kompatybilna z SDL_FRect
 struct Rect {
-	float x, y, w, h;
+	float x{ 0 }, y{ 0 }, w{ 0 }, h{ 0 };
 
-	Rect(float x = 0, float y = 0, float w = 0, float h = 0)
-		: x(x), y(y), w(w), h(h) {}
+	Rect() = default;
 
-	Rect(const SDL_FRect& rect) 
-		: x(rect.x), y(rect.y), w(rect.w), h(rect.h) {}
+	Rect(float a_X, float a_Y, float a_W, float a_H)
+		: x(a_X), y(a_Y), w(a_W), h(a_H) {}
 
-	Rect& operator=(const SDL_FRect& rect) {
-		x = rect.x;
-		y = rect.y;
-		w = rect.w;
-		h = rect.h;
+	Rect(const SDL_FRect& a_Rect) 
+		: x(a_Rect.x), y(a_Rect.y), w(a_Rect.w), h(a_Rect.h) {}
+
+	Rect& operator=(const SDL_FRect& a_Rect) {
+		x = a_Rect.x;
+		y = a_Rect.y;
+		w = a_Rect.w;
+		h = a_Rect.h;
 
 		return *this;
 	}
@@ -222,25 +230,25 @@ struct Rect {
 		return toSDL();
 	}
 
-	inline bool contains(const Vector2& point) const {
+	inline bool contains(const Vector2& a_Point) const {
 		return (
-			point.x >= x && point.x <= x + w
-			&& point.y >= y && point.y <= y + h
+			a_Point.x >= x && a_Point.x <= x + w
+			&& a_Point.y >= y && a_Point.y <= y + h
 		);
 	}
 
-	inline bool intersects(const Rect& other) const {
+	inline bool intersects(const Rect& a_Other) const {
 		return (
-			x < other.x + other.w &&
-			x + w > other.x &&
-			y < other.y + other.h &&
-			y + h > other.y
+			x < a_Other.x + a_Other.w &&
+			x + w > a_Other.x &&
+			y < a_Other.y + a_Other.h &&
+			y + h > a_Other.y
 		);
 	}
 };
 
 struct ColorRGBA {
-	Uint8 r, g, b, a;
+	Uint8 r{ 0 }, g{ 0 }, b{ 0 }, a{ 0xFF };
 
 	static constexpr ColorRGBA black() {
 		return { 0, 0, 0, 0xFF };
@@ -268,23 +276,23 @@ struct ColorRGBA {
 };
 
 struct Sprite {
-	SDL_Texture* texture;
-	int width, height;
+	SDL_Texture* texture{};
+	int width{ 0 }, height{ 0 };
 };
 
 struct AnimationClip {
-	int spriteKey;
-	SDL_Rect* frames;
-	int frameCount;
-	float frameDuration;
+	int spriteKey{ 0 };
+	SDL_Rect* frames{};
+	int frameCount{0};
+	float frameDuration{ 0 };
 };
 
 struct Outline {
-	ColorRGBA color;
-	float size;
+	ColorRGBA color{ColorRGBA::transparent()};
+	float size{0.0f};
 
-	Outline() : color(ColorRGBA::transparent()), size(0.0f) {}
-	Outline(ColorRGBA color, float size) : color(color), size(size) {}
+	Outline() = default;
+	Outline(ColorRGBA a_Color, float a_Size) : color(a_Color), size(a_Size) {}
 };
 
 struct Font {
@@ -299,18 +307,18 @@ struct Font {
 	Font() : key(0), chSize(0), scale(0), 
 		spacing(0), color(ColorRGBA::black()), outline(Outline()), baseline(0) {}
 
-	Font(int key, int chSize, float scale, float spacing, ColorRGBA color, Outline outline, float baseline) 
-		: key(key), chSize(chSize), scale(scale),spacing(spacing), color(color), outline(outline), baseline(baseline) {}
+	Font(int a_Key, int a_ChSize, float a_Scale, float a_Spacing, ColorRGBA a_Color, Outline a_Outline, float a_Baseline) 
+		: key(a_Key), chSize(a_ChSize), scale(a_Scale),spacing(a_Spacing), color(a_Color), outline(a_Outline), baseline(a_Baseline) {}
 
-	Font(int key, int chSize, float scale, float spacing, ColorRGBA color)
-		: key(key), chSize(chSize), scale(scale), spacing(spacing), color(color), outline(Outline()), baseline(0) {
+	Font(int a_Key, int a_ChSize, float a_Scale, float a_Spacing, ColorRGBA a_Color)
+		: key(a_Key), chSize(a_ChSize), scale(a_Scale), spacing(a_Spacing), color(a_Color), outline(Outline()), baseline(0) {
 	}
 };
 
 struct Rigidbody {
-	Vector3 vel;
-	Vector3 prevPos;
-	Vector3 currPos;
+	Vector3 vel{};
+	Vector3 prevPos{};
+	Vector3 currPos{};
 };
 
 enum class InputType : Uint8 {
@@ -322,44 +330,54 @@ struct InputBinding {
 	InputType type;
 	Uint8 key;
 
-	bool operator==(const InputBinding other) const {
-		return type == other.type && key == other.key;
+	bool operator==(const InputBinding a_Other) const {
+		return type == a_Other.type && key == a_Other.key;
 	}
-	bool operator!=(const InputBinding other) const {
-		return type != other.type || key != other.key;
+	bool operator!=(const InputBinding a_Other) const {
+		return type != a_Other.type || key != a_Other.key;
 	}
 };
 
-typedef Array<InputBinding> ActionBinding;
+typedef Array<InputBinding> InputBinds;
 
 struct ActionFrame {
-	Rect hitbox;
-	Rect hurtbox;
-	Vector3 vel;
-	float duration;
-	float damage;
+	Rect hitbox{};
+	Rect hurtbox{};
+	Vector3 vel{};
+	float duration{ 0 };
+	float damage{ 0 };
 
-	ActionFrame() : hitbox(), hurtbox(), vel(Vector3::zero()), duration(0.0f), damage(0.0f) {}
+	ActionFrame() = default;
 };
 
-struct ActionData {
-	int priority;
-	int inputWindow;
-	int conditions;
-	bool interrupt;
-	int owner;
-	Array<int>* sequence;
-	Array<ActionFrame>* frames;
+class ActionData {
+private:
+	Array<int>* m_Sequence{};
+	Array<ActionFrame>* m_Frames{};
+	float m_TotalDuration{ 0 };
+public:
+	char name[MAX_ACT_NAME_LEN]{};
+	int priority{ 0 };
+	int inputWindow{ 0 };
+	int conditions{ 0 };
+	bool interruptible{ false };
+	int owner{ 0 };
 
-	ActionData(int prio = 0, int win = 0, int cond = 0, bool inter = false,
-		int own = 0, Array<int>* seq = nullptr, Array<ActionFrame>* fr = nullptr
-	) : priority(prio), inputWindow(win), conditions(cond), 
-		interrupt(inter), owner(own), sequence(seq), frames(fr) {}
+	ActionData() = default;
+	ActionData(int a_Prio, int a_Win, int a_Cond, bool a_Inter, 
+		int a_Owner, Array<int>* a_Seq, Array<ActionFrame>* a_Frames
+	);
+	~ActionData();
+	ActionData(const ActionData&) = delete;
+	ActionData& operator=(const ActionData&) = delete;
 
-	~ActionData() {
-		delete sequence;
-		delete frames;
-	}
+
+	void setSequence(Array<int>* a_Seq);
+	void setFrames(Array<ActionFrame>* a_Frames);
+	Array<int>* getSequence() const;
+	Array<ActionFrame>* getFrames() const;
+
+	float getTotalDuration();
 };
 
 struct ActiveAction {
@@ -369,104 +387,113 @@ struct ActiveAction {
 };
 
 struct BackgroundLayer {
-	int spriteKey;
-	float scrollFactor;
-	FDims dims;
-	int copies;
+	int spriteKey{ 0 };
+	float scrollFactor{ 1.0f };
+	FDims dims{};
+	int copies{ 0 };
 };
 
 class Scene {
 protected:
-	Managers* mgs;
+	Managers* m_Mgs;
 public:
-	Scene(Managers* managers) : mgs(managers) {}
+	Scene(Managers* a_Managers) : m_Mgs(a_Managers) {}
 	Scene(const Scene&) = delete;
 	Scene& operator=(const Scene&) = delete;
 	virtual ~Scene() { destroy(); }
 	virtual void start() {}
-	virtual void update(float dt) {}
-	virtual void fixedUpdate(float fixed_dt) {}
+	virtual void update(float a_Dt) {}
+	virtual void fixedUpdate(float a_FixedDt) {}
 	virtual void draw() {}
 	virtual void destroy() {}
 };
 
 class GameScene : public Scene {
 protected:
-	ArrayList<BackgroundLayer> layers;
+	ArrayList<BackgroundLayer> m_Layers;
 public:
-	GameScene(Managers* managers) : Scene(managers) {}
-	void addLayer(int spriteKey, float scrollFactor, float width, float height);
+	GameScene(Managers* a_Managers) : Scene(a_Managers) {}
+	void addLayer(int a_SpriteKey, float a_ScrollFactor, float a_Width, float a_Height);
 	void drawBackground();
-	void drawLayer(BackgroundLayer& layer, float camX, Dims& logDims);
+	void drawLayer(BackgroundLayer& a_Layer, float a_CamX, Dims& a_LogDims);
 };
 
 class GameObject {
 protected:
-	Managers* mgs;
-	Transform transform;
-	Rigidbody rb;
-	bool removalPending;
-	bool hasStarted;
+	Managers* m_Mgs{};
+	Transform m_Transform{};
+	Rigidbody m_Rb{};
+	bool m_RemovalPending{ false };
+	bool m_HasStarted{ false };
 public:
 	GameObject(const GameObject&) = delete;
 	GameObject& operator=(const GameObject&) = delete;
 
-	GameObject(Managers* mgs, Transform tr = Transform::zero());
+	GameObject(Managers* a_Managers, Transform a_Transform = Transform::zero());
 	virtual ~GameObject();
 
 	Transform& getTransform();
-	void setTransform(Transform tr);
+	void setTransform(Transform a_Transform);
 
 	Vector3& getPosition();
-	void setPosition(Vector3 pos);
+	void setPosition(Vector3 a_Pos);
 
 	Rigidbody& getRb();
 
 	bool getRemovalFlag() const;
-	void setRemovalFlag(bool flag);
+	void setRemovalFlag(bool a_Flag);
 	bool getStartedFlag() const;
-	void setStartedFlag(bool flag);
+	void setStartedFlag(bool a_Flag);
 	Vector3 getIPos();
 
-	void drawShadow(int sh_key, float obj_width, FDims sh_dims);
+	void drawShadow(int a_ShKey, float a_ObjWidth, FDims a_ShDims);
 
 	virtual void start() {};
-	virtual void update(float dt) {};
-	virtual void fixedUpdate(float fixed_dt) {};
+	virtual void update(float a_Dt) {};
+	virtual void fixedUpdate(float a_FixedDt) {};
 	virtual void draw() {};
 };
 
 class SpriteObject : public GameObject {
 protected:
-	int spriteKey;
+	int m_SpriteKey{ 0 };
 public:
-	SpriteObject(Managers* mgs, Transform tr = Transform::zero(), int key = 0);
+	SpriteObject(Managers* a_Managers, Transform a_Transform = Transform::zero(), int a_Key = 0);
 	virtual ~SpriteObject();
 
 	Sprite* getSprite();
-	void setSpriteKey(int key);
+	void setSpriteKey(int a_Key);
 
 	virtual void draw() override;
 };
 
-class AnimatableObject : public GameObject {
+class Actor : public GameObject {
 protected:
-	int currentAnimKey;
-	int currentAnimFrame;
-	float currentAnimTimer;
+	int m_CurrentActKey{ 0 };
+	int m_CurrentAnimKey{ 0 };
+	float m_ActTimer{ 0 };
+	int m_CurrentFrame{ 0 };
+	bool m_Grounded{ true };
+	Vector3 m_InputVel{};
+
+	virtual int getAnimKeyFromAct(int a_ActKey);
+	virtual void computeInput();
 public:
-	AnimatableObject(Managers* mgs, Transform tr = Transform::zero());
-	virtual ~AnimatableObject();
+	Actor(Managers* a_Managers, Transform a_Transform = Transform::zero());
+	virtual ~Actor();
 
-	virtual void updateAnim(float dt);
+	int getCurrentAnimKey() const;
+	void setAnim(int a_AnimKey);
 
-	int getCurrentAnimKey();
-	void setAnim(int key);
+	void startAction(int a_ActKey);
+
+	virtual void fixedUpdate(float a_FixedDt) override;
+	virtual void applyPhysics(float a_FixedDt, ActionData* a_Data, ActionFrame& a_CurrFrame);
 };
 
 class Camera : public GameObject {
 public:
-	Camera(Managers* mgs, Vector3 pos = {0, 0, 500.0f});
+	Camera(Managers* a_Managers, Vector3 a_Pos = {0, 0, 500.0f});
 	~Camera();
 
 	Rect getViewport();

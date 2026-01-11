@@ -11,63 +11,73 @@ ObjectManager::~ObjectManager()
 
 void ObjectManager::destroy()
 {
-	for (GameObject*& object : objectArray) {
+	for (GameObject*& object : m_ObjectArray) {
 		delete object;
 		object = nullptr;
 	}
 
-	for (auto& pair : actionsMap) {
+	for (auto& pair : m_ActionsMap) {
 		delete pair.value;
 	}
 
-	objectArray.clear();
-	actionsMap.clear();
+	m_ObjectArray.clear();
+	m_ActionsMap.clear();
 }
 
-void ObjectManager::startIfNeeded(GameObject*& object)
+void ObjectManager::startIfNeeded(GameObject*& a_Object)
 {
-	if (!object->getStartedFlag()) {
-		object->start();
-		object->setStartedFlag(true);
+	if (!a_Object->getStartedFlag()) {
+		a_Object->start();
+		a_Object->setStartedFlag(true);
 	}
 }
 
-void ObjectManager::add(GameObject* object)
+void ObjectManager::add(GameObject* a_Object)
 {
-	objectArray.add(object);
+	m_ObjectArray.add(a_Object);
 }
 
-void ObjectManager::remove(GameObject* object)
+void ObjectManager::remove(GameObject* a_Object)
 {
-	object->setRemovalFlag(true);
+	a_Object->setRemovalFlag(true);
 }
 
-void ObjectManager::addAction(int key, ActionData* action)
+void ObjectManager::addAction(int a_Key, ActionData* a_Action)
 {
-	if (actionsMap.containsKey(key)) return;
+	if (m_ActionsMap.containsKey(a_Key)) return;
 
-	actionsMap.put(key, action);
+	m_ActionsMap.put(a_Key, a_Action);
 }
 
-ActionData* ObjectManager::getAction(int key) {
-	return actionsMap.get(key);
+ActionData* ObjectManager::getAction(int a_Key) {
+	return m_ActionsMap.get(a_Key);
 }
 
-void ObjectManager::updateAll(float dt)
+void ObjectManager::setGravity(float a_Gravity)
 {
-	for (GameObject*& object : objectArray) {
+	m_Gravity = a_Gravity;
+}
+
+float ObjectManager::getGravity()
+{
+	return m_Gravity;
+}
+
+void ObjectManager::updateAll(float a_Dt)
+{
+	for (GameObject*& object : m_ObjectArray) {
 		if (object != nullptr && !object->getRemovalFlag()) {
 			startIfNeeded(object);
-			object->update(dt);
+			object->update(a_Dt);
 		}
 	}
 }
 
-void ObjectManager::fixedUpdateAll(float fixed_dt)
+void ObjectManager::fixedUpdateAll(float a_FixedDt)
 {
-	for (GameObject*& object : objectArray) {
+	for (GameObject*& object : m_ObjectArray) {
 		if (object != nullptr && !object->getRemovalFlag()) {
-			object->fixedUpdate(fixed_dt);
+			object->fixedUpdate(a_FixedDt);
 			startIfNeeded(object);
 		}
 	}
@@ -75,12 +85,12 @@ void ObjectManager::fixedUpdateAll(float fixed_dt)
 
 void ObjectManager::drawAll()
 {
-	objectArray.sort(
-		[](GameObject* const& obj1, GameObject* const& obj2) {
-			return obj1->getPosition().z > obj2->getPosition().z;
+	m_ObjectArray.sort(
+		[](GameObject* const& a_Obj1, GameObject* const& a_Obj2) {
+			return a_Obj1->getPosition().z > a_Obj2->getPosition().z;
 		}
 	);
-	for (GameObject*& object : objectArray) {
+	for (GameObject*& object : m_ObjectArray) {
 		if (object != nullptr)
 			object->draw();
 	}
@@ -88,14 +98,14 @@ void ObjectManager::drawAll()
 
 void ObjectManager::refreshObjects()
 {
-	objectArray.removeIf(
-		[](GameObject* const& obj) {
-			if (obj == nullptr) return false;
-			return obj->getRemovalFlag();
+	m_ObjectArray.removeIf(
+		[](GameObject* const& a_Obj) {
+			if (a_Obj == nullptr) return false;
+			return a_Obj->getRemovalFlag();
 		},
-		[](GameObject*& obj) {
-			delete obj;
-			obj = nullptr;
+		[](GameObject*& a_Obj) {
+			delete a_Obj;
+			a_Obj = nullptr;
 		}
 	);
 }

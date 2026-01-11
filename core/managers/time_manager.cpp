@@ -2,10 +2,7 @@
 
 #include "managers.h"
 
-TimeManager::TimeManager(Managers* managers) : Manager(managers),
-	lastTick(0), dt(0.0f), fixedDt(FIXED_DT), accumulator(0.0f),
-	frameCount(0), fpsTimer(0.0f), fps(0.0f), worldTime(0.0f), worldFrame(0) {
-}
+TimeManager::TimeManager(Managers* a_Managers) : Manager(a_Managers) {}
 
 TimeManager::~TimeManager() {}
 
@@ -13,7 +10,7 @@ void TimeManager::destroy() {}
 
 void TimeManager::tick()
 {
-	Uint32 frameTime = SDL_GetTicks() - lastTick;
+	Uint32 frameTime = SDL_GetTicks() - m_LastTick;
 
 	//Ograniczenie fps
 	if (frameTime < MIN_FRAMETIME) {
@@ -22,36 +19,36 @@ void TimeManager::tick()
 
 	//Przy zawieszeniu pauza
 	if (frameTime > MAX_FRAMETIME) {
-		lastTick = SDL_GetTicks();
+		m_LastTick = SDL_GetTicks();
 	}
 
 	Uint32 currentTick = SDL_GetTicks();
-	dt = (currentTick - lastTick) * 0.001f;
+	m_Dt = (currentTick - m_LastTick) * 0.001f;
 
-	lastTick = currentTick;
+	m_LastTick = currentTick;
 
-	worldTime += dt;
+	m_WorldTime += m_Dt;
 
-	fpsTimer += dt;
-	frameCount++;
-	worldFrame++;
+	m_FpsTimer += m_Dt;
+	m_FrameCount++;
 
-	if (fpsTimer > FPS_INTERVAL) {
-		fps = frameCount / fpsTimer;
-		frameCount = 0;
-		fpsTimer -= FPS_INTERVAL;
+	if (m_FpsTimer > FPS_INTERVAL) {
+		m_Fps = m_FrameCount / m_FpsTimer;
+		m_FrameCount = 0;
+		m_FpsTimer -= FPS_INTERVAL;
 	};
 
-	if (dt > MAX_DT)
-		dt = MAX_DT;
+	if (m_Dt > MAX_DT)
+		m_Dt = MAX_DT;
 
-	accumulator += dt;
+	m_Accumulator += m_Dt;
 }
 
 bool TimeManager::step()
 {
-	if (accumulator >= fixedDt) {
-		accumulator -= fixedDt;
+	if (m_Accumulator >= m_FixedDt) {
+		m_WorldFrame++;
+		m_Accumulator -= m_FixedDt;
 		return true;
 	}
 	return false;
@@ -59,40 +56,40 @@ bool TimeManager::step()
 
 float TimeManager::getDt() const
 {
-	return dt;
+	return m_Dt;
 }
 
 float TimeManager::getFixedDt() const
 {
-	return fixedDt;
+	return m_FixedDt;
 }
 
 float TimeManager::getFPS() const {
-	return fps;
+	return m_Fps;
 }
 
 float TimeManager::getWorldTime() const
 {
-	return worldTime;
+	return m_WorldTime;
 }
 
 float TimeManager::getAccum() const
 {
-	return accumulator;
+	return m_Accumulator;
 }
 
 float TimeManager::getIFactor() const
 {
-	return clamp(accumulator / fixedDt, 0.0f, 1.0f);
+	return clamp(m_Accumulator / m_FixedDt, 0.0f, 1.0f);
 }
 
 int TimeManager::getWorldFrame() const
 {
-	return worldFrame;
+	return m_WorldFrame;
 }
 
 void TimeManager::resetWorldVars()
 {
-	worldFrame = 0;
-	worldTime = 0.0f;
+	m_WorldFrame = 0;
+	m_WorldTime = 0.0f;
 }

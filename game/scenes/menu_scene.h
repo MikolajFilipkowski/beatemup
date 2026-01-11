@@ -11,34 +11,34 @@ enum class MenuState {
 
 class MenuScene : public GameScene {
 protected:
-	UISpriteBackgroundContainer* menu;
-	Camera* cam;
-	MenuState nextState;
-	Font title_font;
-	Font button_font;
-	Font input_font;
+	UISpriteBackgroundContainer* m_Menu{};
+	Camera* m_Cam{};
+	MenuState m_NextState{ MenuState::NONE };
+	Font m_TitleFont;
+	Font m_ButtonFont;
+	Font m_InputFont;
 
-	void getElInfo(const Dims& log_dims, float& el_w, float& el_h, float& dy);
+	void getElInfo(const Dims& a_LogDims, float& a_ElW, float& a_ElH, float& a_Dy);
 public:
-	MenuScene(Managers* managers);
+	MenuScene(Managers* a_Managers);
 	virtual ~MenuScene() { destroy(); }
 	virtual void start() override;
-	virtual void update(float dt) override;
-	virtual void fixedUpdate(float fixed_dt) override;
+	virtual void update(float a_Dt) override;
+	virtual void fixedUpdate(float a_FixedDt) override;
 	virtual void draw() override;
 	virtual void destroy() override;
 
-	void changeState(MenuState state);
-	void setNextState(MenuState state);
+	void changeState(MenuState a_State);
+	void setNextState(MenuState a_State);
 
-	void createMenuCont(const Dims& log_dims);
+	void createMenuCont(const Dims& a_LogDims);
 
 	void loadBackgrounds();
 	void loadUITextures();
-	void loadTitle(const Dims& log_dims);
-	void loadMainMenu(const Dims& log_dims);
-	void loadLevelSelector(const Dims& log_dims);
+	void loadTitle(const Dims& a_LogDims);
+	void loadMainMenu(const Dims& a_LogDims);
+	void loadLevelSelector(const Dims& a_LogDims);
 
-	void loadMainButtons(float el_w, float el_y, float dy, const Dims& log_dims);
-	void loadLevelButtons(float el_w, float el_y, float dy, const Dims& log_dims);
+	void loadMainButtons(float a_ElW, float a_ElH, float a_Dy, const Dims& a_LogDims);
+	void loadLevelButtons(float a_ElW, float a_ElH, float a_Dy, const Dims& a_LogDims);
 };

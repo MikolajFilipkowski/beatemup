@@ -6,104 +6,104 @@
 
 class UIElement {
 protected:
-	Managers* mgs;
-	Vector2 pos;
-	FDims size;
-	bool active;
-	bool focused;
-	bool focusable;
+	Managers* m_Mgs;
+	Vector2 m_Pos;
+	FDims m_Size;
+	bool m_Active{ true };
+	bool m_Focused{ false };
+	bool m_Focusable{ false };
 public:
-	UIElement(Managers* mgs, Vector2 position, FDims size);
+	UIElement(Managers* a_Managers, Vector2 a_Pos, FDims a_Size);
 	UIElement(const UIElement&) = delete;
 	UIElement& operator=(const UIElement&) = delete;
 	virtual ~UIElement() = default;
-	virtual void update(float dt) {}
-	virtual void handleEvents(SDL_Event& ev) {}
+	virtual void update(float a_Dt) {}
+	virtual void handleEvents(SDL_Event& a_Event) {}
 	virtual void draw() = 0;
 
-	Vector2& getPosition() { return pos; }
-	FDims& getSize() { return size; }
-	void setPosition(Vector2 position) { pos = position; }
-	void setSize(FDims size) { this->size = size; }
-	bool isActive() const { return active; }
-	void setActive(bool ac) { active = ac; }
-	bool isFocused() const { return focused; }
-	virtual void setFocused(bool fc);
+	Vector2& getPosition() { return m_Pos; }
+	FDims& getSize() { return m_Size; }
+	void setPosition(Vector2 a_Pos) { m_Pos = a_Pos; }
+	void setSize(FDims a_Size) { this->m_Size = a_Size; }
+	bool isActive() const { return m_Active; }
+	void setActive(bool a_Active) { m_Active = a_Active; }
+	bool isFocused() const { return m_Focused; }
+	virtual void setFocused(bool a_Focused);
 
-	bool isFocusable() const { return focusable; }
-	void setFocusable(bool fc) { focusable = fc; }
+	bool isFocusable() const { return m_Focusable; }
+	void setFocusable(bool a_Focusable) { m_Focusable = a_Focusable; }
 
-	bool isMouseOver(Vector2 mousePos);
+	bool isMouseOver(Vector2 a_MousePos);
 };
 
 class UITextElement : public UIElement {
 protected:
-	char buffer[MAX_TEXTSIZE];
-	int maxCharCount;
-	Font font;
-	char* plholder_txt;
-	Font pl_font;
+	char m_Buffer[MAX_TEXTSIZE]{};
+	int m_MaxCharCount{};
+	Font m_Font{};
+	char* m_PlaceholderText{};
+	Font m_PlaceholderFont;
 public:
-	UITextElement(Managers* mgs, Vector2 position, FDims size, Font font, int maxChars = 255);
-	void setText(const char* text);
+	UITextElement(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Font a_Font, int a_MaxChars = 255);
+	void setText(const char* a_Text);
 	char* getText() const;
-	void setFont(Font font);
+	void setFont(Font a_Font);
 	Font getFont() const;
 
 	int getCharCount() const;
 	int getMaxCharCount() const;
 
-	void setPlaceholder(const char* text, ColorRGBA clr);
+	void setPlaceholder(const char* a_Text, ColorRGBA a_Color);
 
-	void centerPos(Vector2 parent_pos, FDims parent_size);
-	void leftPos(Vector2 parent_pos, FDims parent_size);
+	void centerPos(Vector2 a_ParentPos, FDims a_ParentSize);
+	void leftPos(Vector2 a_ParentPos, FDims a_ParentSize);
 
 	virtual void draw() override;
 };
 
 class UIContainer : public UIElement {
 protected:
-	ArrayList<UIElement*> array;
-	int focusedElement;
+	ArrayList<UIElement*> m_Array{};
+	int m_FocusedElement{ -1 };
 public:
-	UIContainer(Managers* mgs, Vector2 position, FDims size) 
-		: UIElement(mgs, position, size), focusedElement(-1) {}
+	UIContainer(Managers* a_Managers, Vector2 a_Pos, FDims a_Size) 
+		: UIElement(a_Managers, a_Pos, a_Size) {}
 	virtual ~UIContainer();
-	void addElement(UIElement* el);
-	void setFocusedElement(int idx);
+	void addElement(UIElement* a_Element);
+	void setFocusedElement(int a_Idx);
 	int getFocusedElement() const;
 
 	int getElementCount() const;
 	int getFocusableCount() const;
 
-	virtual void update(float dt) override;
+	virtual void update(float a_Dt) override;
 	virtual void draw() override;
-	virtual void handleEvents(SDL_Event& ev) override;
+	virtual void handleEvents(SDL_Event& a_Event) override;
 
-	void updateElements(float dt);
+	void updateElements(float a_Dt);
 	void drawElements();
-	void handleEvElements(SDL_Event& ev);
+	void handleEvElements(SDL_Event& a_Event);
 
-	void detectScroll(SDL_Event& ev);
-	virtual void onScrollEv(int y);
+	void detectScroll(SDL_Event& a_Event);
+	virtual void onScrollEv(int a_Y);
 
-	void detectHover(SDL_Event& ev);
-	virtual void onHoverEv(int elIdx);
+	void detectHover(SDL_Event& a_Event);
+	virtual void onHoverEv(int a_ElIdx);
 };
 
 class UIBackgroundContainer : public UIContainer {
 protected:
-	ColorRGBA bg;
-	ColorRGBA border;
-	int borderSize;
+	ColorRGBA m_Background{ ColorRGBA::transparent() };
+	ColorRGBA m_Border{ ColorRGBA::transparent() };
+	int m_BorderSize{ 0 };
 public:
-	UIBackgroundContainer(Managers* mgs, Vector2 position, FDims size) 
-		: UIContainer(mgs, position, size), bg(ColorRGBA::transparent()), border(ColorRGBA::transparent()), borderSize(0) {}
+	UIBackgroundContainer(Managers* a_Managers, Vector2 a_Pos, FDims a_Size) 
+		: UIContainer(a_Managers, a_Pos, a_Size) {}
 	virtual ~UIBackgroundContainer() = default;
 
 	virtual void draw() override;
-	void setBackground(ColorRGBA background);
-	void setBorder(ColorRGBA color, int size);
+	void setBackground(ColorRGBA a_Background);
+	void setBorder(ColorRGBA a_Color, int a_Size);
 
 	ColorRGBA getBackground();
 	ColorRGBA getBorderColor();
@@ -112,33 +112,33 @@ public:
 
 class UISpriteBackgroundContainer : public UIBackgroundContainer {
 protected:
-	int spriteKey;
+	int spriteKey{ 0 };
 public:
-	UISpriteBackgroundContainer(Managers* mgs, Vector2 position, FDims size)
-		: UIBackgroundContainer(mgs, position, size), spriteKey(0) {}
+	UISpriteBackgroundContainer(Managers* a_Managers, Vector2 a_Pos, FDims a_Size)
+		: UIBackgroundContainer(a_Managers, a_Pos, a_Size) {}
 	virtual ~UISpriteBackgroundContainer() = default;
 
 	virtual void draw() override;
-	void setSprite(int key);
+	void setSprite(int a_Key);
 	int getSprite();
 };
 
 class UIButton : public UISpriteBackgroundContainer {
 protected:
-	UITextElement txt_el;
-	bool pressed;
-	bool hovered;
-	float afterPress;
-	void (*onClick)(SDL_Event& ev, UIButton* button, Managers* mgs);
-	Vector2 padding;
+	UITextElement m_TextElement;
+	bool m_Pressed{ false };
+	bool m_Hovered{ false };
+	float m_AfterPress{ 0 };
+	void (*m_OnClick)(SDL_Event& a_Event, UIButton* a_Button, Managers* a_Managers);
+	Vector2 m_Padding{};
 public:
-	UIButton(Managers* mgs, Vector2 position, FDims size, Font font,
-		void (*onClick)(SDL_Event& ev, UIButton* button, Managers* mgs) = nullptr
+	UIButton(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Font a_Font,
+		void (*m_OnClick)(SDL_Event& a_Event, UIButton* a_Button, Managers* a_Managers) = nullptr
 		);
-	virtual void handleEvents(SDL_Event& ev) override;
-	virtual void update(float dt) override;
+	virtual void handleEvents(SDL_Event& a_Event) override;
+	virtual void update(float a_Dt) override;
 	virtual void draw() override;
-	virtual void setText(const char* text);
+	virtual void setText(const char* a_Text);
 	
 	bool isPressed() const;
 	bool isHovered() const;
@@ -146,11 +146,11 @@ public:
 
 class UITextInput : public UISpriteBackgroundContainer {
 protected:
-	UITextElement txt_el;
+	UITextElement m_TextElement;
 public:
-	UITextInput(Managers* mgs, Vector2 position, FDims size, Font font, int maxChars = 255, Vector2 padding = {0,0});
+	UITextInput(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Font a_Font, int a_MaxChars = 255, Vector2 a_Padding = {0,0});
 	virtual void draw() override;
-	virtual void handleEvents(SDL_Event& ev) override;
-	void setPlaceholder(const char* text, ColorRGBA clr);
-	virtual void setFocused(bool fc) override;
+	virtual void handleEvents(SDL_Event& a_Event) override;
+	void setPlaceholder(const char* a_Text, ColorRGBA a_Color);
+	virtual void setFocused(bool a_Focused) override;
 };

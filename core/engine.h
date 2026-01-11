@@ -9,17 +9,21 @@ extern "C" {
 
 class Engine {
 private:
-	bool running;
-	Managers mgs;
-	Application* app;
+	bool m_Running{ false };
+	Managers m_Mgs{};
+	Application* m_App{};
+	bool m_DebugMode{ false };
 public:
 	Engine();
 
-	bool init(const char* title, Dims screenDims, Dims logicalDims = {0,0}, bool isFullscreen = false);
-	void run(Application* application);
+	bool init(const char* a_Title, Dims a_ScreenDims, Dims a_LogDims = {0,0}, bool a_Fullscreen = false);
+	void run(Application* a_App);
 	void handleEvents();
 	void stop();
 	void destroy();
+
+	bool inDebugMode() const;
+	void setDebugMode(bool a_DebugMode);
 
 	bool isRunning() const;
 };

@@ -1,152 +1,194 @@
-#include "math.h"
+#include <math.h>
 #include "core_types.h"
 #include "managers/managers.h"
 
-#include "cstring"
+#include <cstring>
+#include <iostream>
 
-
-void GameScene::addLayer(int spriteKey, float scrollFactor, float width, float height)
+ActionData::ActionData(int a_Prio, int a_Win, int a_Cond, bool a_Inter, int a_Owner, Array<int>* a_Seq, Array<ActionFrame>* a_Frames)
+	: priority(a_Prio), inputWindow(a_Win), conditions(a_Cond),
+	interruptible(a_Inter), owner(a_Owner), m_Sequence(a_Seq), m_Frames(a_Frames)
 {
-	int copies = (mgs->display->getLogWidth() / (int)width + 2);
-	layers.add({ spriteKey, scrollFactor, {width, height}, copies });
+	for (int i = 0; i < m_Frames->count(); i++) {
+		m_TotalDuration += m_Frames->get(i).duration;
+	}
+}
+
+ActionData::~ActionData() {
+	delete m_Sequence;
+	delete m_Frames;
+}
+
+void ActionData::setSequence(Array<int>* a_Seq)
+{
+	m_Sequence = a_Seq;
+}
+
+void ActionData::setFrames(Array<ActionFrame>* a_Frames)
+{
+	m_Frames = a_Frames;
+	m_TotalDuration = 0.0f;
+	for (int i = 0; i < a_Frames->count(); i++) {
+		m_TotalDuration += a_Frames->get(i).duration;
+	}
+}
+
+Array<int>* ActionData::getSequence() const
+{
+	return m_Sequence;
+}
+
+Array<ActionFrame>* ActionData::getFrames() const
+{
+	return m_Frames;
+}
+
+float ActionData::getTotalDuration()
+{
+	return m_TotalDuration;
+}
+
+
+void GameScene::addLayer(int a_SpriteKey, float a_ScrollFactor, float a_Width, float a_Height)
+{
+	int copies = (m_Mgs->display->getLogWidth() / (int)a_Width + 2);
+	m_Layers.add({ a_SpriteKey, a_ScrollFactor, {a_Width, a_Height}, copies });
 }
 
 void GameScene::drawBackground()
 {
-	float camX = mgs->display->getActiveCamera()->getPosition().x;
-	Dims logDims = mgs->display->getLogDims();
+	float camX = m_Mgs->display->getActiveCamera()->getPosition().x;
+	Dims logDims = m_Mgs->display->getLogDims();
 
-	for (auto& layer : layers) {
+	for (auto& layer : m_Layers) {
 		drawLayer(layer, camX, logDims);
 	}
 }
 
-void GameScene::drawLayer(BackgroundLayer& layer, float camX, Dims& logDims)
+void GameScene::drawLayer(BackgroundLayer& a_Layer, float a_CamX, Dims& a_LogDims)
 {
 	// x - pozycja layera (<=0)
-	float x = fmodf(-camX * layer.scrollFactor, layer.dims.width);
-	if (x > 0) x -= layer.dims.width;
+	float x = fmodf(-a_CamX * a_Layer.scrollFactor, a_Layer.dims.width);
+	if (x > 0) x -= a_Layer.dims.width;
 
 	// zapetlanie layera
-	for (int i = 0; i < layer.copies; i++) {
-		Vector2 pos = { x + (i * layer.dims.width), 0 };
-		mgs->display->drawSprite(layer.spriteKey, pos, layer.dims);
+	for (int i = 0; i < a_Layer.copies; i++) {
+		Vector2 pos = { x + (i * a_Layer.dims.width), 0 };
+		m_Mgs->display->drawSprite(a_Layer.spriteKey, pos, a_Layer.dims);
 	}
 }
 
-GameObject::GameObject(Managers* mgs, Transform tr) 
-	: mgs(mgs),
-	transform(tr),
-	rb({ {0,0,0}, tr.pos, tr.pos }),
-	removalPending(false),
-	hasStarted(false)
+GameObject::GameObject(Managers* a_Managers, Transform a_Transform) 
+	: m_Mgs(a_Managers),
+	m_Transform(a_Transform),
+	m_Rb({ {0,0,0}, a_Transform.pos, a_Transform.pos })
 {
-	if (mgs->object != nullptr)
-		mgs->object->add((GameObject*)this);
+	if (a_Managers->object != nullptr)
+		a_Managers->object->add((GameObject*)this);
 }
 
 GameObject::~GameObject() {}
 
 Transform& GameObject::getTransform()
 {
-	return transform;
+	return m_Transform;
 }
 
-void GameObject::setTransform(Transform tr)
+void GameObject::setTransform(Transform a_Transform)
 {
-	transform = tr;
+	m_Transform = a_Transform;
 }
 
 Vector3& GameObject::getPosition()
 {
-	return transform.pos;
+	return m_Transform.pos;
 }
 
-void GameObject::setPosition(Vector3 pos)
+void GameObject::setPosition(Vector3 a_Pos)
 {
-	transform.pos = pos;
+	m_Transform.pos = a_Pos;
 }
 
 Rigidbody& GameObject::getRb()
 {
-	return rb;
+	return m_Rb;
 }
 
 bool GameObject::getRemovalFlag() const
 {
-	return removalPending;
+	return m_RemovalPending;
 }
 
-void GameObject::setRemovalFlag(bool flag)
+void GameObject::setRemovalFlag(bool a_Flag)
 {
-	removalPending = true;
+	m_RemovalPending = true;
 }
 
 bool GameObject::getStartedFlag() const
 {
-	return hasStarted;
+	return m_HasStarted;
 }
 
-void GameObject::setStartedFlag(bool flag)
+void GameObject::setStartedFlag(bool a_Flag)
 {
-	hasStarted = flag;
+	m_HasStarted = a_Flag;
 }
 
 Vector3 GameObject::getIPos()
 {
-	float ifactor = mgs->time->getIFactor();
+	float ifactor = m_Mgs->time->getIFactor();
 
 	// pozycja zinterpolowana (pomiedzy klatkami fizyki)
-	float dx = rb.prevPos.x * (1.0f - ifactor) + rb.currPos.x * ifactor;
-	float dy = rb.prevPos.y * (1.0f - ifactor) + rb.currPos.y * ifactor;
-	float dz = rb.prevPos.z * (1.0f - ifactor) + rb.currPos.z * ifactor;
+	float dx = m_Rb.prevPos.x * (1.0f - ifactor) + m_Rb.currPos.x * ifactor;
+	float dy = m_Rb.prevPos.y * (1.0f - ifactor) + m_Rb.currPos.y * ifactor;
+	float dz = m_Rb.prevPos.z * (1.0f - ifactor) + m_Rb.currPos.z * ifactor;
 
 	return { dx, dy, dz };
 }
 
-void GameObject::drawShadow(int sh_key, float obj_width, FDims sh_dims)
+void GameObject::drawShadow(int a_ShKey, float a_ObjWidth, FDims a_ShDims)
 {
-	float shX = transform.pos.x;
-	float shY = transform.pos.z - sh_dims.height/2;
+	float shX = m_Transform.pos.x;
+	float shY = m_Transform.pos.z - a_ShDims.height/2;
 
 	// przy skoku
-	float shScale = 1.0f / (1.0f - transform.pos.y / 2500.0f);
+	float shScale = 1.0f / (1.0f - m_Transform.pos.y / 2500.0f);
 
 	// do szerokosci obiektu * stala
-	shScale *= (obj_width / sh_dims.width) * .8f;
+	shScale *= (a_ObjWidth / a_ShDims.width) * .8f;
 
-	sh_dims.width *= shScale;
-	sh_dims.height *= shScale;
+	a_ShDims.width *= shScale;
+	a_ShDims.height *= shScale;
 
 	Transform tr = Transform::zero();
 	tr.pos = { shX, shY };
 	tr.scale = { shScale, shScale };
 
-	mgs->display->drawSprite(sh_key, tr);
+	m_Mgs->display->drawSprite(a_ShKey, tr);
 }
 
-Camera::Camera(Managers* mgs, Vector3 pos) : GameObject(mgs) {
-	transform.pos = pos;
-	rb.currPos = pos;
-	rb.prevPos = pos;
+Camera::Camera(Managers* a_Managers, Vector3 a_Pos) : GameObject(a_Managers) {
+	m_Transform.pos = a_Pos;
+	m_Rb.currPos = a_Pos;
+	m_Rb.prevPos = a_Pos;
 }
 
 Camera::~Camera() {}
 
 Rect Camera::getViewport()
 {
-	return { transform.pos.x, transform.pos.y, (float)mgs->display->getLogWidth(), (float)mgs->display->getLogHeight() };
+	return { m_Transform.pos.x, m_Transform.pos.y, (float)m_Mgs->display->getLogWidth(), (float)m_Mgs->display->getLogHeight() };
 }
 
 float Camera::getZoom()
 {
-	float pos_z = (transform.pos.z > 1.0f) ? transform.pos.z : 1.0f;
+	float pos_z = (m_Transform.pos.z > 1.0f) ? m_Transform.pos.z : 1.0f;
 
 	return DEFAULT_CAM_Z / pos_z;
 }
 
-SpriteObject::SpriteObject(Managers* mgs, Transform tr, int key) 
-	: GameObject(mgs, tr), spriteKey(key)
+SpriteObject::SpriteObject(Managers* a_Managers, Transform a_Transform, int a_Key) 
+	: GameObject(a_Managers, a_Transform), m_SpriteKey(a_Key)
 {
 
 }
@@ -156,54 +198,146 @@ SpriteObject::~SpriteObject() {
 }
 
 Sprite* SpriteObject::getSprite() {
-	if (spriteKey == 0) return nullptr;
-	return mgs->sprite->get(spriteKey);
+	if (m_SpriteKey == 0) return nullptr;
+	return m_Mgs->sprite->get(m_SpriteKey);
 }
 
-void SpriteObject::setSpriteKey(int key) {
-	spriteKey = key;
+void SpriteObject::setSpriteKey(int a_Key) {
+	m_SpriteKey = a_Key;
 }
 
 void SpriteObject::draw()
 {
-	mgs->display->drawSprite(spriteKey, transform);
+	m_Mgs->display->drawSprite(m_SpriteKey, m_Transform);
 }
 
-AnimatableObject::AnimatableObject(Managers* mgs, Transform tr)
-	: GameObject(mgs, tr), currentAnimKey(0), currentAnimFrame(0), currentAnimTimer(0.0f)
+int Actor::getAnimKeyFromAct(int a_ActKey)
 {
+	return 0;
+}
+
+void Actor::computeInput()
+{
+	m_InputVel = { 0,0,0 };
+}
+
+Actor::Actor(Managers* a_Managers, Transform a_Transform)
+	: GameObject(a_Managers, a_Transform) {}
+
+Actor::~Actor() {
 	
 }
 
-AnimatableObject::~AnimatableObject() {
+int Actor::getCurrentAnimKey() const
+{
+	return m_CurrentAnimKey;
+}
+
+void Actor::setAnim(int a_AnimKey)
+{
+	if (a_AnimKey == 0 || m_CurrentAnimKey == a_AnimKey) return;
+
+	m_CurrentAnimKey = a_AnimKey;
+}
+
+void Actor::startAction(int a_ActKey)
+{
+	if (m_CurrentActKey == a_ActKey) return;
+
+	ActionData* data = m_Mgs->object->getAction(a_ActKey);
+	if (data == nullptr) return;
+
+	m_CurrentActKey = a_ActKey;
+	m_ActTimer = 0.0f;
+	m_CurrentFrame = 0;
+
+	int animKey = getAnimKeyFromAct(a_ActKey);
+	setAnim(animKey);
+}
+
+void Actor::fixedUpdate(float a_FixedDt)
+{
+	// Do interpolacji klatek ruchu
+	m_Rb.prevPos = m_Rb.currPos;
+
+	if (m_CurrentActKey == 0) return;
+	ActionData* data = m_Mgs->object->getAction(m_CurrentActKey);
+
+	m_ActTimer += a_FixedDt;
+
+	float totalDur = data->getTotalDuration();
+	if (m_ActTimer >= totalDur) {
+		// Jesli interruptible zapetlenie, jesli nie - powrot do akcji podstawowej 
+		if (data->interruptible) {
+			m_ActTimer = fmodf(m_ActTimer, totalDur);
+		}
+		else {
+			startAction(1);
+			return;
+		}
+	}
 	
+	auto frames = data->getFrames();
+
+	// Kalkulacja nr klatki
+	int frameIdx = 0;
+	float accum = 0.0f;
+	for (int i = 0; i < frames->count(); i++) {
+		accum += frames->get(i).duration;
+
+		if (accum >= m_ActTimer) {
+			frameIdx = i;
+			break;
+		}
+	}
+
+	m_CurrentFrame = frameIdx;
+	auto& currFrame = frames->get(frameIdx);
+
+	applyPhysics(a_FixedDt, data, currFrame);
 }
 
-int AnimatableObject::getCurrentAnimKey()
+void Actor::applyPhysics(float a_FixedDt, ActionData* a_Data, ActionFrame& a_CurrFrame)
 {
-	return currentAnimKey;
-}
+	Vector3& pos = m_Rb.currPos;
+	
+	float lookDir = (m_Transform.flip == H_FLIP) ? -1.0f : 1.0f;
 
-void AnimatableObject::setAnim(int key)
-{
-	if (key == 0 || currentAnimKey == key) return;
+	// Jesli interruptible mozliwa zmiana predkosci na podstawie inputu gracza
+	if (a_Data->interruptible || !m_Grounded)
+		computeInput();
+	else
+		m_InputVel = Vector3::zero();
 
-	currentAnimKey = key;
-	currentAnimFrame = 0;
-	currentAnimTimer = 0.0f;
-}
+	// Zmiana predkosci
+	m_Rb.vel.x = (a_CurrFrame.vel.x * lookDir) + m_InputVel.x;
+	m_Rb.vel.z = a_CurrFrame.vel.z + m_InputVel.z;
 
-void AnimatableObject::updateAnim(float dt)
-{
-	AnimationClip* clip = mgs->anim->get(currentAnimKey);
-	if (clip == nullptr) return;
+	if (a_CurrFrame.vel.y != 0)
+		m_Rb.vel.y = a_CurrFrame.vel.y;
 
-	currentAnimTimer += dt;
-	if (currentAnimTimer >= clip->frameDuration) {
-		currentAnimTimer = 0;
-		currentAnimFrame++;
-		currentAnimFrame %= clip->frameCount;
+	float gravity = m_Mgs->object->getGravity();
+
+	if (!m_Grounded) {
+		m_Rb.vel.y += gravity * a_FixedDt;
+	}
+
+	// Zmiana pozycji na bazie predkosci
+	pos.x += m_Rb.vel.x * a_FixedDt;
+	pos.y += m_Rb.vel.y * a_FixedDt;
+	pos.z += m_Rb.vel.z * a_FixedDt;
+
+	if (pos.y >= 0) {
+		pos.y = 0;
+		m_Rb.vel.y = 0;
+
+		if (!m_Grounded) {
+			m_Grounded = true;
+			startAction(1);
+		}
+	}
+	else {
+		m_Grounded = false;
 	}
 }
-
 

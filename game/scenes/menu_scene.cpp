@@ -10,19 +10,19 @@ constexpr float BTN_X_MUL = .35f;
 constexpr float BTN_Y_MUL = .38f;
 constexpr float BTN_W_MUL = .3f;
 
-static void onLevelSelector(SDL_Event& ev, UIButton* button, Managers* mgs) {
-	if (mgs->scene->getCurrentSceneIdx() == SceneID::MENU) {
-		MenuScene* scene = (MenuScene*)mgs->scene->getCurrentScene();
+static void onLevelSelector(SDL_Event& ev, UIButton* button, Managers* m_Mgs) {
+	if (m_Mgs->scene->getCurrentSceneIdx() == SceneID::MENU) {
+		MenuScene* scene = (MenuScene*)m_Mgs->scene->getCurrentScene();
 		scene->setNextState(MenuState::LEVEL_SEL);
 	}
 };
 
-static void onQuit(SDL_Event& ev, UIButton* button, Managers* mgs) {
-	mgs->engine->stop();
+static void onQuit(SDL_Event& ev, UIButton* button, Managers* m_Mgs) {
+	m_Mgs->engine->stop();
 };
 
-static void onLevelChange(int level_id, SDL_Event& ev, UIButton* button, Managers* mgs) {
-	mgs->scene->load(SceneID::LEVEL, false);
+static void onLevelChange(int level_id, SDL_Event& ev, UIButton* button, Managers* m_Mgs) {
+	m_Mgs->scene->load(SceneID::LEVEL, false);
 }
 
 void MenuScene::getElInfo(const Dims& log_dims, float& el_w, float& el_h, float& dy)
@@ -32,8 +32,8 @@ void MenuScene::getElInfo(const Dims& log_dims, float& el_w, float& el_h, float&
 	dy = MENU_BTN_H + MENU_BTN_GAP;
 }
 
-MenuScene::MenuScene(Managers* managers) : GameScene(managers), menu(nullptr), cam(nullptr), nextState(MenuState::NONE) {
-	title_font = {
+MenuScene::MenuScene(Managers* a_Managers) : GameScene(a_Managers) {
+	m_TitleFont = {
 		RES::CH_32,
 		32,
 		1.5f,
@@ -42,7 +42,7 @@ MenuScene::MenuScene(Managers* managers) : GameScene(managers), menu(nullptr), c
 		{ { 0x1E, 0x1E, 0x1E, 0xFF }, 6 },
 		6
 	};
-	button_font = {
+	m_ButtonFont = {
 		RES::CH_32,
 		32,
 		1.25f,
@@ -51,7 +51,7 @@ MenuScene::MenuScene(Managers* managers) : GameScene(managers), menu(nullptr), c
 		Outline(),
 		6
 	};
-	input_font = {
+	m_InputFont = {
 		RES::CH_16,
 		16,
 		1.75f,
@@ -64,30 +64,30 @@ MenuScene::MenuScene(Managers* managers) : GameScene(managers), menu(nullptr), c
 
 void MenuScene::start()
 {
-	const Dims log_dims = mgs->display->getLogDims();
-	mgs->display->showCursor(true);
+	const Dims log_dims = m_Mgs->display->getLogDims();
+	m_Mgs->display->showCursor(true);
 
 	loadUITextures();
 	loadBackgrounds();
 	loadMainMenu(log_dims);
 
-	cam = new Camera(mgs);
-	mgs->display->setActiveCamera(cam);
+	m_Cam = new Camera(m_Mgs);
+	m_Mgs->display->setActiveCamera(m_Cam);
 }
 
-void MenuScene::update(float dt)
+void MenuScene::update(float a_Dt)
 {
-	if (nextState != MenuState::NONE) {
-		changeState(nextState);
+	if (m_NextState != MenuState::NONE) {
+		changeState(m_NextState);
 		return;
 	}
 
-	if (cam == nullptr) return;
-	Vector3 pos = cam->getPosition();
-	cam->setPosition({pos.x + .25f, pos.y, pos.z});
+	if (m_Cam == nullptr) return;
+	Vector3 pos = m_Cam->getPosition();
+	m_Cam->setPosition({pos.x + .25f, pos.y, pos.z});
 }
 
-void MenuScene::fixedUpdate(float fixed_dt)
+void MenuScene::fixedUpdate(float a_FixedDt)
 {
 }
 
@@ -98,26 +98,26 @@ void MenuScene::draw()
 
 void MenuScene::destroy()
 {
-	if (mgs->ui) mgs->ui->clear();
+	if (m_Mgs->ui) m_Mgs->ui->clear();
 
-	mgs->sprite->unload(RES::MENU_BOXES);
-	mgs->sprite->unload(RES::MENU_BUILDINGS);
-	mgs->sprite->unload(RES::MENU_ROAD);
-	mgs->sprite->unload(RES::MENU_SKY);
-	mgs->sprite->unload(RES::MENU_WALL1);
-	mgs->sprite->unload(RES::MENU_WALL2);
-	mgs->sprite->unload(RES::MENU_WHEELS);
-	mgs->sprite->unload(RES::PUNCH);
-	mgs->sprite->unload(RES::UI_BIG_FRAME);
-	mgs->sprite->unload(RES::UI_SMALL_FRAME);
-	mgs->sprite->unload(RES::UI_BUTTON);
+	m_Mgs->sprite->unload(RES::MENU_BOXES);
+	m_Mgs->sprite->unload(RES::MENU_BUILDINGS);
+	m_Mgs->sprite->unload(RES::MENU_ROAD);
+	m_Mgs->sprite->unload(RES::MENU_SKY);
+	m_Mgs->sprite->unload(RES::MENU_WALL1);
+	m_Mgs->sprite->unload(RES::MENU_WALL2);
+	m_Mgs->sprite->unload(RES::MENU_WHEELS);
+	m_Mgs->sprite->unload(RES::PUNCH);
+	m_Mgs->sprite->unload(RES::UI_BIG_FRAME);
+	m_Mgs->sprite->unload(RES::UI_SMALL_FRAME);
+	m_Mgs->sprite->unload(RES::UI_BUTTON);
 }
 
-void MenuScene::changeState(MenuState state)
+void MenuScene::changeState(MenuState a_State)
 {
-	const Dims log_dims = mgs->display->getLogDims();
+	const Dims log_dims = m_Mgs->display->getLogDims();
 
-	switch (nextState) {
+	switch (m_NextState) {
 	case MenuState::MAIN:
 		loadMainMenu(log_dims);
 		break;
@@ -128,33 +128,33 @@ void MenuScene::changeState(MenuState state)
 		break;
 	}
 
-	nextState = MenuState::NONE;
+	m_NextState = MenuState::NONE;
 }
 
-void MenuScene::setNextState(MenuState state)
+void MenuScene::setNextState(MenuState a_State)
 {
-	nextState = state;
+	m_NextState = a_State;
 }
 
-void MenuScene::createMenuCont(const Dims& log_dims)
+void MenuScene::createMenuCont(const Dims& a_LogDims)
 {
-	menu = new UISpriteBackgroundContainer(
-		mgs,
-		{ log_dims.width * .23f, log_dims.height * .18f },
-		{ log_dims.width * .54f, log_dims.height * .64f }
+	m_Menu = new UISpriteBackgroundContainer(
+		m_Mgs,
+		{ a_LogDims.width * .23f, a_LogDims.height * .18f },
+		{ a_LogDims.width * .54f, a_LogDims.height * .64f }
 	);
-	menu->setSprite(RES::UI_BIG_FRAME);
+	m_Menu->setSprite(RES::UI_BIG_FRAME);
 }
 
 void MenuScene::loadBackgrounds()
 {
-	mgs->sprite->load(MENU_ASSETS "boxes.bmp", RES::MENU_BOXES);
-	mgs->sprite->load(MENU_ASSETS "buildings.bmp", RES::MENU_BUILDINGS);
-	mgs->sprite->load(MENU_ASSETS "road.bmp", RES::MENU_ROAD);
-	mgs->sprite->load(MENU_ASSETS "sky.bmp", RES::MENU_SKY);
-	mgs->sprite->load(MENU_ASSETS "wall1.bmp", RES::MENU_WALL1);
-	mgs->sprite->load(MENU_ASSETS "wall2.bmp", RES::MENU_WALL2);
-	mgs->sprite->load(MENU_ASSETS "wheels.bmp", RES::MENU_WHEELS);
+	m_Mgs->sprite->load(MENU_ASSETS "boxes.bmp", RES::MENU_BOXES);
+	m_Mgs->sprite->load(MENU_ASSETS "buildings.bmp", RES::MENU_BUILDINGS);
+	m_Mgs->sprite->load(MENU_ASSETS "road.bmp", RES::MENU_ROAD);
+	m_Mgs->sprite->load(MENU_ASSETS "sky.bmp", RES::MENU_SKY);
+	m_Mgs->sprite->load(MENU_ASSETS "wall1.bmp", RES::MENU_WALL1);
+	m_Mgs->sprite->load(MENU_ASSETS "wall2.bmp", RES::MENU_WALL2);
+	m_Mgs->sprite->load(MENU_ASSETS "wheels.bmp", RES::MENU_WHEELS);
 
 	addLayer(RES::MENU_SKY, 0.1f, 1280.0f, 720.0f);
 	addLayer(RES::MENU_BUILDINGS, 0.2f, 1280.0f, 720.0f);
@@ -167,54 +167,54 @@ void MenuScene::loadBackgrounds()
 
 void MenuScene::loadUITextures()
 {
-	mgs->sprite->load(UI_ASSETS "big_frame.bmp", RES::UI_BIG_FRAME);
-	mgs->sprite->load(UI_ASSETS "small_frame.bmp", RES::UI_SMALL_FRAME);
-	mgs->sprite->load(UI_ASSETS "button.bmp", RES::UI_BUTTON);
-	mgs->sprite->load(UI_ASSETS "text_input.bmp", RES::UI_TEXT_INPUT);
+	m_Mgs->sprite->load(UI_ASSETS "big_frame.bmp", RES::UI_BIG_FRAME);
+	m_Mgs->sprite->load(UI_ASSETS "small_frame.bmp", RES::UI_SMALL_FRAME);
+	m_Mgs->sprite->load(UI_ASSETS "button.bmp", RES::UI_BUTTON);
+	m_Mgs->sprite->load(UI_ASSETS "text_input.bmp", RES::UI_TEXT_INPUT);
 }
 
-void MenuScene::loadTitle(const Dims& log_dims)
+void MenuScene::loadTitle(const Dims& a_LogDims)
 {
-	mgs->sprite->load(UI_ASSETS "punch.bmp", RES::PUNCH);
-	mgs->sprite->setSpriteColor(RES::PUNCH, title_font.color);
+	m_Mgs->sprite->load(UI_ASSETS "punch.bmp", RES::PUNCH);
+	m_Mgs->sprite->setSpriteColor(RES::PUNCH, m_TitleFont.color);
 
-	const float ch_size = title_font.chSize * title_font.scale;
+	const float ch_size = m_TitleFont.chSize * m_TitleFont.scale;
 	const char* t_text = "Beat em up";
-	const float t_size = (strlen(t_text)) * ch_size * title_font.spacing;
+	const float t_size = (strlen(t_text)) * ch_size * m_TitleFont.spacing;
 
-	const float t_x = (log_dims.width / 2.0f) - (t_size / 2.0f);
-	const float t_y = log_dims.height * .225f;
+	const float t_x = (a_LogDims.width / 2.0f) - (t_size / 2.0f);
+	const float t_y = a_LogDims.height * .225f;
 
 	UISpriteBackgroundContainer* punch = new UISpriteBackgroundContainer(
-		mgs, { t_x + IC_OFF_X, t_y + IC_OFF_Y }, { IC_SIZE, IC_SIZE }
+		m_Mgs, { t_x + IC_OFF_X, t_y + IC_OFF_Y }, { IC_SIZE, IC_SIZE }
 	);
 	punch->setSprite(RES::PUNCH);
 
 	UITextElement* title = new UITextElement(
-		mgs,
+		m_Mgs,
 		{ t_x, t_y },
 		{ t_size, ch_size },
-		title_font
+		m_TitleFont
 	);
 
 	title->setText(t_text);
-	menu->addElement((UIElement*)punch);
-	menu->addElement((UIElement*)title);
+	m_Menu->addElement((UIElement*)punch);
+	m_Menu->addElement((UIElement*)title);
 }
 
-void MenuScene::loadMainMenu(const Dims& log_dims)
+void MenuScene::loadMainMenu(const Dims& a_LogDims)
 {
-	createMenuCont(log_dims);
-	loadTitle(log_dims);
+	createMenuCont(a_LogDims);
+	loadTitle(a_LogDims);
 
 	float el_w, el_h, dy;
-	getElInfo(log_dims, el_w, el_h, dy);
+	getElInfo(a_LogDims, el_w, el_h, dy);
 
 	UITextInput* txt_input = new UITextInput(
-		mgs,
-		{ log_dims.width * .35f, log_dims.height * .32f },
-		{ log_dims.width * .3f, MENU_BTN_H * 1.5f },
-		input_font,
+		m_Mgs,
+		{ a_LogDims.width * .35f, a_LogDims.height * .32f },
+		{ a_LogDims.width * .3f, MENU_BTN_H * 1.5f },
+		m_InputFont,
 		10,
 		{ 50, 0 }
 	);
@@ -223,20 +223,20 @@ void MenuScene::loadMainMenu(const Dims& log_dims)
 	txt_input->setSprite(RES::UI_TEXT_INPUT);
 	txt_input->setPlaceholder("Pseudonim", { 0x77, 0x77, 0x77, 0xFF });
 
-	menu->addElement((UIElement*)txt_input);
+	m_Menu->addElement((UIElement*)txt_input);
 
-	loadMainButtons(el_w, el_h, dy, log_dims);
+	loadMainButtons(el_w, el_h, dy, a_LogDims);
 
-	mgs->ui->add((UIElement*)menu);
+	m_Mgs->ui->add((UIElement*)m_Menu);
 }
 
-void MenuScene::loadLevelSelector(const Dims& log_dims)
+void MenuScene::loadLevelSelector(const Dims& a_LogDims)
 {
-	mgs->ui->remove(menu);
+	m_Mgs->ui->remove(m_Menu);
 	
-	createMenuCont(log_dims);
+	createMenuCont(a_LogDims);
 
-	mgs->ui->add(menu);
+	m_Mgs->ui->add(m_Menu);
 
 	const ColorRGBA t_color = { 0x1E, 0x1E, 0x1E, 0xFF };
 
@@ -248,75 +248,75 @@ void MenuScene::loadLevelSelector(const Dims& log_dims)
 		t_color
 	};
 
-	loadTitle(log_dims);
+	loadTitle(a_LogDims);
 
 	float el_w, el_h, dy;
-	getElInfo(log_dims, el_w, el_h, dy);
+	getElInfo(a_LogDims, el_w, el_h, dy);
 
-	loadLevelButtons(el_w, el_h, dy, log_dims);
+	loadLevelButtons(el_w, el_h, dy, a_LogDims);
 }
 
-void MenuScene::loadMainButtons(float el_w, float el_h, float dy, const Dims& log_dims)
+void MenuScene::loadMainButtons(float a_ElW, float a_ElH, float a_Dy, const Dims& a_LogDims)
 {
 	UIButton* btn_lvl = new UIButton(
-		mgs,
-		{ el_w, el_h + dy },
-		{ log_dims.width * .3f, MENU_BTN_H },
-		button_font,
+		m_Mgs,
+		{ a_ElW, a_ElH + a_Dy },
+		{ a_LogDims.width * .3f, MENU_BTN_H },
+		m_ButtonFont,
 		onLevelSelector
 	);
 	btn_lvl->setSprite(RES::UI_BUTTON);
 	btn_lvl->setText("Graj");
 
 	UIButton* btn_scores = new UIButton(
-		mgs,
-		{ el_w, el_h + 2 * dy },
-		{ log_dims.width * .3f, MENU_BTN_H },
-		button_font
+		m_Mgs,
+		{ a_ElW, a_ElH + 2 * a_Dy },
+		{ a_LogDims.width * .3f, MENU_BTN_H },
+		m_ButtonFont
 	);
 	btn_scores->setSprite(RES::UI_BUTTON);
 	btn_scores->setText("Wyniki");
 
 	UIButton* btn_quit = new UIButton(
-		mgs,
-		{ el_w, el_h + 3 * dy },
-		{ log_dims.width * .3f, MENU_BTN_H },
-		button_font,
+		m_Mgs,
+		{ a_ElW, a_ElH + 3 * a_Dy },
+		{ a_LogDims.width * .3f, MENU_BTN_H },
+		m_ButtonFont,
 		onQuit
 	);
 	btn_quit->setSprite(RES::UI_BUTTON);
 	btn_quit->setText("Wyjscie");
 
-	menu->addElement((UIElement*)btn_lvl);
-	menu->addElement((UIElement*)btn_scores);
-	menu->addElement((UIElement*)btn_quit);
+	m_Menu->addElement((UIElement*)btn_lvl);
+	m_Menu->addElement((UIElement*)btn_scores);
+	m_Menu->addElement((UIElement*)btn_quit);
 }
 
-void MenuScene::loadLevelButtons(float el_w, float el_h, float dy, const Dims& log_dims)
+void MenuScene::loadLevelButtons(float a_ElW, float a_ElH, float a_Dy, const Dims& a_LogDims)
 {
-	auto onLvl1 = [](SDL_Event& ev, UIButton* button, Managers* mgs) { onLevelChange(1, ev, button, mgs); };
-	auto onLvl2 = [](SDL_Event& ev, UIButton* button, Managers* mgs) { onLevelChange(2, ev, button, mgs); };
+	auto onLvl1 = [](SDL_Event& ev, UIButton* button, Managers* m_Mgs) { onLevelChange(1, ev, button, m_Mgs); };
+	auto onLvl2 = [](SDL_Event& ev, UIButton* button, Managers* m_Mgs) { onLevelChange(2, ev, button, m_Mgs); };
 
 	UIButton* btn_lvl1 = new UIButton(
-		mgs,
-		{ el_w, el_h + dy },
-		{ log_dims.width * .3f, MENU_BTN_H },
-		button_font,
+		m_Mgs,
+		{ a_ElW, a_ElH + a_Dy },
+		{ a_LogDims.width * .3f, MENU_BTN_H },
+		m_ButtonFont,
 		onLvl1
 	);
 	btn_lvl1->setSprite(RES::UI_BUTTON);
 	btn_lvl1->setText("Etap 1");
 
 	UIButton* btn_lvl2 = new UIButton(
-		mgs,
-		{ el_w, el_h + 2 * dy },
-		{ log_dims.width * .3f, MENU_BTN_H },
-		button_font,
+		m_Mgs,
+		{ a_ElW, a_ElH + 2 * a_Dy },
+		{ a_LogDims.width * .3f, MENU_BTN_H },
+		m_ButtonFont,
 		onLvl2
 	);
 	btn_lvl2->setSprite(RES::UI_BUTTON);
 	btn_lvl2->setText("Etap 2");
 
-	menu->addElement((UIElement*)btn_lvl1);
-	menu->addElement((UIElement*)btn_lvl2);
+	m_Menu->addElement((UIElement*)btn_lvl1);
+	m_Menu->addElement((UIElement*)btn_lvl2);
 }

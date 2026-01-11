@@ -10,22 +10,26 @@ extern "C" {
 class ObjectManager : private Manager {
 	friend class Engine;
 private:
-	ArrayList<GameObject*> objectArray;
-	Map<int, ActionData*> actionsMap;
+	ArrayList<GameObject*> m_ObjectArray{};
+	Map<int, ActionData*> m_ActionsMap{};
+	float m_Gravity{ 0 };
 
-	ObjectManager(Managers* managers) : Manager(managers) {}
+	ObjectManager(Managers* a_Managers) : Manager(a_Managers) {}
 	~ObjectManager() override;
 	void destroy() override;
-	void startIfNeeded(GameObject*& object);
+	void startIfNeeded(GameObject*& a_Object);
 public:
-	void add(GameObject* object);
-	void remove(GameObject* object);
+	void add(GameObject* a_Object);
+	void remove(GameObject* a_Object);
 
-	void addAction(int key, ActionData* action);
-	ActionData* getAction(int key);
+	void addAction(int a_Key, ActionData* a_Action);
+	ActionData* getAction(int a_Key);
 
-	void updateAll(float dt);
-	void fixedUpdateAll(float fixed_dt);
+	void setGravity(float a_Gravity);
+	float getGravity();
+
+	void updateAll(float a_Dt);
+	void fixedUpdateAll(float a_FixedDt);
 	void drawAll();
 	void refreshObjects();
 	void clear();

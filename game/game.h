@@ -9,21 +9,16 @@
 
 class Game : public Application {
 protected:
-	GameLoader* gmLoader;
-	InputBuffer* iBuffer;
-	Font infoFont;
-	bool debugMode;
+	GameLoader m_GameLoader{};
+	Font m_InfoFont;
 public:
 	Game();
 	virtual ~Game() = default;
-	bool onStart(Managers* managers) override;
-	void onUpdate(float dt) override;
-	void onFixedUpdate(float fixed_dt) override;
+	bool onStart(Managers* a_Managers) override;
+	void onUpdate(float a_Dt) override;
+	void onFixedUpdate(float a_FixedDt) override;
 	void onDraw() override;
 	void onDestroy() override;
-
-	bool inDebugMode() const;
-	void setDebugMode(bool d);
 
 	void setupBindings();
 	void loadCharsets();

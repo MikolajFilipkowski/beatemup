@@ -2,11 +2,11 @@
 
 #include "game_loader.h"
 
-int GameLoader::charToBind(const char& ch)
+int GameLoader::charToBind(const char& a_Char)
 {
-	switch (ch) {
-	case 'L': return ActionBind::LEFT;
-	case 'R': return ActionBind::RIGHT;
+	switch (a_Char) {
+	case 'F': return ActionBind::FORWARD;
+	case 'B': return ActionBind::BACKWARD;
 	case 'U': return ActionBind::UP;
 	case 'D': return ActionBind::DOWN;
 	case 'J': return ActionBind::JUMP;
@@ -16,9 +16,14 @@ int GameLoader::charToBind(const char& ch)
 	}
 }
 
-void GameLoader::loadActionData(const char* filePath)
+void GameLoader::init(Managers* a_Managers)
 {
-	FILE* file = fopen(filePath, "r");
+	m_Mgs = a_Managers;
+}
+
+void GameLoader::loadActionData(const char* a_FilePath)
+{
+	FILE* file = fopen(a_FilePath, "r");
 	if (!file) return;
 
 	char line[MAX_LINE_LEN];
@@ -34,16 +39,29 @@ void GameLoader::loadActionData(const char* filePath)
 			fclose(file);
 			return;
 		}
+		
+		if (strlen(line) >= MAX_ACT_NAME_LEN || !fgets(line, MAX_LINE_LEN, file)) {
+			printf(NAME_ERR);
+			delete act;
+			fclose(file);
+			m_Mgs->engine->stop();
+			return;
+		}
 
-		act->sequence = (seqLen > 0) ? parseSequence(line, seqLen) : nullptr;
-		act->frames = new Array<ActionFrame>(frCount);
+		parseName(line, act);
+		fgets(line, MAX_LINE_LEN, file);
+
+		if (seqLen > 0)
+			act->setSequence(parseSequence(line, seqLen));
+
+		auto frame = new Array<ActionFrame>(frCount);
 
 		int frLoaded = 0;
 		while (frLoaded < frCount && fgets(line, sizeof(line), file)) {
 			if (line[0] == '#' || line[0] == '\n' || line[0] == '\r') 
 				continue;
 			
-			bool success = parseFrame(line, file, act->frames->get(frLoaded), frLoaded, id);
+			bool success = parseFrame(line, file, frame->get(frLoaded), frLoaded, id);
 			if (!success) {
 				delete act;
 				fclose(file);
@@ -55,42 +73,52 @@ void GameLoader::loadActionData(const char* filePath)
 			printf(FR_COUNT_ERR, id, frCount, frLoaded);
 			delete act;
 			fclose(file);
-			mgs->engine->stop();
+			m_Mgs->engine->stop();
 			return;
 		}
 
-		mgs->object->addAction(id, act);
+		act->setFrames(frame);
+		m_Mgs->object->addAction(id, act);
 	}
 
 	fclose(file);
 }
 
-bool GameLoader::parseHeader(char* line, FILE* file, ActionData* act, 
-							int& id, int& seqLen, int& frCount)
+bool GameLoader::parseHeader(char* a_Line, FILE* a_File, ActionData* a_Act, 
+							int& a_Id, int& a_SeqLen, int& a_FrCount)
 {
 	int inter, res;
-	res = sscanf(line, HEADER_FORMAT, &id, &act->priority, &act->inputWindow, 
-		&act->conditions, &inter, &seqLen, &frCount, &act->owner);
+	res = sscanf(a_Line, HEADER_FORMAT, &a_Id, &a_Act->priority, &a_Act->inputWindow, 
+		&a_Act->conditions, &inter, &a_SeqLen, &a_FrCount, &a_Act->owner);
 
-	act->interrupt = (inter != 0);
+	a_Act->interruptible = (inter != 0);
 
-	// Jesli niepoprawne formatowanie lub kolejna linia nie istnieje rzuc blad
-	if (res != HEADER_VARS || !fgets(line, sizeof(line), file)) {
+	// Jesli niepoprawne formatowanie rzuc blad
+	if (res != HEADER_VARS) {
 		printf(HEADER_ERR);
-		mgs->engine->stop();
+		m_Mgs->engine->stop();
 		return false;
 	}
 	return true;
 }
 
-Array<int>* GameLoader::parseSequence(const char* line, int seqLen)
+void GameLoader::parseName(char* a_Line, ActionData* a_Act)
 {
-	Array<int>* sequence = new Array<int>(seqLen);
+	strncpy(a_Act->name, a_Line, MAX_ACT_NAME_LEN - 1);
+
+	int actLen = strlen(a_Act->name);
+	if (a_Act->name[actLen - 1] == '\n')
+		a_Act->name[actLen - 1] = '\0';
+}
+
+Array<int>* GameLoader::parseSequence(const char* a_Line, int a_SeqLen)
+{
+	Array<int>* sequence = new Array<int>(a_SeqLen);
 
 	int found = 0;
 
-	for (int i = 0; line[i] != '\0' && found < seqLen; i++) {
-		char ch = line[i];
+	for (int i = 0; a_Line[i] != '\0' && found < a_SeqLen; i++) {
+		char ch = a_Line[i];
 
 		int bind = charToBind(ch);
 		if (bind != ActionBind::NONE)
@@ -100,25 +128,25 @@ Array<int>* GameLoader::parseSequence(const char* line, int seqLen)
 	return sequence;
 }
 
-bool GameLoader::parseFrame(const char* line, FILE* file, ActionFrame& fr, int& frLoaded, int& id)
+bool GameLoader::parseFrame(const char* a_Line, FILE* a_File, ActionFrame& a_Fr, int& a_FrLoaded, int& a_Id)
 {
 	int fId;
 
-	int res = sscanf(line, FR_FORMAT,
-		&fId, &fr.duration, &fr.vel.x, &fr.vel.y, &fr.vel.z, &fr.damage,
-		&fr.hitbox.x, &fr.hitbox.y, &fr.hitbox.w, &fr.hitbox.h,
-		&fr.hurtbox.x, &fr.hurtbox.y, &fr.hurtbox.w, &fr.hurtbox.h
+	int res = sscanf(a_Line, FR_FORMAT,
+		&fId, &a_Fr.duration, &a_Fr.vel.x, &a_Fr.vel.y, &a_Fr.vel.z, &a_Fr.damage,
+		&a_Fr.hitbox.x, &a_Fr.hitbox.y, &a_Fr.hitbox.w, &a_Fr.hitbox.h,
+		&a_Fr.hurtbox.x, &a_Fr.hurtbox.y, &a_Fr.hurtbox.w, &a_Fr.hurtbox.h
 	);
 
-	if (fId != frLoaded)
-		printf(FR_ORDER_WARN, fId, frLoaded);
+	if (fId != a_FrLoaded)
+		printf(FR_ORDER_WARN, fId, a_FrLoaded);
 
 	if (res != FR_VARS) {
-		printf(FR_ERR, id, frLoaded);
-		mgs->engine->stop();
+		printf(FR_ERR, a_Id, a_FrLoaded);
+		m_Mgs->engine->stop();
 		return false;
 	}
 
-	frLoaded++;
+	a_FrLoaded++;
 	return true;
 }

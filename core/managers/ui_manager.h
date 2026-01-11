@@ -11,18 +11,18 @@ extern "C" {
 class UIManager : private Manager {
 	friend class Engine;
 private:
-	ArrayList<UIElement*> elements;
-	UIManager(Managers* managers);
+	ArrayList<UIElement*> m_Elements{};
+	UIManager(Managers* a_Managers);
 	~UIManager() override;
 	void destroy() override;
 public:
-	void add(UIElement* el);
-	void remove(UIElement* el);
-	void handleEvents(SDL_Event& ev);
-	void update(float dt);
+	void add(UIElement* a_Element);
+	void remove(UIElement* a_Element);
+	void handleEvents(SDL_Event& a_Event);
+	void update(float a_Dt);
 	void draw();
 	void clear();
 
-	ColorRGBA calcPulse(ColorRGBA clr);
-	ColorRGBA calcAlphaPulse(ColorRGBA clr);
+	ColorRGBA calcPulse(ColorRGBA a_Color);
+	ColorRGBA calcAlphaPulse(ColorRGBA a_Color);
 };
