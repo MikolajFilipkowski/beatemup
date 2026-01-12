@@ -10,6 +10,7 @@ class LevelScene : public GameScene {
 private:
 	Player* m_Player{};
 	PlayerCamera* m_Camera{};
+	UIHealthbar* m_Healthbar{};
 public:
 	LevelScene(Managers* a_Managers) : GameScene(a_Managers) {}
 	void start() override;

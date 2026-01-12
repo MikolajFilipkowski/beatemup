@@ -31,6 +31,8 @@
     <ClCompile Include="core\managers\ui_manager.cpp" />
     <ClCompile Include="core\ui.cpp" />
     <ClCompile Include="core\utils.cpp" />
+    <ClCompile Include="game\gameObjects\actor.cpp" />
+    <ClCompile Include="game\gameObjects\enemy.cpp" />
     <ClCompile Include="game\game_loader.cpp" />
     <ClCompile Include="game\game.cpp" />
     <ClCompile Include="game\gameObjects\player.cpp" />
@@ -83,6 +85,9 @@
     <Image Include="game\assets\shadow.bmp" />
     <Image Include="game\assets\ui\big_frame.bmp" />
     <Image Include="game\assets\ui\button.bmp" />
+    <Image Include="game\assets\ui\hb_fill.bmp" />
+    <Image Include="game\assets\ui\hb_frame.bmp" />
+    <Image Include="game\assets\ui\hb_ghost.bmp" />
     <Image Include="game\assets\ui\punch.bmp" />
     <Image Include="game\assets\ui\small_frame.bmp" />
     <Image Include="game\assets\ui\text_input.bmp" />
@@ -104,6 +109,8 @@
     <ClInclude Include="core\managers\ui_manager.h" />
     <ClInclude Include="core\ui.h" />
     <ClInclude Include="core\utils.h" />
+    <ClInclude Include="game\gameObjects\actor.h" />
+    <ClInclude Include="game\gameObjects\enemy.h" />
     <ClInclude Include="game\game_loader.h" />
     <ClInclude Include="game\config.h" />
     <ClInclude Include="game\game.h" />

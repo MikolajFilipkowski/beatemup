@@ -106,7 +106,7 @@ void GameLoader::parseName(char* a_Line, ActionData* a_Act)
 {
 	strncpy(a_Act->name, a_Line, MAX_ACT_NAME_LEN - 1);
 
-	int actLen = strlen(a_Act->name);
+	size_t actLen = strlen(a_Act->name);
 	if (a_Act->name[actLen - 1] == '\n')
 		a_Act->name[actLen - 1] = '\0';
 }

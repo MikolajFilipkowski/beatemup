@@ -42,6 +42,11 @@ void ObjectManager::remove(GameObject* a_Object)
 	a_Object->setRemovalFlag(true);
 }
 
+ArrayList<GameObject*>& ObjectManager::getAllObjects()
+{
+	return m_ObjectArray;
+}
+
 void ObjectManager::addAction(int a_Key, ActionData* a_Action)
 {
 	if (m_ActionsMap.containsKey(a_Key)) return;
@@ -81,6 +86,12 @@ void ObjectManager::fixedUpdateAll(float a_FixedDt)
 			startIfNeeded(object);
 		}
 	}
+
+	for (GameObject*& object : m_ObjectArray) {
+		if (object != nullptr && !object->getRemovalFlag()) {
+			object->postFixedUpdate(a_FixedDt);
+		}
+	}
 }
 
 void ObjectManager::drawAll()
@@ -113,4 +124,8 @@ void ObjectManager::refreshObjects()
 void ObjectManager::clear()
 {
 	destroy();
+}
+
+void ObjectManager::updateCombat()
+{
 }

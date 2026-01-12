@@ -31,8 +31,24 @@ inline constexpr float DEF_HP = 100.0f;
 
 inline constexpr FDims SHADOW_DIMS = { 96, 32 };
 
+inline constexpr float MAX_DZ_HIT = 20.0f;
+inline constexpr float AFTER_HIT_INV = 0.15f;
+
+enum class FacingDir {
+	LEFT,
+	RIGHT
+};
 
 // Dziala podobnie do enum class, ale automatycznie rzutuje na inta
+
+namespace ObjectType {
+	enum : Uint8 {
+		DEFAULT = 0U,
+		ACTOR = 1U << 0,
+		PLAYER = (1U << 1) | ACTOR,
+		ENEMY = (1U << 2) | ACTOR,
+	};
+};
 
 namespace RES {
 	enum {
@@ -55,6 +71,9 @@ namespace RES {
 		MENU_WALL1,
 		MENU_WALL2,
 		MENU_SKY,
+		HB_FRAME,
+		HB_FILL,
+		HB_GHOST,
 
 		ANIMS_OFFSET,
 	};
@@ -65,7 +84,7 @@ namespace RES {
 		PLY_JUMP,
 		PLY_HEAVY_ATT,
 		PLY_LIGHT_ATT,
-		PLY_ATTACK_3,
+		PLY_WHEEL_PUNCH,
 	};
 }
 
@@ -76,6 +95,7 @@ namespace Colors {
 	inline constexpr ColorRGBA red = ColorRGBA::red();
 	inline constexpr ColorRGBA green = ColorRGBA::green();
 	inline constexpr ColorRGBA vividBlue = { 0x1A, 0x43, 0xD9, 0xFF };
+	inline constexpr ColorRGBA gainsboro = { 0xDD, 0xDD, 0xDD, 0xFF };
 }
 
 namespace InputBind {
@@ -115,7 +135,8 @@ namespace Actions {
 		WALK,
 		JUMP,
 		LIGHT_ATTACK,
-		HEAVY_ATTACK
+		HEAVY_ATTACK,
+		WHEEL_PUNCH
 	};
 }
 
@@ -128,11 +149,11 @@ namespace SceneID {
 }
 
 namespace Entities {
-	enum {
-		NONE = 0,
-		PLAYER = 1 << 0,
-		ENEMY_1 = 1 << 1,
-		ENEMY_2 = 1 << 2,
-		ALL = 0xFF
+	enum : Uint8 {
+		NONE = 0U,
+		PLAYER = 1U << 0,
+		DOYLE = 1U << 1,
+		AUTUMN = 1U << 2,
+		ALL = 0xFFU
 	};
 }

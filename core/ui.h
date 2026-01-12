@@ -2,7 +2,8 @@
 
 #include "core_types.h"
 
-
+inline constexpr float HB_GHOST_SPD = 5.0f;
+inline constexpr float HB_GHOST_BASE = 15.0f;
 
 class UIElement {
 protected:
@@ -112,7 +113,7 @@ public:
 
 class UISpriteBackgroundContainer : public UIBackgroundContainer {
 protected:
-	int spriteKey{ 0 };
+	int m_SpriteKey{ 0 };
 public:
 	UISpriteBackgroundContainer(Managers* a_Managers, Vector2 a_Pos, FDims a_Size)
 		: UIBackgroundContainer(a_Managers, a_Pos, a_Size) {}
@@ -153,4 +154,29 @@ public:
 	virtual void handleEvents(SDL_Event& a_Event) override;
 	void setPlaceholder(const char* a_Text, ColorRGBA a_Color);
 	virtual void setFocused(bool a_Focused) override;
+};
+
+class UIHealthbar : public UISpriteBackgroundContainer {
+protected:
+	Vector2 m_Padding;
+	float m_Max{ 0 };
+	float* m_LinkedVal{};
+	int m_FillKey{ 0 };
+	int m_GhostKey{ 0 };
+	float m_GhostVal{ 0 };
+public:
+	UIHealthbar(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Vector2 a_Padding = { 0,0 });
+	virtual void draw() override;
+	virtual void update(float a_Dt) override;
+
+	float getMax() const;
+	void setMax(float a_Max);
+
+	float getVal() const;
+	void linkVals(float* a_Val);
+
+	void setFill(int a_Key);
+	int getFill();
+	void setGhost(int a_Key);
+	int getGhost();
 };

@@ -16,7 +16,7 @@ private:
 	~AnimationManager() override;
 	void destroy() override;
 public:
-	void createFromSheet(int a_AnimKey, int a_SpriteKey, int a_FrameCount, float a_FrameDuration);
+	void createFromSheet(int a_AnimKey, int a_SpriteKey, int a_FrameCount);
 	AnimationClip* get(int a_Key);
 	void remove(int a_Key);
 };

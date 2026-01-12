@@ -11,13 +11,12 @@ void AnimationManager::destroy()
 {
 }
 
-void AnimationManager::createFromSheet(int a_AnimKey, int a_SpriteKey, int a_FrameCount, float a_FrameDuration) {
+void AnimationManager::createFromSheet(int a_AnimKey, int a_SpriteKey, int a_FrameCount) {
 	Sprite* sprite = m_Mgs->sprite->get(a_SpriteKey);
 	if (sprite == nullptr) return;
 
 	AnimationClip* clip = new AnimationClip();
 	clip->frameCount = a_FrameCount;
-	clip->frameDuration = a_FrameDuration;
 	clip->frames = new SDL_Rect[a_FrameCount];
 	clip->spriteKey = a_SpriteKey;
 

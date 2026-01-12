@@ -59,6 +59,12 @@
     <ClCompile Include="game\input_buffer.cpp">
       <Filter>game</Filter>
     </ClCompile>
+    <ClCompile Include="game\gameObjects\enemy.cpp">
+      <Filter>game\gameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="game\gameObjects\actor.cpp">
+      <Filter>game\gameObjects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\managers\display_manager.h">
@@ -132,6 +138,12 @@
     </ClInclude>
     <ClInclude Include="game\input_buffer.h">
       <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\gameObjects\enemy.h">
+      <Filter>game\gameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="game\gameObjects\actor.h">
+      <Filter>game\gameObjects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -269,6 +281,15 @@
     </Image>
     <Image Include="game\assets\circle.bmp">
       <Filter>game\assets</Filter>
+    </Image>
+    <Image Include="game\assets\ui\hb_fill.bmp">
+      <Filter>game\assets\ui</Filter>
+    </Image>
+    <Image Include="game\assets\ui\hb_frame.bmp">
+      <Filter>game\assets\ui</Filter>
+    </Image>
+    <Image Include="game\assets\ui\hb_ghost.bmp">
+      <Filter>game\assets\ui</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

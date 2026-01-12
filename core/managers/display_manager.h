@@ -22,8 +22,7 @@ private:
 	~DisplayManager() override;
 	void destroy() override;
 
-	Vector2 worldToScreen(Vector3 a_WorldPos) const;
-	SDL_FRect worldToRect(Vector3 a_WorldPos, FDims a_Dims) const;
+	
 
 	void drawStringOutline(Vector2 a_Pos, const char* a_Text, const Font& a_Font, const Sprite*& a_Sprite, FDims a_MaxSize);
 	void drawOutline(const Vector2& a_Pos, const SDL_Rect& a_Src, SDL_FRect& a_Dest, const Outline& a_Outline, SDL_Texture* a_Texture);
@@ -58,9 +57,13 @@ public:
 	Uint32 getFullscreenType() const;
 	void setBorderless(bool a_Borderless);
 
+	Vector2 worldToScreen(Vector3 a_WorldPos) const;
+	SDL_FRect worldToRect(Vector3 a_WorldPos, FDims a_Dims) const;
+
 	void setDrawColor(ColorRGBA a_Color);
 	void setSpriteModColor(const Sprite* a_Sprite, const ColorRGBA& a_Color);
 	void drawSprite(int a_SpriteKey, Vector2 a_Pos, FDims a_Dims = {0,0});
+	void drawClippedSprite(int a_SpriteKey, Vector2 a_Pos, FDims a_Dims, SDL_Rect a_Clip);
 	void drawSprite(int a_SpriteKey, Transform a_Transform);
 	void drawAnimFrame(int a_AnimKey, int a_FrameIdx, Transform tr);
 	void drawLine(Vector2 a_Start, Vector2 a_Dest, ColorRGBA a_Color);

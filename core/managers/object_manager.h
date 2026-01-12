@@ -22,6 +22,8 @@ public:
 	void add(GameObject* a_Object);
 	void remove(GameObject* a_Object);
 
+	ArrayList<GameObject*>& getAllObjects();
+
 	void addAction(int a_Key, ActionData* a_Action);
 	ActionData* getAction(int a_Key);
 
@@ -33,4 +35,6 @@ public:
 	void drawAll();
 	void refreshObjects();
 	void clear();
+
+	void updateCombat();
 };

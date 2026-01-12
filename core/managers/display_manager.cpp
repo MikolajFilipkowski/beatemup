@@ -9,42 +9,6 @@ DisplayManager::~DisplayManager()
 	destroy();
 }
 
-Vector2 DisplayManager::worldToScreen(Vector3 a_WorldPos) const
-{
-	Camera* cam = getActiveCamera();
-
-	if (cam == nullptr) return { a_WorldPos.x, a_WorldPos.y };
-
-	Vector3 camPos = cam->getPosition();
-	float zoom = cam->getZoom();
-
-	Vector2 screenPos{};
-
-	screenPos.x = (a_WorldPos.x - camPos.x) * zoom + (m_LogDims.width / 2.0f);
-	screenPos.y = (a_WorldPos.y + a_WorldPos.z - camPos.y) * zoom + (m_LogDims.height / 2.0f);
-
-	return screenPos;
-}
-
-SDL_FRect DisplayManager::worldToRect(Vector3 a_WorldPos, FDims a_Dims) const
-{
-	Vector2 screenPos = worldToScreen(a_WorldPos);
-	float zoom = getActiveCamera()->getZoom();
-
-	SDL_FRect rect{};
-
-	rect.w = a_Dims.width * zoom;
-	rect.h = a_Dims.height * zoom;
-
-	// (0,0) -> x srodek, y dol
-	rect.x = screenPos.x - (rect.w / 2.0f);
-	rect.y = screenPos.y - rect.h;
-
-	//printf("x: %f y: %f w: %f h: %f\n", rect.x, rect.y, rect.w, rect.h);
-
-	return rect;
-}
-
 void DisplayManager::drawStringOutline(Vector2 a_Pos, const char* a_Text, const Font& a_Font, const Sprite*& a_Sprite, FDims a_MaxSize)
 {
 	Dims charDims = { a_Sprite->width / 16 , a_Sprite->height / 16 };
@@ -302,6 +266,42 @@ void DisplayManager::setBorderless(bool a_Borderless)
 	m_Borderless = a_Borderless;
 }
 
+Vector2 DisplayManager::worldToScreen(Vector3 a_WorldPos) const
+{
+	Camera* cam = getActiveCamera();
+
+	if (cam == nullptr) return { a_WorldPos.x, a_WorldPos.y };
+
+	Vector3 camPos = cam->getPosition();
+	float zoom = cam->getZoom();
+
+	Vector2 screenPos{};
+
+	screenPos.x = (a_WorldPos.x - camPos.x) * zoom + (m_LogDims.width / 2.0f);
+	screenPos.y = (a_WorldPos.y + a_WorldPos.z - camPos.y) * zoom + (m_LogDims.height / 2.0f);
+
+	return screenPos;
+}
+
+SDL_FRect DisplayManager::worldToRect(Vector3 a_WorldPos, FDims a_Dims) const
+{
+	Vector2 screenPos = worldToScreen(a_WorldPos);
+	float zoom = getActiveCamera()->getZoom();
+
+	SDL_FRect rect{};
+
+	rect.w = a_Dims.width * zoom;
+	rect.h = a_Dims.height * zoom;
+
+	// (0,0) -> x srodek, y dol
+	rect.x = screenPos.x - (rect.w / 2.0f);
+	rect.y = screenPos.y - rect.h;
+
+	//printf("x: %f y: %f w: %f h: %f\n", rect.x, rect.y, rect.w, rect.h);
+
+	return rect;
+}
+
 void DisplayManager::setDrawColor(ColorRGBA a_Color)
 {
 	SDL_SetRenderDrawColor(m_Renderer, a_Color.r, a_Color.g, a_Color.b, a_Color.a);
@@ -326,6 +326,21 @@ void DisplayManager::drawSprite(int a_SpriteKey, Vector2 a_Pos, FDims a_Dims)
 	SDL_FRect rect = { a_Pos.x, a_Pos.y, a_Dims.width, a_Dims.height };
 
 	SDL_RenderCopyF(m_Renderer, sprite->texture, nullptr, &rect);
+}
+
+void DisplayManager::drawClippedSprite(int a_SpriteKey, Vector2 a_Pos, FDims a_Dims, SDL_Rect a_Clip)
+{
+	Sprite* sprite = m_Mgs->sprite->get(a_SpriteKey);
+	if (sprite == nullptr || sprite->texture == nullptr) return;
+
+	if (a_Dims.width == 0 || a_Dims.height == 0) {
+		a_Dims.width = (float)sprite->width;
+		a_Dims.height = (float)sprite->height;
+	}
+
+	SDL_FRect rect = { a_Pos.x, a_Pos.y, a_Dims.width, a_Dims.height };
+
+	SDL_RenderCopyF(m_Renderer, sprite->texture, &a_Clip, &rect);
 }
 
 void DisplayManager::drawSprite(int a_SpriteKey, Transform a_Transform)

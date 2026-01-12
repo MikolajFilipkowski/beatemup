@@ -3,31 +3,26 @@
 #include "../../core/core.h"
 #include "../config.h"
 #include "actor.h"
-#include "../input_buffer.h"
 
-class Player : public Actor {
+#include "player.h"
+
+class Enemy : public Actor {
 protected:
-	InputBuffer m_IBuffer;
+	Player* m_Player{};
+	float m_HP{ DEF_HP };
 	bool m_AttackXRequested{ false };
 	bool m_AttackYRequested{ false };
 	bool m_JumpRequested{ false };
-	
+	bool m_Attacking{ false };
 	float m_AttackTimer{ 0 };
 	Font m_DebugActionFont;
-
-	int getAnimKeyFromAct(int a_ActKey) override;
-	virtual void computeInput() override;
-	
 public:
-	Player(Managers* a_Managers, Transform a_Transform = Transform::zero());
-	virtual ~Player() override;
+	Enemy(Managers* a_Managers, Player* a_Player = nullptr, Transform a_Transform = Transform::zero());
+	virtual ~Enemy() override;
 	virtual void start() override;
 	virtual void update(float a_Dt) override;
 
 	virtual Uint8 getType() const override;
-	
-	virtual void draw() override;
-	void drawActionName();
 
-	InputBuffer& getIBuffer();
+	virtual void draw() override;
 };

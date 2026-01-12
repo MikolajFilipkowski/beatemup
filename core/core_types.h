@@ -35,6 +35,10 @@ inline constexpr float TEXT_CUR_BLINK_SPD = 7.0f;
 inline constexpr float TEXT_CUR_SCALE = .1f;
 inline constexpr float TEXT_CUR_PAD_LEFT = 5.0f;
 
+inline constexpr int BAR_ANIM_TIME = 50;
+
+inline constexpr Uint8 ACTOR_FLAG = 1U;
+
 inline constexpr size_t MAX_ACT_NAME_LEN = 64;
 
 class Managers;
@@ -44,6 +48,7 @@ typedef SDL_RendererFlip Flip;
 inline constexpr SDL_RendererFlip NO_FLIP = SDL_FLIP_NONE;
 inline constexpr SDL_RendererFlip H_FLIP = SDL_FLIP_HORIZONTAL;
 inline constexpr SDL_RendererFlip V_FLIP = SDL_FLIP_VERTICAL;
+
 
 struct Vector2 {
 	float x{ 0 }, y{ 0 };
@@ -284,7 +289,6 @@ struct AnimationClip {
 	int spriteKey{ 0 };
 	SDL_Rect* frames{};
 	int frameCount{0};
-	float frameDuration{ 0 };
 };
 
 struct Outline {
@@ -432,6 +436,8 @@ public:
 	GameObject(Managers* a_Managers, Transform a_Transform = Transform::zero());
 	virtual ~GameObject();
 
+	virtual Uint8 getType() const;
+
 	Transform& getTransform();
 	void setTransform(Transform a_Transform);
 
@@ -451,6 +457,7 @@ public:
 	virtual void start() {};
 	virtual void update(float a_Dt) {};
 	virtual void fixedUpdate(float a_FixedDt) {};
+	virtual void postFixedUpdate(float a_FixedDt) {};
 	virtual void draw() {};
 };
 
@@ -465,30 +472,6 @@ public:
 	void setSpriteKey(int a_Key);
 
 	virtual void draw() override;
-};
-
-class Actor : public GameObject {
-protected:
-	int m_CurrentActKey{ 0 };
-	int m_CurrentAnimKey{ 0 };
-	float m_ActTimer{ 0 };
-	int m_CurrentFrame{ 0 };
-	bool m_Grounded{ true };
-	Vector3 m_InputVel{};
-
-	virtual int getAnimKeyFromAct(int a_ActKey);
-	virtual void computeInput();
-public:
-	Actor(Managers* a_Managers, Transform a_Transform = Transform::zero());
-	virtual ~Actor();
-
-	int getCurrentAnimKey() const;
-	void setAnim(int a_AnimKey);
-
-	void startAction(int a_ActKey);
-
-	virtual void fixedUpdate(float a_FixedDt) override;
-	virtual void applyPhysics(float a_FixedDt, ActionData* a_Data, ActionFrame& a_CurrFrame);
 };
 
 class Camera : public GameObject {

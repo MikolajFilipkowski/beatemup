@@ -4,8 +4,8 @@
 #include "./gameObjects/player.h"
 
 InputBuffer::InputBuffer(Managers* a_Managers, Player* a_Player) : m_Mgs(a_Managers), m_Player(a_Player) {
-	m_DebugFont = { RES::CH_32, 32, 1.0, 1.0, {0xDD, 0xDD, 0xDD, 0xFF}, Outline(), 12 };
-	m_SmallDebugFont = { RES::CH_16, 16, .5, 1.0, {0xDD, 0xDD, 0xDD, 0xFF}, Outline(), 0 };
+	m_DebugFont = { RES::CH_32, 32, 1.0, 1.0, Colors::gainsboro, Outline(), 12 };
+	m_SmallDebugFont = { RES::CH_16, 16, .5, 1.0, Colors::gainsboro, Outline(), 0 };
 }
 
 int InputBuffer::count() const {

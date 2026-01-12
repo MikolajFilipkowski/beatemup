@@ -330,20 +330,20 @@ void UISpriteBackgroundContainer::draw()
 
 	m_Mgs->display->drawFilledRect(m_Pos, m_Size, m_Background, m_Border, m_BorderSize);
 
-	if (spriteKey != 0)
-		m_Mgs->display->drawSprite(spriteKey, m_Pos, m_Size);
+	if (m_SpriteKey != 0)
+		m_Mgs->display->drawSprite(m_SpriteKey, m_Pos, m_Size);
 
 	drawElements();
 }
 
 void UISpriteBackgroundContainer::setSprite(int a_SpriteKey)
 {
-	spriteKey = a_SpriteKey;
+	m_SpriteKey = a_SpriteKey;
 }
 
 int UISpriteBackgroundContainer::getSprite()
 {
-	return spriteKey;
+	return m_SpriteKey;
 }
 
 UIButton::UIButton(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Font a_Font, void (*a_OnClick)(SDL_Event& a_Event, UIButton* a_Button, Managers* a_Managers))
@@ -441,10 +441,10 @@ void UIButton::draw()
 
 	m_Mgs->display->drawFilledRect(m_Pos, m_Size, dp_bg, dp_border, m_BorderSize);
 
-	if (spriteKey != 0) {
-		Sprite* spr = m_Mgs->sprite->get(spriteKey);
+	if (m_SpriteKey != 0) {
+		Sprite* spr = m_Mgs->sprite->get(m_SpriteKey);
 
-		m_Mgs->display->drawSprite(spriteKey, m_Pos, m_Size);
+		m_Mgs->display->drawSprite(m_SpriteKey, m_Pos, m_Size);
 
 		if (m_Focused) {
 			SDL_SetTextureBlendMode(spr->texture, SDL_BLENDMODE_ADD);
@@ -452,7 +452,7 @@ void UIButton::draw()
 			ColorRGBA pulse = m_Mgs->ui->calcPulse(ColorRGBA::black());
 			SDL_SetTextureColorMod(spr->texture, pulse.r, pulse.g, pulse.b);
 
-			m_Mgs->display->drawSprite(spriteKey, m_Pos, m_Size);
+			m_Mgs->display->drawSprite(m_SpriteKey, m_Pos, m_Size);
 
 			SDL_SetTextureBlendMode(spr->texture, SDL_BLENDMODE_BLEND);
 		}
@@ -498,8 +498,8 @@ void UITextInput::draw()
 
 	m_Mgs->display->drawFilledRect(m_Pos, m_Size, m_Background, m_Border, m_BorderSize);
 
-	if (spriteKey != 0)
-		m_Mgs->display->drawSprite(spriteKey, m_Pos, m_Size);
+	if (m_SpriteKey != 0)
+		m_Mgs->display->drawSprite(m_SpriteKey, m_Pos, m_Size);
 
 	m_TextElement.draw();
 }
@@ -539,4 +539,114 @@ void UITextInput::setFocused(bool a_Focused)
 		m_Focused = a_Focused;
 		m_TextElement.setFocused(a_Focused);
 	}
+}
+
+UIHealthbar::UIHealthbar(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Vector2 a_Padding)
+	: UISpriteBackgroundContainer(a_Managers, a_Pos, a_Size), m_Padding(a_Padding) {}
+
+void UIHealthbar::draw()
+{
+	if (!m_Active || m_LinkedVal == nullptr) return;
+
+	if (m_SpriteKey != 0)
+		m_Mgs->display->drawSprite(m_SpriteKey, m_Pos, m_Size);
+
+	float val = *m_LinkedVal;
+	int wf = m_Mgs->time->getWorldFrame();
+
+	Vector2 barPos = m_Pos + m_Padding;
+	FDims barSize = m_Size - (m_Padding * 2);
+
+	if (m_GhostKey != 0 && m_GhostVal > val && m_GhostVal > 0) {
+		float progress = (m_Max != 0) ? m_GhostVal / m_Max : 0.0f;
+
+		Sprite* spr = m_Mgs->sprite->get(m_GhostKey);
+		m_Mgs->display->drawClippedSprite(
+			m_GhostKey, 
+			barPos,
+			{ barSize.width * progress, barSize.height },
+			{ 
+				0, 0, 
+				(int)(spr->width * progress), 
+				spr->height 
+			}
+		);
+	}
+
+	if (m_FillKey != 0 && val > 0) {
+		float progress = (m_Max != 0) ? val / m_Max : 0.0f;
+
+		Sprite* spr = m_Mgs->sprite->get(m_FillKey);
+		m_Mgs->display->drawClippedSprite(
+			m_FillKey,
+			barPos,
+			{ barSize.width * progress, barSize.height},
+			{
+				0, 0,
+				(int)(spr->width * progress),
+				spr->height
+			}
+		);
+	}
+
+	drawElements();
+}
+
+void UIHealthbar::update(float a_Dt)
+{
+	if (!m_Active || m_LinkedVal == nullptr) return;
+
+	float val = *m_LinkedVal;
+
+	if (m_GhostVal > val) {
+		float dVal = m_GhostVal - val;
+
+		float speed = dVal * HB_GHOST_SPD + HB_GHOST_BASE;
+
+		m_GhostVal -= speed * a_Dt;
+	}
+
+	if (m_GhostVal < val)
+		m_GhostVal = val;
+}
+
+float UIHealthbar::getMax() const
+{
+	return m_Max;
+}
+
+void UIHealthbar::setMax(float a_Max)
+{
+	m_Max = a_Max;
+}
+
+float UIHealthbar::getVal() const
+{
+	return *m_LinkedVal;
+}
+
+void UIHealthbar::linkVals(float* a_Val)
+{
+	m_LinkedVal = a_Val;
+	m_GhostVal = *a_Val;
+}
+
+void UIHealthbar::setFill(int a_Key)
+{
+	m_FillKey = a_Key;
+}
+
+int UIHealthbar::getFill()
+{
+	return m_FillKey;
+}
+
+void UIHealthbar::setGhost(int a_Key)
+{
+	m_GhostKey = a_Key;
+}
+
+int UIHealthbar::getGhost()
+{
+	return m_GhostKey;
 }
