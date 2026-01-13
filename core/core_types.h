@@ -363,9 +363,11 @@ public:
 	char name[MAX_ACT_NAME_LEN]{};
 	int priority{ 0 };
 	int inputWindow{ 0 };
-	int conditions{ 0 };
+	Uint8 conditions{ 0U };
 	bool interruptible{ false };
-	int owner{ 0 };
+	bool canMove{ false };
+	bool shouldLoop{ false };
+	Uint8 owner{ 0U };
 
 	ActionData() = default;
 	ActionData(int a_Prio, int a_Win, int a_Cond, bool a_Inter, 

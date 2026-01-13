@@ -23,6 +23,7 @@ public:
 	void remove(GameObject* a_Object);
 
 	ArrayList<GameObject*>& getAllObjects();
+	Map<int, ActionData*>& getAllActions();
 
 	void addAction(int a_Key, ActionData* a_Action);
 	ActionData* getAction(int a_Key);

@@ -5,10 +5,17 @@
 
 class Player;
 
+enum class InputState : Uint8 {
+	NEW,
+	IN_USE,
+	USED
+};
+
 struct InputEntry {
 	int logicalBind;
 	int physicalBind;
 	int worldFrame;
+	InputState state;
 };
 
 class InputBuffer {
@@ -18,11 +25,14 @@ private:
 	Font m_DebugFont;
 	Font m_SmallDebugFont;
 	Player* m_Player;
+	bool m_FirstUpdate{ true };
 public:
 	InputBuffer(Managers* a_Managers, Player* a_Player);
 	int count() const;
-	bool matches(int a_ActionId, int a_WorldFrame) const;
+	bool matches(int a_ActionId, int a_WorldFrame, int* a_UsedEntries);
+	int getNextAct();
 	void update();
+	void flagUsed();
 	void clear();
 	void drawBuffer();
 

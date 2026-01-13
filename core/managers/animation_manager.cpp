@@ -38,6 +38,8 @@ AnimationClip* AnimationManager::get(int a_Key)
 }
 
 void AnimationManager::remove(int a_Key) {
+	if (!m_AnimMap.containsKey(a_Key)) return;
+
 	AnimationClip*& clip = m_AnimMap.get(a_Key);
 	delete[] clip->frames;
 	delete clip;

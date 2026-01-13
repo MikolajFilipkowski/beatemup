@@ -20,9 +20,11 @@ protected:
 	Vector3 m_InputVel{};
 	FacingDir m_FacingDir{ FacingDir::RIGHT };
 
-	virtual int getAnimKeyFromAct(int a_ActKey);
+	virtual int getAnimFromAct(int a_ActKey) const;
 	virtual void computeInput();
 	int getActiveAnim();
+	void loadAnims();
+	void unloadAnims();
 public:
 	Actor(Managers* a_Managers, Transform a_Transform = Transform::zero());
 	virtual ~Actor();
@@ -31,21 +33,27 @@ public:
 	void setAnim(int a_AnimKey);
 
 	void startAction(int a_ActKey);
+	virtual void optActionAdjust(int a_ActKey) {}
 	ActionData* getCurrAction();
 	ActionFrame& getCurrFrame();
 
 	virtual void fixedUpdate(float a_FixedDt) override;
 	virtual void applyPhysics(float a_FixedDt, ActionData* a_Data, ActionFrame& a_CurrFrame);
 
+	virtual void actionFinish() {}
+
 	virtual void postFixedUpdate(float a_FixedDt) override;
 
+	virtual void draw() override;
 	void drawCollBoxes();
 	FacingDir getFacingDir() const;
 
+	virtual Uint8 getStateMask() const;
+
 	bool checkHit(Actor* a_Victim);
-	bool canBeHit(Actor* a_Attacker);
+	bool canBeHit(Actor* a_Attacker) const;
 	void registerHit(Actor* a_Attacker);
-	void takeDamage(float a_Dmg);
+	virtual void takeDamage(float a_Dmg);
 
 	float& getHP();
 };

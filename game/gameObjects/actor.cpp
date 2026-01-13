@@ -1,6 +1,6 @@
 #include "actor.h"
 
-int Actor::getAnimKeyFromAct(int a_ActKey)
+int Actor::getAnimFromAct(int a_ActKey) const
 {
 	return 0;
 }
@@ -12,7 +12,37 @@ void Actor::computeInput()
 
 int Actor::getActiveAnim()
 {
-	return getAnimKeyFromAct(m_CurrentActKey);
+	return getAnimFromAct(m_CurrentActKey);
+}
+
+void Actor::loadAnims()
+{
+	int animKey, frCount;
+	for (auto& pair : m_Mgs->object->getAllActions()) {
+		auto& action = pair.value;
+		if (!(action->owner & getType())) continue;
+
+		animKey = getAnimFromAct(pair.key);
+		frCount = action->getFrames()->count();
+		m_Mgs->anim->createFromSheet(animKey, animKey, frCount);
+	}
+}
+
+void Actor::unloadAnims()
+{
+	if (!m_Mgs->engine->isRunning()) return;
+
+	int animKey;
+	auto& actions = m_Mgs->object->getAllActions();
+
+	for (auto& pair : actions) {
+		auto& action = pair.value;
+		if (action == nullptr || !(action->owner & getType())) continue;
+
+		animKey = getAnimFromAct(pair.key);
+		m_Mgs->anim->remove(animKey);
+		m_Mgs->sprite->unload(animKey);
+	}
 }
 
 Actor::Actor(Managers* a_Managers, Transform a_Transform)
@@ -45,8 +75,9 @@ void Actor::startAction(int a_ActKey)
 	m_CurrentActKey = a_ActKey;
 	m_ActTimer = 0.0f;
 	m_CurrentFrame = 0;
+	optActionAdjust(a_ActKey);
 
-	int animKey = getAnimKeyFromAct(a_ActKey);
+	int animKey = getAnimFromAct(a_ActKey);
 	setAnim(animKey);
 }
 
@@ -74,8 +105,9 @@ void Actor::fixedUpdate(float a_FixedDt)
 
 	float totalDur = data->getTotalDuration();
 	if (m_ActTimer >= totalDur) {
-		// Jesli interruptible zapetlenie, jesli nie - powrot do akcji podstawowej 
-		if (data->interruptible) {
+		actionFinish();
+
+		if (data->shouldLoop) {
 			m_ActTimer = fmodf(m_ActTimer, totalDur);
 		}
 		else {
@@ -143,6 +175,7 @@ void Actor::applyPhysics(float a_FixedDt, ActionData* a_Data, ActionFrame& a_Cur
 
 		if (!m_Grounded) {
 			m_Grounded = true;
+			actionFinish();
 			startAction(1);
 		}
 	}
@@ -175,6 +208,15 @@ void Actor::postFixedUpdate(float a_FixedDt)
 			victim->registerHit(this);
 		}
 	}
+}
+
+void Actor::draw()
+{
+	int activeAnimKey = getActiveAnim();
+	float act_w = (float)m_Mgs->anim->get(activeAnimKey)->frames[m_CurrentFrame].w;
+	drawShadow(RES::SHADOW, act_w, SHADOW_DIMS);
+
+	m_Mgs->display->drawAnimFrame(activeAnimKey, m_CurrentFrame, m_Transform);
 }
 
 void Actor::drawCollBoxes()
@@ -226,6 +268,11 @@ FacingDir Actor::getFacingDir() const
 	return m_FacingDir;
 }
 
+Uint8 Actor::getStateMask() const
+{
+	return (m_Grounded) ? ActionCond::GROUND_ONLY : ActionCond::AIR_ONLY;
+}
+
 bool Actor::checkHit(Actor* a_Victim)
 {
 	if (a_Victim == this) 
@@ -272,7 +319,7 @@ bool Actor::checkHit(Actor* a_Victim)
 	return attHitbox.intersects(vicHurtbox);
 }
 
-bool Actor::canBeHit(Actor* a_Attacker)
+bool Actor::canBeHit(Actor* a_Attacker) const
 {
 	float dmg = a_Attacker->getCurrFrame().damage;
 

@@ -86,6 +86,7 @@ public:
 	void put(const K a_Key, const V& a_Val);
 	void remove(const K a_Key);
 	void clear();
+	int count() const;;
 	const V& operator[](const K a_Key) const;
 	V& operator[](const K a_Key);
 	KVPair<K, V>* begin();
@@ -105,10 +106,10 @@ protected:
 public:
 	CircularQueue(int a_Size);
 	virtual ~CircularQueue();
-	void push(const T& a_Val);
+	void push(T a_Val);
 	T pop();
-	const T& peek() const;
-	const T& peekAt(int a_idxFromRead) const;
+	T& peek();
+	T& peekAt(int a_idxFromRead);
 	void clear();
 	int count() const;
 	int maxSize() const;
@@ -402,6 +403,11 @@ inline void Map<K, V>::clear() {
 }
 
 template<typename K, typename V>
+inline int Map<K, V>::count() const {
+	return m_Array.count();
+}
+
+template<typename K, typename V>
 inline const V& Map<K, V>::operator[](const K a_Key) const {
 	for (const KVPair<K, V>& item : m_Array) {
 		if (compareKeys(item.key, a_Key)) {
@@ -469,7 +475,7 @@ inline CircularQueue<T>::~CircularQueue()
 }
 
 template<typename T>
-inline void CircularQueue<T>::push(const T& a_Val)
+inline void CircularQueue<T>::push(T a_Val)
 {
 	m_Array[m_Write] = a_Val;
 	m_Write = (m_Write + 1) % m_Size;
@@ -492,13 +498,13 @@ inline T CircularQueue<T>::pop()
 }
 
 template<typename T>
-inline const T& CircularQueue<T>::peek() const
+inline T& CircularQueue<T>::peek()
 {
 	return m_Array[m_Read];
 }
 
 template<typename T>
-inline const T& CircularQueue<T>::peekAt(int a_IdxFromRead) const
+inline T& CircularQueue<T>::peekAt(int a_IdxFromRead) 
 {
 	assert(a_IdxFromRead < count() && "Queue index out of bounds");
 	return m_Array[(m_Read + a_IdxFromRead) % m_Size];

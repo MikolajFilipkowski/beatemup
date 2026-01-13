@@ -47,6 +47,11 @@ ArrayList<GameObject*>& ObjectManager::getAllObjects()
 	return m_ObjectArray;
 }
 
+Map<int, ActionData*>& ObjectManager::getAllActions()
+{
+	return m_ActionsMap;
+}
+
 void ObjectManager::addAction(int a_Key, ActionData* a_Action)
 {
 	if (m_ActionsMap.containsKey(a_Key)) return;

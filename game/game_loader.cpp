@@ -40,7 +40,7 @@ void GameLoader::loadActionData(const char* a_FilePath)
 			return;
 		}
 		
-		if (strlen(line) >= MAX_ACT_NAME_LEN || !fgets(line, MAX_LINE_LEN, file)) {
+		if (!fgets(line, MAX_LINE_LEN, file) || strlen(line) >= MAX_ACT_NAME_LEN) {
 			printf(NAME_ERR);
 			delete act;
 			fclose(file);
@@ -87,11 +87,15 @@ void GameLoader::loadActionData(const char* a_FilePath)
 bool GameLoader::parseHeader(char* a_Line, FILE* a_File, ActionData* a_Act, 
 							int& a_Id, int& a_SeqLen, int& a_FrCount)
 {
-	int inter, res;
+	int inter, res, owner, cond, canMv, shLoop;
 	res = sscanf(a_Line, HEADER_FORMAT, &a_Id, &a_Act->priority, &a_Act->inputWindow, 
-		&a_Act->conditions, &inter, &a_SeqLen, &a_FrCount, &a_Act->owner);
+		&cond, &inter, &a_SeqLen, &a_FrCount, &canMv, &shLoop, &owner);
 
 	a_Act->interruptible = (inter != 0);
+	a_Act->canMove = (canMv != 0);
+	a_Act->shouldLoop = (shLoop != 0);
+	a_Act->owner = (owner >= 0 && owner <= SDL_MAX_UINT8) ? (Uint8)owner : 0;
+	a_Act->conditions = (cond >= 0 && cond <= SDL_MAX_UINT8) ? (Uint8)cond : 0;
 
 	// Jesli niepoprawne formatowanie rzuc blad
 	if (res != HEADER_VARS) {

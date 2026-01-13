@@ -10,8 +10,8 @@ private:
 
 	static constexpr int MAX_LINE_LEN = 512;
 
-	static constexpr const char* HEADER_FORMAT = "[%d] %d %d %d %d %d %d %x";
-	static constexpr int HEADER_VARS = 8;
+	static constexpr const char* HEADER_FORMAT = "[%d] %d %d %d %x %d %d %d %d %x";
+	static constexpr int HEADER_VARS = 10;
 	static constexpr const char* HEADER_ERR = "Action file has incorrect header data.\n";
 
 	static constexpr const char* NAME_ERR = "Action name too long! Max 64 characters.\n";

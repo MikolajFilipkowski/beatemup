@@ -32,6 +32,8 @@
     <ClCompile Include="core\ui.cpp" />
     <ClCompile Include="core\utils.cpp" />
     <ClCompile Include="game\gameObjects\actor.cpp" />
+    <ClCompile Include="game\gameObjects\autumn.cpp" />
+    <ClCompile Include="game\gameObjects\doyle.cpp" />
     <ClCompile Include="game\gameObjects\enemy.cpp" />
     <ClCompile Include="game\game_loader.cpp" />
     <ClCompile Include="game\game.cpp" />
@@ -110,6 +112,8 @@
     <ClInclude Include="core\ui.h" />
     <ClInclude Include="core\utils.h" />
     <ClInclude Include="game\gameObjects\actor.h" />
+    <ClInclude Include="game\gameObjects\autumn.h" />
+    <ClInclude Include="game\gameObjects\doyle.h" />
     <ClInclude Include="game\gameObjects\enemy.h" />
     <ClInclude Include="game\game_loader.h" />
     <ClInclude Include="game\config.h" />

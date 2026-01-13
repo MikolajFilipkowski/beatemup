@@ -6,9 +6,8 @@
 
 inline constexpr float GRAVITY = 4500.0f;
 inline constexpr float PLY_SPEED = 450.0f;
-inline constexpr float JUMP_FORCE = -2000.0f;
 inline constexpr float Z_AXIS_MUL = .6f;
-inline constexpr float IN_AIR_MUL = .85f;
+inline constexpr float IN_AIR_MUL = .9f;
 
 inline constexpr float CAMERA_LERP = .2f;
 inline constexpr float CAMERA_THR = .25f;
@@ -22,6 +21,9 @@ inline constexpr float MENU_BTN_GAP = 8.0f;
 
 inline constexpr int DEF_BUFFER_SIZE = 16;
 inline constexpr int BUFFER_CLR_DECAY = 60;
+inline constexpr int BUFFER_DECAY = 15;
+inline constexpr int LOW_PRIO = 20;
+inline constexpr int MIN_FRTIME_LOW_PRIO = 2;
 
 inline constexpr SDL_Scancode NEW_GAME_KEY = SDL_SCANCODE_N;
 
@@ -49,6 +51,14 @@ namespace ObjectType {
 		ENEMY = (1U << 2) | ACTOR,
 	};
 };
+
+namespace ActionCond {
+	enum : Uint8 {
+		NONE = 0U,
+		GROUND_ONLY = 1U << 0,
+		AIR_ONLY = 1U << 1,
+	};
+}
 
 namespace RES {
 	enum {
@@ -85,6 +95,18 @@ namespace RES {
 		PLY_HEAVY_ATT,
 		PLY_LIGHT_ATT,
 		PLY_WHEEL_PUNCH,
+		DOYLE_IDLE,
+		DOYLE_WALK,
+		DOYLE_JUMP,
+		DOYLE_HEAVY_ATT,
+		DOYLE_LIGHT_ATT,
+		DOYLE_WHEEL_PUNCH,
+		AUTUMN_IDLE,
+		AUTUMN_WALK,
+		AUTUMN_JUMP,
+		AUTUMN_HEAVY_ATT,
+		AUTUMN_LIGHT_ATT,
+		AUTUMN_WHEEL_PUNCH,
 	};
 }
 

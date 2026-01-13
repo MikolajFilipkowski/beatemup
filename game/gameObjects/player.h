@@ -8,14 +8,10 @@
 class Player : public Actor {
 protected:
 	InputBuffer m_IBuffer;
-	bool m_AttackXRequested{ false };
-	bool m_AttackYRequested{ false };
-	bool m_JumpRequested{ false };
-	
-	float m_AttackTimer{ 0 };
+	int m_BufferDecay{ 0 };
 	Font m_DebugActionFont;
 
-	int getAnimKeyFromAct(int a_ActKey) override;
+	int getAnimFromAct(int a_ActKey) const override;
 	virtual void computeInput() override;
 	
 public:
@@ -24,10 +20,14 @@ public:
 	virtual void start() override;
 	virtual void update(float a_Dt) override;
 
+	virtual void optActionAdjust(int a_ActKey) override;
+	virtual void actionFinish() override;
+
 	virtual Uint8 getType() const override;
 	
-	virtual void draw() override;
 	void drawActionName();
+
+	virtual void takeDamage(float a_Dmg) override;
 
 	InputBuffer& getIBuffer();
 };

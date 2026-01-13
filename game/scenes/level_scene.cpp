@@ -2,7 +2,8 @@
 
 #include "assert.h"
 #include "../gameObjects/player.h"
-
+#include "../gameObjects/doyle.h"
+#include "../gameObjects/autumn.h"
 
 #define MENU_ASSETS "game/assets/levels/menu/"
 #define UI_ASSETS "game/assets/ui/"
@@ -43,6 +44,23 @@ void LevelScene::start()
 	m_Camera = new PlayerCamera(m_Mgs, m_Player, { 0,0,500.0f });
 	m_Mgs->display->setActiveCamera((Camera*)m_Camera);
 
+	Transform doyleTr = {
+		{300,0,350},
+		0.0,
+		H_FLIP,
+		{2.5f, 2.5f}
+	};
+
+	Transform autumnTr = {
+		{-300,0,350},
+		0.0,
+		NO_FLIP,
+		{2.5f, 2.7f}
+	};
+
+	auto doyle = new Doyle(m_Mgs, (Actor*)&m_Player, doyleTr);
+	auto autumn = new Autumn(m_Mgs, (Actor*)&m_Player, autumnTr);
+
 	m_Healthbar = new UIHealthbar(m_Mgs, { 5, 50 }, { 300, 45}, {19, 0});
 	m_Healthbar->setMax(m_Player->getHP());
 	m_Healthbar->linkVals(&m_Player->getHP());
@@ -70,7 +88,13 @@ void LevelScene::draw()
 	if (m_Mgs->engine->inDebugMode()) {
 		m_Player->getIBuffer().drawBuffer();
 		m_Player->drawActionName();
-		m_Player->drawCollBoxes();
+
+		for (auto& obj : m_Mgs->object->getAllObjects()) {
+			if (!(obj->getType() & ObjectType::ACTOR)) continue;
+
+			Actor* actor = (Actor*)obj;
+			actor->drawCollBoxes();
+		}
 	}	
 }
 

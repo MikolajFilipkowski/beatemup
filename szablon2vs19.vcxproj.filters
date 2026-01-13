@@ -65,6 +65,12 @@
     <ClCompile Include="game\gameObjects\actor.cpp">
       <Filter>game\gameObjects</Filter>
     </ClCompile>
+    <ClCompile Include="game\gameObjects\doyle.cpp">
+      <Filter>game\gameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="game\gameObjects\autumn.cpp">
+      <Filter>game\gameObjects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\managers\display_manager.h">
@@ -143,6 +149,12 @@
       <Filter>game\gameObjects</Filter>
     </ClInclude>
     <ClInclude Include="game\gameObjects\actor.h">
+      <Filter>game\gameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="game\gameObjects\doyle.h">
+      <Filter>game\gameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="game\gameObjects\autumn.h">
       <Filter>game\gameObjects</Filter>
     </ClInclude>
   </ItemGroup>
