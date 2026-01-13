@@ -177,7 +177,7 @@ void InputBuffer::drawBuffer()
 
 		ColorRGBA clr;
 		if (entry.state == InputState::NEW) {
-			clr = Colors::green;
+			clr = Colors::forestGreen;
 		}
 		else {
 			clr = (entry.state == InputState::IN_USE) ? Colors::vividBlue : Colors::red;

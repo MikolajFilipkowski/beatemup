@@ -21,7 +21,7 @@ inline constexpr float MENU_BTN_GAP = 8.0f;
 
 inline constexpr int DEF_BUFFER_SIZE = 16;
 inline constexpr int BUFFER_CLR_DECAY = 60;
-inline constexpr int BUFFER_DECAY = 15;
+inline constexpr int BUFFER_DECAY = 10;
 inline constexpr int LOW_PRIO = 20;
 inline constexpr int MIN_FRTIME_LOW_PRIO = 2;
 
@@ -118,6 +118,7 @@ namespace Colors {
 	inline constexpr ColorRGBA green = ColorRGBA::green();
 	inline constexpr ColorRGBA vividBlue = { 0x1A, 0x43, 0xD9, 0xFF };
 	inline constexpr ColorRGBA gainsboro = { 0xDD, 0xDD, 0xDD, 0xFF };
+	inline constexpr ColorRGBA forestGreen = { 0x2E, 0x6F, 0x40, 0xFF };
 }
 
 namespace InputBind {
