@@ -14,6 +14,7 @@ private:
 	SDL_Renderer* m_Renderer{};
 	Dims m_ScreenDims{};
 	Dims m_LogDims{};
+	Rect m_LogRect{};
 	Camera* m_ActiveCamera{};
 	bool m_FullscreenEnabled{ false };
 	bool m_Borderless{ true };
