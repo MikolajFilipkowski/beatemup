@@ -8,8 +8,13 @@ int Doyle::getAnimFromAct(int a_ActKey) const {
 		return RES::DOYLE_IDLE;
 	case Actions::WALK:
 		return RES::DOYLE_WALK;
-	case Actions::JUMP:
-		return RES::DOYLE_JUMP;
+	case Actions::HURT:
+		return RES::DOYLE_HURT;
+	case Actions::DEATH:
+		return RES::DOYLE_DEATH;
+	case Actions::DASH_FORWARD:
+	case Actions::DASH_BACKWARD:
+		return RES::DOYLE_DASH;
 	case Actions::LIGHT_ATTACK:
 		return RES::DOYLE_LIGHT_ATT;
 	case Actions::HEAVY_ATTACK:
@@ -22,7 +27,55 @@ int Doyle::getAnimFromAct(int a_ActKey) const {
 }
 
 void Doyle::computeInput() {
+	if (!m_Target || !m_Grounded) return;
 
+	ActionData* currAct = getCurrAction();
+	bool canInterrupt = (currAct == nullptr || currAct->interruptible);
+	bool isMoving = false;
+
+	Vector3 tPos = m_Target->getRb().currPos;
+	Vector3& ePos = m_Rb.currPos;
+
+	int mul = (m_Id % AI_Z_LAYERS) - (AI_Z_LAYERS / 2);
+	tPos.z += AI_Z_SEPARATION * mul;
+
+	float diffX = tPos.x - ePos.x;
+	float diffZ = tPos.z - ePos.z;
+
+	if (getCurrAction()->canMove) {
+		if (fabsf(diffZ) > 5.0f) {
+			m_InputVel.z += (diffZ > 0) ? ENEMY_SPEED * Z_AXIS_MUL : -ENEMY_SPEED * Z_AXIS_MUL;
+		}
+
+		if (fabsf(diffX) > 30.0f) {
+			m_InputVel.x += (diffX > 0) ? ENEMY_SPEED : -ENEMY_SPEED;
+		}
+
+		if (m_InputVel.x != 0) {
+			m_Transform.flip = (m_InputVel.x > 0) ? NO_FLIP : H_FLIP;
+			isMoving = true;
+		}
+
+		if (m_InputVel.z != 0)
+			isMoving = true;
+	}
+
+	if (!canInterrupt) return;
+
+	if (inAttackRange(Actions::LIGHT_ATTACK)) {
+		startAction(Actions::LIGHT_ATTACK);
+		return;
+	}
+
+	int walkPrio = m_Mgs->object->getAction(Actions::WALK)->priority;
+	if (currAct != nullptr && currAct->priority > walkPrio) return;
+
+	if (isMoving) {
+		startAction(Actions::WALK);
+	}
+	else {
+		startAction(Actions::IDLE);
+	}
 }
 
 Doyle::Doyle(Managers* a_Managers, Actor* a_Target, Transform a_Transform)
@@ -31,14 +84,20 @@ Doyle::Doyle(Managers* a_Managers, Actor* a_Target, Transform a_Transform)
 	if (s_Instances == 0) {
 		m_Mgs->sprite->load(DOYLE_ASSETS "idle.bmp", getAnimFromAct(Actions::IDLE));
 		m_Mgs->sprite->load(DOYLE_ASSETS "walk.bmp", getAnimFromAct(Actions::WALK));
-		m_Mgs->sprite->load(DOYLE_ASSETS "jump.bmp", getAnimFromAct(Actions::JUMP));
+		m_Mgs->sprite->load(DOYLE_ASSETS "hurt.bmp", getAnimFromAct(Actions::HURT));
+		m_Mgs->sprite->load(DOYLE_ASSETS "death.bmp", getAnimFromAct(Actions::DEATH));
+		m_Mgs->sprite->load(DOYLE_ASSETS "dash.bmp", getAnimFromAct(Actions::DASH_FORWARD));
 		m_Mgs->sprite->load(DOYLE_ASSETS "attack1.bmp", getAnimFromAct(Actions::LIGHT_ATTACK));
 		m_Mgs->sprite->load(DOYLE_ASSETS "attack2.bmp", getAnimFromAct(Actions::HEAVY_ATTACK));
 		m_Mgs->sprite->load(DOYLE_ASSETS "attack3.bmp", getAnimFromAct(Actions::WHEEL_PUNCH));
 
 		loadAnims();
 	}
-	
+
+	m_AttackChances.put(Actions::LIGHT_ATTACK, LIGHT_ATT_CHANCE);
+	m_AttackChances.put(Actions::HEAVY_ATTACK, HEAVY_ATT_CHANCE);
+	m_AttackChances.put(Actions::WHEEL_PUNCH, WHEEL_ATT_CHANCE);
+
 	s_Instances++;
 }
 
@@ -57,4 +116,9 @@ void Doyle::start() {
 void Doyle::update(float a_Dt)
 {
 	m_Transform.pos = getIPos();
+}
+
+float Doyle::getAttackCooldown() const
+{
+	return ATT_COOLDOWN;
 }

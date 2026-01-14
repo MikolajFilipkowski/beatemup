@@ -2,6 +2,8 @@
 
 #include "game.h"
 #include <cstdio>
+#include <ctime>
+#include <cstdlib>
 
 #define CH_ASSETS "game/assets/charsets/"
 
@@ -18,6 +20,8 @@ Game::Game() : Application() {
 bool Game::onStart(Managers* a_Managers) {
 	m_Mgs = a_Managers;
 	m_GameLoader.init(m_Mgs);
+
+	srand((unsigned)time(0));
 
 	m_Mgs->display->setIcon("game/assets/punch_icon.bmp");
 
@@ -77,7 +81,7 @@ void Game::onDraw() {
 	sprintf_s(buff, 31, "Czas gry: %.1f", wt);
 	m_Mgs->display->drawString(RES::CH_16, { 5,3 + dy }, buff, m_InfoFont);
 
-	const char* req = "Wymagania: 1234AJ";
+	const char* req = "Wymagania: 1234ABJ";
 	float req_size = strlen(req) * m_InfoFont.chSize * m_InfoFont.spacing * m_InfoFont.scale;
 	m_Mgs->display->drawString(RES::CH_16, { log_w - 5 - req_size,3 }, req, m_InfoFont);
 	

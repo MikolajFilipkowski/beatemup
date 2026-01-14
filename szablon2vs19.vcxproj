@@ -48,7 +48,8 @@
     <Image Include="game\assets\autumn\autumn_attack1.bmp" />
     <Image Include="game\assets\autumn\autumn_attack2.bmp" />
     <Image Include="game\assets\autumn\autumn_attack3.bmp" />
-    <Image Include="game\assets\autumn\autumn_dead.bmp" />
+    <Image Include="game\assets\autumn\autumn_dash.bmp" />
+    <Image Include="game\assets\autumn\autumn_death.bmp" />
     <Image Include="game\assets\autumn\autumn_hurt.bmp" />
     <Image Include="game\assets\autumn\autumn_idle.bmp" />
     <Image Include="game\assets\autumn\autumn_jump.bmp" />
@@ -58,7 +59,8 @@
     <Image Include="game\assets\doyle\doyle_attack1.bmp" />
     <Image Include="game\assets\doyle\doyle_attack2.bmp" />
     <Image Include="game\assets\doyle\doyle_attack3.bmp" />
-    <Image Include="game\assets\doyle\doyle_dead.bmp" />
+    <Image Include="game\assets\doyle\doyle_dash.bmp" />
+    <Image Include="game\assets\doyle\doyle_death.bmp" />
     <Image Include="game\assets\doyle\doyle_hurt.bmp" />
     <Image Include="game\assets\doyle\doyle_idle.bmp" />
     <Image Include="game\assets\doyle\doyle_jump.bmp" />
@@ -77,7 +79,9 @@
     <Image Include="game\assets\charsets\yg_64.bmp" />
     <Image Include="game\assets\player\ply_attack1.bmp" />
     <Image Include="game\assets\player\ply_attack3.bmp" />
-    <Image Include="game\assets\player\ply_dead.bmp" />
+    <Image Include="game\assets\player\ply_dash.bmp" />
+    <Image Include="game\assets\player\ply_death.bmp" />
+    <Image Include="game\assets\player\ply_high_kick.bmp" />
     <Image Include="game\assets\player\ply_hurt.bmp" />
     <Image Include="game\assets\player\ply_idle.bmp" />
     <Image Include="game\assets\player\ply_jump.bmp" />

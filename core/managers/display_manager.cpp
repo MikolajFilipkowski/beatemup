@@ -211,6 +211,11 @@ int DisplayManager::getLogHeight() const
 	return m_LogDims.height;
 }
 
+Rect DisplayManager::getLogRect() const
+{
+	return { 0.0f, 0.0f, (float)m_LogDims.width, (float)m_LogDims.height };
+}
+
 void DisplayManager::updateScreenDims()
 {
 	SDL_GetWindowSize(m_Window, &m_ScreenDims.width, &m_ScreenDims.height);
@@ -339,6 +344,7 @@ void DisplayManager::drawClippedSprite(int a_SpriteKey, Vector2 a_Pos, FDims a_D
 	}
 
 	SDL_FRect rect = { a_Pos.x, a_Pos.y, a_Dims.width, a_Dims.height };
+	if (!getLogRect().intersects(rect)) return;
 
 	SDL_RenderCopyF(m_Renderer, sprite->texture, &a_Clip, &rect);
 }
@@ -349,6 +355,7 @@ void DisplayManager::drawSprite(int a_SpriteKey, Transform a_Transform)
 	if (sprite == nullptr || sprite->texture == nullptr) return;
 
 	SDL_FRect rect = worldToRect(a_Transform.pos, { sprite->width * a_Transform.scale.x, sprite->height * a_Transform.scale.y });
+	if (!getLogRect().intersects(rect)) return;
 
 	SDL_RenderCopyExF(m_Renderer, sprite->texture, nullptr, &rect, a_Transform.rotation, NULL, a_Transform.flip);
 }
@@ -356,8 +363,6 @@ void DisplayManager::drawSprite(int a_SpriteKey, Transform a_Transform)
 void DisplayManager::drawAnimFrame(int a_AnimKey, int a_FrameIdx, Transform a_Transform) {
 	AnimationClip* clip = m_Mgs->anim->get(a_AnimKey);
 	if (clip == nullptr) return;
-
-	//printf("%d\n",frameIdx);
 
 	if (a_FrameIdx >= clip->frameCount) {
 		assert(false && "Frame out of bounds");
@@ -370,6 +375,7 @@ void DisplayManager::drawAnimFrame(int a_AnimKey, int a_FrameIdx, Transform a_Tr
 	SDL_Rect src = clip->frames[a_FrameIdx];
 
 	SDL_FRect dst = worldToRect(a_Transform.pos, { src.w * a_Transform.scale.x, src.h * a_Transform.scale.y });
+	if (!getLogRect().intersects(dst)) return;
 
 	SDL_RenderCopyExF(m_Renderer, sprite->texture, &src, &dst, a_Transform.rotation, NULL, a_Transform.flip);
 }
@@ -386,7 +392,7 @@ void DisplayManager::drawLine(Vector2 a_Start, Vector2 a_Dest, ColorRGBA a_Color
 void DisplayManager::drawRect(Vector2 a_Pos, FDims a_Dims, ColorRGBA a_Color, int a_Thickness)
 {
 	setDrawColor(a_Color);
-
+	
 	for (int i = 0; i < a_Thickness; i++) {
 		SDL_FRect rect = { 
 			a_Pos.x + i,
@@ -394,6 +400,7 @@ void DisplayManager::drawRect(Vector2 a_Pos, FDims a_Dims, ColorRGBA a_Color, in
 			(float)(a_Dims.width - i * 2),
 			(float)(a_Dims.height - i * 2)
 		};
+		if (!getLogRect().intersects(rect)) continue;
 		SDL_RenderDrawRectF(m_Renderer, &rect);
 	}
 

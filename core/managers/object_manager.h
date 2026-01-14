@@ -37,5 +37,5 @@ public:
 	void refreshObjects();
 	void clear();
 
-	void updateCombat();
+	void updatePhysics();
 };

@@ -78,6 +78,7 @@ void GameLoader::loadActionData(const char* a_FilePath)
 		}
 
 		act->setFrames(frame);
+		act->sealData();
 		m_Mgs->object->addAction(id, act);
 	}
 

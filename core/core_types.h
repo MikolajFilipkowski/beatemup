@@ -250,6 +250,49 @@ struct Rect {
 			y + h > a_Other.y
 		);
 	}
+
+	inline Vector2 overlap(const Rect& a_Other) const {
+		if (!intersects(a_Other)) 
+			return Vector2();
+		return {
+			(x < a_Other.x) ? (x + w - a_Other.x) : (a_Other.x + a_Other.w - x),
+			(y < a_Other.y) ? (y + h - a_Other.y) : (a_Other.y + a_Other.h - y)
+		};
+	}
+};
+
+struct Cuboid {
+	float x{ 0 }, y{ 0 }, z{ 0 };
+	float w{ 0 }, h{ 0 }, d{ 0 };
+
+	inline bool contains(const Vector3& a_Point) const {
+		return (
+			a_Point.x >= x && a_Point.x <= x + w
+			&& a_Point.y >= y && a_Point.y <= y + h
+			&& a_Point.z >= z && a_Point.z <= z + d
+		);
+	}
+
+	inline bool intersects(const Cuboid& a_Other) const {
+		return (
+			x < a_Other.x + a_Other.w &&
+			x + w > a_Other.x &&
+			y < a_Other.y + a_Other.h &&
+			y + h > a_Other.y &&
+			z < a_Other.z + a_Other.d &&
+			z + d > a_Other.z
+		);
+	}
+
+	inline Vector3 overlap(const Cuboid& a_Other) const {
+		if (!intersects(a_Other))
+			return Vector3();
+		return {
+			(x < a_Other.x) ? (x + w - a_Other.x) : (a_Other.x + a_Other.w - x),
+			(y < a_Other.y) ? (y + h - a_Other.y) : (a_Other.y + a_Other.h - y),
+			(z < a_Other.z) ? (z + d - a_Other.z) : (a_Other.z + a_Other.d - z)
+		};
+	}
 };
 
 struct ColorRGBA {
@@ -323,6 +366,7 @@ struct Rigidbody {
 	Vector3 vel{};
 	Vector3 prevPos{};
 	Vector3 currPos{};
+	float mass{ 1.0f };
 };
 
 enum class InputType : Uint8 {
@@ -359,6 +403,8 @@ private:
 	Array<int>* m_Sequence{};
 	Array<ActionFrame>* m_Frames{};
 	float m_TotalDuration{ 0 };
+	bool m_IsAttack{ false };
+	Vector2 m_Range{};
 public:
 	char name[MAX_ACT_NAME_LEN]{};
 	int priority{ 0 };
@@ -377,13 +423,16 @@ public:
 	ActionData(const ActionData&) = delete;
 	ActionData& operator=(const ActionData&) = delete;
 
+	void sealData();
 
 	void setSequence(Array<int>* a_Seq);
 	void setFrames(Array<ActionFrame>* a_Frames);
 	Array<int>* getSequence() const;
 	Array<ActionFrame>* getFrames() const;
 
-	float getTotalDuration();
+	float getTotalDuration() const;
+	bool isAttack() const;
+	Vector2 getAttackRange() const;
 };
 
 struct ActiveAction {
@@ -453,6 +502,8 @@ public:
 	bool getStartedFlag() const;
 	void setStartedFlag(bool a_Flag);
 	Vector3 getIPos();
+
+	virtual Cuboid getCollBox();
 
 	void drawShadow(int a_ShKey, float a_ObjWidth, FDims a_ShDims);
 

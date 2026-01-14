@@ -47,6 +47,7 @@ public:
 	Dims getLogDims() const;
 	int getLogWidth() const;
 	int getLogHeight() const;
+	Rect getLogRect() const;
 	void updateScreenDims();
 	Vector2 getLogStart();
 	Vector2 getLogScale();

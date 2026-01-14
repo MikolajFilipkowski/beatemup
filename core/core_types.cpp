@@ -9,14 +9,33 @@ ActionData::ActionData(int a_Prio, int a_Win, int a_Cond, bool a_Inter, int a_Ow
 	: priority(a_Prio), inputWindow(a_Win), conditions(a_Cond),
 	interruptible(a_Inter), owner(a_Owner), m_Sequence(a_Seq), m_Frames(a_Frames)
 {
-	for (int i = 0; i < m_Frames->count(); i++) {
-		m_TotalDuration += m_Frames->get(i).duration;
-	}
+	sealData();
 }
 
 ActionData::~ActionData() {
 	delete m_Sequence;
 	delete m_Frames;
+}
+
+void ActionData::sealData()
+{
+	float dmg = 0.0f;
+	Vector2 range = Vector2::zero();
+
+	m_TotalDuration = 0.0f;
+	for (int i = 0; i < m_Frames->count(); i++) {
+		auto& frame = m_Frames->get(i);
+		m_TotalDuration += frame.duration;
+		dmg += (frame.damage > 0) ? frame.damage : 0;
+
+		range.x = frame.hitbox.x + frame.hitbox.w;
+		range.y = frame.hitbox.y + frame.hitbox.h;
+		if (range.x > m_Range.x)
+			m_Range.x = range.x;
+		if (range.y > m_Range.y)
+			m_Range.y = range.y;
+	}
+	m_IsAttack = (dmg > 0.0f);
 }
 
 void ActionData::setSequence(Array<int>* a_Seq)
@@ -43,11 +62,19 @@ Array<ActionFrame>* ActionData::getFrames() const
 	return m_Frames;
 }
 
-float ActionData::getTotalDuration()
+float ActionData::getTotalDuration() const
 {
 	return m_TotalDuration;
 }
 
+bool ActionData::isAttack() const
+{
+	return m_IsAttack;
+}
+
+Vector2 ActionData::getAttackRange() const {
+	return m_Range;
+}
 
 void GameScene::addLayer(int a_SpriteKey, float a_ScrollFactor, float a_Width, float a_Height)
 {
@@ -151,6 +178,11 @@ Vector3 GameObject::getIPos()
 	return { dx, dy, dz };
 }
 
+Cuboid GameObject::getCollBox()
+{
+	return Cuboid();
+}
+
 void GameObject::drawShadow(int a_ShKey, float a_ObjWidth, FDims a_ShDims)
 {
 	float shX = m_Transform.pos.x;
@@ -182,7 +214,14 @@ Camera::~Camera() {}
 
 Rect Camera::getViewport()
 {
-	return { m_Transform.pos.x, m_Transform.pos.y, (float)m_Mgs->display->getLogWidth(), (float)m_Mgs->display->getLogHeight() };
+	float zoom = getZoom();
+	float w = (float)m_Mgs->display->getLogWidth() / zoom;
+	float h = (float)m_Mgs->display->getLogHeight() / zoom;
+	return { 
+		m_Transform.pos.x, 
+		m_Transform.pos.y, 
+		w,h
+	};
 }
 
 float Camera::getZoom()

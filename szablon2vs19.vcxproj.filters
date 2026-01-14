@@ -204,7 +204,7 @@
     <Image Include="game\assets\player\ply_attack3.bmp">
       <Filter>game\assets\player</Filter>
     </Image>
-    <Image Include="game\assets\player\ply_dead.bmp">
+    <Image Include="game\assets\player\ply_death.bmp">
       <Filter>game\assets\player</Filter>
     </Image>
     <Image Include="game\assets\player\ply_hurt.bmp">
@@ -219,7 +219,7 @@
     <Image Include="game\assets\doyle\doyle_attack3.bmp">
       <Filter>game\assets\doyle</Filter>
     </Image>
-    <Image Include="game\assets\doyle\doyle_dead.bmp">
+    <Image Include="game\assets\doyle\doyle_death.bmp">
       <Filter>game\assets\doyle</Filter>
     </Image>
     <Image Include="game\assets\doyle\doyle_hurt.bmp">
@@ -252,7 +252,7 @@
     <Image Include="game\assets\autumn\autumn_attack3.bmp">
       <Filter>game\assets\autumn</Filter>
     </Image>
-    <Image Include="game\assets\autumn\autumn_dead.bmp">
+    <Image Include="game\assets\autumn\autumn_death.bmp">
       <Filter>game\assets\autumn</Filter>
     </Image>
     <Image Include="game\assets\autumn\autumn_hurt.bmp">
@@ -302,6 +302,18 @@
     </Image>
     <Image Include="game\assets\ui\hb_ghost.bmp">
       <Filter>game\assets\ui</Filter>
+    </Image>
+    <Image Include="game\assets\autumn\autumn_dash.bmp">
+      <Filter>game\assets\autumn</Filter>
+    </Image>
+    <Image Include="game\assets\doyle\doyle_dash.bmp">
+      <Filter>game\assets\doyle</Filter>
+    </Image>
+    <Image Include="game\assets\player\ply_dash.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\ply_high_kick.bmp">
+      <Filter>game\assets\player</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

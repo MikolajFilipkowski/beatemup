@@ -13,12 +13,21 @@ int Player::getAnimFromAct(int a_ActKey) const
 		return RES::PLY_WALK;
 	case Actions::JUMP: 
 		return RES::PLY_JUMP;
+	case Actions::HURT:
+		return RES::PLY_HURT;
+	case Actions::DEATH:
+		return RES::PLY_DEATH;
+	case Actions::DASH_FORWARD:
+	case Actions::DASH_BACKWARD:
+		return RES::PLY_DASH;
 	case Actions::LIGHT_ATTACK: 
 		return RES::PLY_LIGHT_ATT;
 	case Actions::HEAVY_ATTACK: 
 		return RES::PLY_HEAVY_ATT;
 	case Actions::WHEEL_PUNCH:
 		return RES::PLY_WHEEL_PUNCH;
+	case Actions::HIGH_KICK:
+		return RES::PLY_HIGH_KICK;
 	default: 
 		return RES::NONE;
 	}
@@ -26,9 +35,7 @@ int Player::getAnimFromAct(int a_ActKey) const
 
 void Player::computeInput()
 {
-	m_InputVel = Vector3::zero();
-
-	ActionData* currAct = m_Mgs->object->getAction(m_CurrentActKey);
+	ActionData* currAct = getCurrAction();
 	bool canInterrupt = (currAct == nullptr || currAct->interruptible);
 	bool isMoving = false;
 
@@ -104,11 +111,16 @@ void Player::start()
 	m_Mgs->sprite->load(PLY_ASSETS "idle.bmp", getAnimFromAct(Actions::IDLE));
 	m_Mgs->sprite->load(PLY_ASSETS "walk.bmp", getAnimFromAct(Actions::WALK));
 	m_Mgs->sprite->load(PLY_ASSETS "jump.bmp", getAnimFromAct(Actions::JUMP));
+	m_Mgs->sprite->load(PLY_ASSETS "hurt.bmp", getAnimFromAct(Actions::HURT));
+	m_Mgs->sprite->load(PLY_ASSETS "death.bmp", getAnimFromAct(Actions::DEATH));
+	m_Mgs->sprite->load(PLY_ASSETS "dash.bmp", getAnimFromAct(Actions::DASH_FORWARD));
 	m_Mgs->sprite->load(PLY_ASSETS "attack1.bmp", getAnimFromAct(Actions::LIGHT_ATTACK));
 	m_Mgs->sprite->load(PLY_ASSETS "attack2.bmp", getAnimFromAct(Actions::HEAVY_ATTACK));
 	m_Mgs->sprite->load(PLY_ASSETS "attack3.bmp", getAnimFromAct(Actions::WHEEL_PUNCH));
+	m_Mgs->sprite->load(PLY_ASSETS "high_kick.bmp", getAnimFromAct(Actions::HIGH_KICK));
 
 	loadAnims();
+
 
 	startAction(Actions::IDLE);
 }
@@ -133,6 +145,12 @@ void Player::actionFinish()
 	m_BufferDecay = BUFFER_DECAY;
 }
 
+void Player::die()
+{
+	printf("Koniec gry!");
+	m_Mgs->scene->load(SceneID::MENU);
+}
+
 Uint8 Player::getType() const
 {
 	return ObjectType::PLAYER;
@@ -149,16 +167,6 @@ void Player::drawActionName()
 	float posY = 50.0f;
 
 	m_Mgs->display->drawString(RES::CH_16, { posX, posY }, actName, m_DebugActionFont);
-}
-
-void Player::takeDamage(float a_Dmg)
-{
-	m_HP -= a_Dmg;
-
-	if (m_HP < 0) {
-		printf("Koniec gry!");
-		m_Mgs->engine->stop();
-	}
 }
 
 InputBuffer& Player::getIBuffer() 

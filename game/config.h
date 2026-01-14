@@ -6,6 +6,9 @@
 
 inline constexpr float GRAVITY = 4500.0f;
 inline constexpr float PLY_SPEED = 450.0f;
+inline constexpr float ENEMY_SPEED = 300.0f;
+inline constexpr float FRICTION = .2f;
+inline constexpr float MIN_SPEED = .5f;
 inline constexpr float Z_AXIS_MUL = .6f;
 inline constexpr float IN_AIR_MUL = .9f;
 
@@ -32,9 +35,20 @@ inline constexpr float DEBUG_BUFF_Y = 120.0f;
 inline constexpr float DEF_HP = 100.0f;
 
 inline constexpr FDims SHADOW_DIMS = { 96, 32 };
+inline constexpr float AFTER_HIT_INV = 0.25f;
 
-inline constexpr float MAX_DZ_HIT = 20.0f;
-inline constexpr float AFTER_HIT_INV = 0.15f;
+inline constexpr float MAX_DZ_HIT = 30.0f;
+inline constexpr float COLLBOX_Z_SIZE = 20.0f;
+inline constexpr float COLLBOX_W_MUL = 0.9f;
+
+inline constexpr float DEATH_DURATION = 1.0f;
+
+inline constexpr float KNOCKBACK_X = 1850.0f;
+inline constexpr float KNOCKBACK_Y = -350.0f;
+
+inline constexpr float AI_ATT_MARGIN = .2f;
+inline constexpr int AI_Z_LAYERS = 5;
+inline constexpr float AI_Z_SEPARATION = 10.0f;
 
 enum class FacingDir {
 	LEFT,
@@ -49,6 +63,9 @@ namespace ObjectType {
 		ACTOR = 1U << 0,
 		PLAYER = (1U << 1) | ACTOR,
 		ENEMY = (1U << 2) | ACTOR,
+		DOYLE = (1U << 3) | ENEMY,
+		AUTUMN = (1U << 4) | ENEMY,
+		ALL = 0xFFU
 	};
 };
 
@@ -92,18 +109,26 @@ namespace RES {
 		PLY_IDLE = (int)ANIMS_OFFSET,
 		PLY_WALK,
 		PLY_JUMP,
+		PLY_HURT,
+		PLY_DEATH,
+		PLY_DASH,
 		PLY_HEAVY_ATT,
 		PLY_LIGHT_ATT,
 		PLY_WHEEL_PUNCH,
+		PLY_HIGH_KICK,
 		DOYLE_IDLE,
 		DOYLE_WALK,
-		DOYLE_JUMP,
+		DOYLE_HURT,
+		DOYLE_DEATH,
+		DOYLE_DASH,
 		DOYLE_HEAVY_ATT,
 		DOYLE_LIGHT_ATT,
 		DOYLE_WHEEL_PUNCH,
 		AUTUMN_IDLE,
 		AUTUMN_WALK,
-		AUTUMN_JUMP,
+		AUTUMN_HURT,
+		AUTUMN_DEATH,
+		AUTUMN_DASH,
 		AUTUMN_HEAVY_ATT,
 		AUTUMN_LIGHT_ATT,
 		AUTUMN_WHEEL_PUNCH,
@@ -157,9 +182,14 @@ namespace Actions {
 		IDLE,
 		WALK,
 		JUMP,
+		HURT,
+		DEATH,
+		DASH_FORWARD,
+		DASH_BACKWARD,
 		LIGHT_ATTACK,
 		HEAVY_ATTACK,
-		WHEEL_PUNCH
+		WHEEL_PUNCH,
+		HIGH_KICK,
 	};
 }
 
@@ -168,15 +198,5 @@ namespace SceneID {
 		NONE = 0,
 		MENU,
 		LEVEL,
-	};
-}
-
-namespace Entities {
-	enum : Uint8 {
-		NONE = 0U,
-		PLAYER = 1U << 0,
-		DOYLE = 1U << 1,
-		AUTUMN = 1U << 2,
-		ALL = 0xFFU
 	};
 }

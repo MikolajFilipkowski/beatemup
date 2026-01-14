@@ -58,8 +58,10 @@ void LevelScene::start()
 		{2.5f, 2.7f}
 	};
 
-	auto doyle = new Doyle(m_Mgs, (Actor*)&m_Player, doyleTr);
-	auto autumn = new Autumn(m_Mgs, (Actor*)&m_Player, autumnTr);
+	for (int i = 0; i < 10; i++) {
+		auto doyle = new Doyle(m_Mgs, (Actor*)m_Player, doyleTr);
+		auto autumn = new Autumn(m_Mgs, (Actor*)m_Player, autumnTr);
+	}
 
 	m_Healthbar = new UIHealthbar(m_Mgs, { 5, 50 }, { 300, 45}, {19, 0});
 	m_Healthbar->setMax(m_Player->getHP());
@@ -104,6 +106,8 @@ void LevelScene::destroy()
 
 	if (m_Mgs->ui) m_Mgs->ui->clear();
 	m_Healthbar = nullptr;
+	m_Player = nullptr;
+	m_Camera = nullptr;
 
 	m_Mgs->sprite->unload(RES::MENU_BOXES);
 	m_Mgs->sprite->unload(RES::MENU_BUILDINGS);

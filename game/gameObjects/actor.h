@@ -5,6 +5,8 @@
 
 class Actor : public GameObject {
 protected:
+	int m_Id;
+
 	int m_CurrentActKey{ 0 };
 	int m_CurrentAnimKey{ 0 };
 	float m_ActTimer{ 0 };
@@ -16,6 +18,9 @@ protected:
 	float m_HP{ DEF_HP };
 	float m_InvTimer{ 0.0f };
 	float m_LastDmgTaken{ 0.0f };
+
+	float m_DeathTimer{ 0.0f };
+	float m_IsDying{ false };
 
 	Vector3 m_InputVel{};
 	FacingDir m_FacingDir{ FacingDir::RIGHT };
@@ -40,7 +45,11 @@ public:
 	virtual void fixedUpdate(float a_FixedDt) override;
 	virtual void applyPhysics(float a_FixedDt, ActionData* a_Data, ActionFrame& a_CurrFrame);
 
+	virtual Cuboid getCollBox() override;
+
 	virtual void actionFinish() {}
+	virtual void die() {}
+	bool isDying() const;
 
 	virtual void postFixedUpdate(float a_FixedDt) override;
 

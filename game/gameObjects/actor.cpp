@@ -1,5 +1,8 @@
 #include "actor.h"
 
+#include <cstdio>
+#include <cstdlib>
+
 int Actor::getAnimFromAct(int a_ActKey) const
 {
 	return 0;
@@ -23,6 +26,8 @@ void Actor::loadAnims()
 		if (!(action->owner & getType())) continue;
 
 		animKey = getAnimFromAct(pair.key);
+		if (animKey == RES::NONE) continue;
+
 		frCount = action->getFrames()->count();
 		m_Mgs->anim->createFromSheet(animKey, animKey, frCount);
 	}
@@ -40,13 +45,17 @@ void Actor::unloadAnims()
 		if (action == nullptr || !(action->owner & getType())) continue;
 
 		animKey = getAnimFromAct(pair.key);
+
+		if (animKey == RES::NONE) continue;
 		m_Mgs->anim->remove(animKey);
 		m_Mgs->sprite->unload(animKey);
 	}
 }
 
 Actor::Actor(Managers* a_Managers, Transform a_Transform)
-	: GameObject(a_Managers, a_Transform) {
+	: GameObject(a_Managers, a_Transform) 
+{
+	m_Id = rand();
 }
 
 Actor::~Actor() {
@@ -75,6 +84,7 @@ void Actor::startAction(int a_ActKey)
 	m_CurrentActKey = a_ActKey;
 	m_ActTimer = 0.0f;
 	m_CurrentFrame = 0;
+	m_Attacking = data->isAttack();
 	optActionAdjust(a_ActKey);
 
 	int animKey = getAnimFromAct(a_ActKey);
@@ -98,6 +108,11 @@ void Actor::fixedUpdate(float a_FixedDt)
 
 	m_FacingDir = (m_Transform.flip == NO_FLIP) ? FacingDir::RIGHT : FacingDir::LEFT;
 
+	if (m_InvTimer > 0) {
+		m_InvTimer -= a_FixedDt;
+		m_InvTimer = (m_InvTimer > 0) ? m_InvTimer : 0;
+	}
+
 	if (m_CurrentActKey == 0) return;
 	ActionData* data = m_Mgs->object->getAction(m_CurrentActKey);
 
@@ -105,13 +120,25 @@ void Actor::fixedUpdate(float a_FixedDt)
 
 	float totalDur = data->getTotalDuration();
 	if (m_ActTimer >= totalDur) {
-		actionFinish();
+		if (m_CurrentActKey == Actions::DEATH) {
+			if (!m_IsDying) {
+				m_IsDying = true;
+				m_DeathTimer = DEATH_DURATION;
+				return;
+			}
+			m_DeathTimer -= a_FixedDt;
 
+			if (m_DeathTimer <= 0) 
+				die();
+
+			return;
+		}
+
+		actionFinish();
 		if (data->shouldLoop) {
 			m_ActTimer = fmodf(m_ActTimer, totalDur);
 		}
 		else {
-			m_Attacking = false;
 			startAction(1);
 			return;
 		}
@@ -141,8 +168,7 @@ void Actor::applyPhysics(float a_FixedDt, ActionData* a_Data, ActionFrame& a_Cur
 {
 	Vector3& pos = m_Rb.currPos;
 
-	float lookDir = (m_Transform.flip == H_FLIP) ? -1.0f : 1.0f;
-
+	float lookDir = (getFacingDir() == FacingDir::RIGHT) ? -1.0f : 1.0f;
 
 	computeInput();
 	/*
@@ -155,14 +181,27 @@ void Actor::applyPhysics(float a_FixedDt, ActionData* a_Data, ActionFrame& a_Cur
 	m_Rb.vel.x = (a_CurrFrame.vel.x * lookDir) + m_InputVel.x;
 	m_Rb.vel.z = a_CurrFrame.vel.z + m_InputVel.z;
 
-	if (a_CurrFrame.vel.y != 0)
-		m_Rb.vel.y = a_CurrFrame.vel.y;
+	if (a_CurrFrame.vel.y != 0 || m_InputVel.y != 0) {
+		m_Rb.vel.y = a_CurrFrame.vel.y + m_InputVel.y;
+		m_InputVel.y = 0;
+	}
 
 	float gravity = m_Mgs->object->getGravity();
 
 	if (!m_Grounded) {
 		m_Rb.vel.y += gravity * a_FixedDt;
 	}
+
+	// Tarcie / Opor
+	if (m_InputVel.x != 0.0f) 
+		m_InputVel.x *= FRICTION;
+	if (m_InputVel.z != 0.0f) 
+		m_InputVel.z *= FRICTION;
+	
+	if (fabsf(m_InputVel.x) < MIN_SPEED)
+		m_InputVel.x = 0;
+	if (fabsf(m_InputVel.z) < MIN_SPEED)
+		m_InputVel.z = 0;
 
 	// Zmiana pozycji na bazie predkosci
 	pos.x += m_Rb.vel.x * a_FixedDt;
@@ -176,12 +215,42 @@ void Actor::applyPhysics(float a_FixedDt, ActionData* a_Data, ActionFrame& a_Cur
 		if (!m_Grounded) {
 			m_Grounded = true;
 			actionFinish();
-			startAction(1);
+			//startAction(1);
 		}
 	}
 	else {
 		m_Grounded = false;
 	}
+}
+
+Cuboid Actor::getCollBox()
+{
+	Rect& hbox = getCurrFrame().hurtbox;
+	if (hbox.h == 0 || hbox.w == 0) return Cuboid();
+
+	bool dirMul = (getFacingDir() == FacingDir::RIGHT) ? 1 : -1;
+	float posX = m_Rb.currPos.x;
+	float offset = (hbox.x + hbox.w / 2.0f) * dirMul;
+
+	float width = hbox.w * COLLBOX_W_MUL;
+	float posY = m_Rb.currPos.y;
+	float posZ = m_Rb.currPos.z - COLLBOX_Z_SIZE/2.0f;
+
+	posX += offset - (width/2.0f);
+
+	return {
+		posX,
+		posY,
+		posZ,
+		width,
+		hbox.h,
+		COLLBOX_Z_SIZE
+	};
+}
+
+bool Actor::isDying() const
+{
+	return m_IsDying;
 }
 
 void Actor::postFixedUpdate(float a_FixedDt)
@@ -204,7 +273,7 @@ void Actor::postFixedUpdate(float a_FixedDt)
 		// By nie bylo friendly-fire
 		if (vicMask == attMask) continue;
 
-		if (victim->canBeHit(this) && victim->checkHit(this)) {
+		if (victim->canBeHit(this) && checkHit(victim)) {
 			victim->registerHit(this);
 		}
 	}
@@ -333,12 +402,17 @@ void Actor::registerHit(Actor* a_Attacker)
 	float dmg = a_Attacker->getCurrFrame().damage;
 	float actualDmg = dmg;
 
+	float dir = (a_Attacker->getRb().currPos.x < m_Rb.currPos.x) ? 1.0f : -1.0f;
+	m_InputVel.x = (KNOCKBACK_X * dir) / m_Rb.mass;
+	m_InputVel.y = KNOCKBACK_Y / m_Rb.mass;
+	m_Grounded = false;
+
 	if (m_InvTimer > 0.0f && dmg > m_LastDmgTaken)
 		actualDmg -= m_LastDmgTaken;
 
 	takeDamage(actualDmg);
 
-	m_LastDmgTaken = actualDmg;
+	m_LastDmgTaken = dmg;
 	m_InvTimer = AFTER_HIT_INV;
 }
 
@@ -346,8 +420,14 @@ void Actor::takeDamage(float a_Dmg)
 {
 	m_HP -= a_Dmg;
 
+	//printf("DMG: %.1f\n", a_Dmg);
+
 	if (m_HP <= 0) {
-		m_Mgs->object->remove(this);
+		//m_Mgs->object->remove(this);
+		startAction(Actions::DEATH);
+	}
+	else {
+		startAction(Actions::HURT);
 	}
 }
 

@@ -22,12 +22,11 @@ public:
 
 	virtual void optActionAdjust(int a_ActKey) override;
 	virtual void actionFinish() override;
+	virtual void die() override;
 
 	virtual Uint8 getType() const override;
 	
 	void drawActionName();
-
-	virtual void takeDamage(float a_Dmg) override;
 
 	InputBuffer& getIBuffer();
 };
