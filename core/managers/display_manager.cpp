@@ -192,12 +192,12 @@ bool DisplayManager::cursorShown() const
 	return (bool)SDL_ShowCursor(-1);
 }
 
-Dims DisplayManager::getScreenDims() const
+const Dims& DisplayManager::getScreenDims() const
 {
 	return m_ScreenDims;
 }
 
-Dims DisplayManager::getLogDims() const
+const Dims& DisplayManager::getLogDims() const
 {
 	return m_LogDims;
 }
@@ -212,7 +212,7 @@ int DisplayManager::getLogHeight() const
 	return m_LogDims.height;
 }
 
-Rect DisplayManager::getLogRect() const
+const Rect& DisplayManager::getLogRect() const
 {
 	return m_LogRect;
 }

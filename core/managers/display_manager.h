@@ -44,11 +44,11 @@ public:
 	void showCursor(bool a_Shown);
 	bool cursorShown() const;
 
-	Dims getScreenDims() const;
-	Dims getLogDims() const;
+	const Dims& getScreenDims() const;
+	const Dims& getLogDims() const;
 	int getLogWidth() const;
 	int getLogHeight() const;
-	Rect getLogRect() const;
+	const Rect& getLogRect() const;
 	void updateScreenDims();
 	Vector2 getLogStart();
 	Vector2 getLogScale();
