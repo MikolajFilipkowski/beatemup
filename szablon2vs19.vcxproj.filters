@@ -71,6 +71,9 @@
     <ClCompile Include="game\gameObjects\autumn.cpp">
       <Filter>game\gameObjects</Filter>
     </ClCompile>
+    <ClCompile Include="game\game_structs.cpp">
+      <Filter>game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\managers\display_manager.h">
@@ -156,6 +159,12 @@
     </ClInclude>
     <ClInclude Include="game\gameObjects\autumn.h">
       <Filter>game\gameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="game\game_structs.h">
+      <Filter>game</Filter>
+    </ClInclude>
+    <ClInclude Include="game\fonts.h">
+      <Filter>game</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -365,5 +374,10 @@
     <Text Include="game\data\actions.cfg">
       <Filter>game\data</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="game\data\settings.cfg">
+      <Filter>game\data</Filter>
+    </None>
   </ItemGroup>
 </Project>

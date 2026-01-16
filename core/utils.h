@@ -33,6 +33,8 @@ public:
 	T& get(int a_Index);
 	T& operator[](int a_Index);
 	int count() const;
+	T* begin();
+	T* end();
 };
 
 template <typename T>
@@ -142,6 +144,18 @@ template<typename T>
 inline int Array<T>::count() const
 {
 	return m_ArrCount;
+}
+
+template<typename T>
+inline T* Array<T>::begin()
+{
+	return m_Array;
+}
+
+template<typename T>
+inline T* Array<T>::end()
+{
+	return m_Array + m_ArrCount;
 }
 
 template<typename T>

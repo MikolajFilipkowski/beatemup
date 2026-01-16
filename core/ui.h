@@ -13,6 +13,7 @@ protected:
 	bool m_Active{ true };
 	bool m_Focused{ false };
 	bool m_Focusable{ false };
+	int m_Id{ -1 };
 public:
 	UIElement(Managers* a_Managers, Vector2 a_Pos, FDims a_Size);
 	UIElement(const UIElement&) = delete;
@@ -21,6 +22,9 @@ public:
 	virtual void update(float a_Dt) {}
 	virtual void handleEvents(SDL_Event& a_Event) {}
 	virtual void draw() = 0;
+
+	int getId() const { return m_Id; }
+	void setId(int a_Id) { m_Id = a_Id; }
 
 	Vector2& getPosition() { return m_Pos; }
 	FDims& getSize() { return m_Size; }
@@ -111,20 +115,20 @@ public:
 	int getBorderSize();
 };
 
-class UISpriteBackgroundContainer : public UIBackgroundContainer {
+class UISpriteContainer : public UIBackgroundContainer {
 protected:
 	int m_SpriteKey{ 0 };
 public:
-	UISpriteBackgroundContainer(Managers* a_Managers, Vector2 a_Pos, FDims a_Size)
+	UISpriteContainer(Managers* a_Managers, Vector2 a_Pos, FDims a_Size)
 		: UIBackgroundContainer(a_Managers, a_Pos, a_Size) {}
-	virtual ~UISpriteBackgroundContainer() = default;
+	virtual ~UISpriteContainer() = default;
 
 	virtual void draw() override;
 	void setSprite(int a_Key);
 	int getSprite();
 };
 
-class UIButton : public UISpriteBackgroundContainer {
+class UIButton : public UISpriteContainer {
 protected:
 	UITextElement m_TextElement;
 	bool m_Pressed{ false };
@@ -145,7 +149,7 @@ public:
 	bool isHovered() const;
 };
 
-class UITextInput : public UISpriteBackgroundContainer {
+class UITextInput : public UISpriteContainer {
 protected:
 	UITextElement m_TextElement;
 public:
@@ -154,9 +158,10 @@ public:
 	virtual void handleEvents(SDL_Event& a_Event) override;
 	void setPlaceholder(const char* a_Text, ColorRGBA a_Color);
 	virtual void setFocused(bool a_Focused) override;
+	const char* getContent() const;
 };
 
-class UIHealthbar : public UISpriteBackgroundContainer {
+class UIHealthbar : public UISpriteContainer {
 protected:
 	Vector2 m_Padding;
 	float m_Max{ 0 };

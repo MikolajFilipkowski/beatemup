@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "game_loader.h"
+#include <cstring>
 
 int GameLoader::charToBind(const char& a_Char)
 {
@@ -21,10 +22,60 @@ void GameLoader::init(Managers* a_Managers)
 	m_Mgs = a_Managers;
 }
 
+bool GameLoader::loadGameSettings(const char* a_FilePath, GameSettings& a_Settings)
+{
+	FILE* file = fopen(a_FilePath, "r");
+	if (!file) {
+		m_Mgs->engine->throwError(FILE_NF_ERR, a_FilePath);
+		return false;
+	}
+
+	char line[MAX_LINE_LEN];
+	int lineCounter = 1;
+
+	while (fgets(line, sizeof(line), file)) {
+		if (line[0] == '#' || line[0] == '\n' || line[0] == '\r') continue;
+
+		char* key = strtok(line, "=");
+		char* val = strtok(NULL, "\n");
+
+		if (key == NULL || val == NULL) {
+			m_Mgs->engine->throwError(SETT_SYN_ERR, a_FilePath, lineCounter);
+			fclose(file);
+			return false;
+		}
+
+		if (!strcmp(key, "window_width"))
+			a_Settings.windowWidth = strtoul(val, NULL, 10);
+		else if (!strcmp(key, "window_height"))
+			a_Settings.windowHeight = strtoul(val, NULL, 10);
+		else if (!strcmp(key, "fullscreen"))
+			a_Settings.fullscreen = !(strtoul(val, NULL, 10) == 0U);
+		else if (!strcmp(key, "borderless"))
+			a_Settings.borderless = !(strtoul(val, NULL, 10) == 0U);
+		else if (!strcmp(key, "resizable"))
+			a_Settings.resizable = !(strtoul(val, NULL, 10) == 0U);
+		else if (!strcmp(key, "levels"))
+			a_Settings.levels = strtoul(val, NULL, 10);
+		else {
+			m_Mgs->engine->throwError(SETT_KEY_ERR, a_FilePath, lineCounter);
+			fclose(file);
+			return false;
+		}
+
+		lineCounter++;
+	}
+
+	return true;
+}
+
 void GameLoader::loadActionData(const char* a_FilePath)
 {
 	FILE* file = fopen(a_FilePath, "r");
-	if (!file) return;
+	if (!file) {
+		m_Mgs->engine->throwError(FILE_NF_ERR, a_FilePath);
+		return;
+	}
 
 	char line[MAX_LINE_LEN];
 
@@ -41,10 +92,9 @@ void GameLoader::loadActionData(const char* a_FilePath)
 		}
 		
 		if (!fgets(line, MAX_LINE_LEN, file) || strlen(line) >= MAX_ACT_NAME_LEN) {
-			printf(NAME_ERR);
+			m_Mgs->engine->throwError(NAME_ERR);
 			delete act;
 			fclose(file);
-			m_Mgs->engine->stop();
 			return;
 		}
 
@@ -70,10 +120,9 @@ void GameLoader::loadActionData(const char* a_FilePath)
 		}
 
 		if (frLoaded < frCount) {
-			printf(FR_COUNT_ERR, id, frCount, frLoaded);
+			m_Mgs->engine->throwError(FR_COUNT_ERR, id, frCount, frLoaded);
 			delete act;
 			fclose(file);
-			m_Mgs->engine->stop();
 			return;
 		}
 
@@ -100,8 +149,7 @@ bool GameLoader::parseHeader(char* a_Line, FILE* a_File, ActionData* a_Act,
 
 	// Jesli niepoprawne formatowanie rzuc blad
 	if (res != HEADER_VARS) {
-		printf(HEADER_ERR);
-		m_Mgs->engine->stop();
+		m_Mgs->engine->throwError(HEADER_ERR);
 		return false;
 	}
 	return true;
@@ -147,8 +195,7 @@ bool GameLoader::parseFrame(const char* a_Line, FILE* a_File, ActionFrame& a_Fr,
 		printf(FR_ORDER_WARN, fId, a_FrLoaded);
 
 	if (res != FR_VARS) {
-		printf(FR_ERR, a_Id, a_FrLoaded);
-		m_Mgs->engine->stop();
+		m_Mgs->engine->throwError(FR_ERR, a_Id, a_FrLoaded);
 		return false;
 	}
 

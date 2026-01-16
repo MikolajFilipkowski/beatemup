@@ -39,6 +39,7 @@
     <ClCompile Include="game\game.cpp" />
     <ClCompile Include="game\gameObjects\player.cpp" />
     <ClCompile Include="game\gameObjects\player_camera.cpp" />
+    <ClCompile Include="game\game_structs.cpp" />
     <ClCompile Include="game\input_buffer.cpp" />
     <ClCompile Include="game\scenes\level_scene.cpp" />
     <ClCompile Include="game\scenes\menu_scene.cpp" />
@@ -115,6 +116,7 @@
     <ClInclude Include="core\managers\ui_manager.h" />
     <ClInclude Include="core\ui.h" />
     <ClInclude Include="core\utils.h" />
+    <ClInclude Include="game\fonts.h" />
     <ClInclude Include="game\gameObjects\actor.h" />
     <ClInclude Include="game\gameObjects\autumn.h" />
     <ClInclude Include="game\gameObjects\doyle.h" />
@@ -124,6 +126,7 @@
     <ClInclude Include="game\game.h" />
     <ClInclude Include="game\gameObjects\player.h" />
     <ClInclude Include="game\gameObjects\player_camera.h" />
+    <ClInclude Include="game\game_structs.h" />
     <ClInclude Include="game\input_buffer.h" />
     <ClInclude Include="game\scenes\level_scene.h" />
     <ClInclude Include="game\scenes\menu_scene.h" />
@@ -131,6 +134,9 @@
   <ItemGroup>
     <Text Include="CREDITS.txt" />
     <Text Include="game\data\actions.cfg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="game\data\settings.cfg" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

@@ -1,6 +1,7 @@
 #include "player.h"
 #include <cstdio>
 #include "enemy.h"
+#include "../scenes/level_scene.h"
 
 #define PLY_ASSETS "game/assets/player/ply_"
 
@@ -95,10 +96,10 @@ void Player::computeInput()
 	}
 }
 
-Player::Player(Managers* a_Managers, Transform a_Transform)
-	: Actor(a_Managers, a_Transform), m_IBuffer(a_Managers, this) 
+Player::Player(Managers* a_Managers, GameState* a_GameState, Transform a_Transform)
+	: Actor(a_Managers, a_GameState, a_Transform), m_IBuffer(a_Managers, this) 
 {
-	m_DebugActionFont = Font(RES::CH_16, 16, 3.0, 1.0, Colors::white, {Colors::black, 2}, 0);
+	
 }
 
 Player::~Player()
@@ -120,7 +121,6 @@ void Player::start()
 	m_Mgs->sprite->load(PLY_ASSETS "high_kick.bmp", getAnimFromAct(Actions::HIGH_KICK));
 
 	loadAnims();
-
 
 	startAction(Actions::IDLE);
 }
@@ -145,10 +145,19 @@ void Player::actionFinish()
 	m_BufferDecay = BUFFER_DECAY;
 }
 
+void Player::hurt()
+{
+	m_GameState->resetMul();
+}
+
 void Player::die()
 {
-	printf("Koniec gry!");
-	m_Mgs->scene->load(SceneID::MENU);
+	if (m_Mgs->scene->getCurrentSceneIdx() == SceneID::LEVEL) {
+		//m_Mgs->scene->load(SceneID::MENU);
+		LevelScene* scene = (LevelScene*)m_Mgs->scene->getCurrentScene();
+		//scene->endModal(false);
+		scene->endModal(false);
+	}
 }
 
 Uint8 Player::getType() const
@@ -161,12 +170,12 @@ void Player::drawActionName()
 	const char* actName = m_Mgs->object->getAction(m_CurrentActKey)->name;
 	float logW = (float)m_Mgs->display->getLogWidth();
 
-	float txtW = strlen(actName) * m_DebugActionFont.chSize * m_DebugActionFont.scale * m_DebugActionFont.spacing;
+	float txtW = strlen(actName) * DEBUG_ACT_FONT.chSize * DEBUG_ACT_FONT.scale * DEBUG_ACT_FONT.spacing;
 
 	float posX = logW / 2.0f - txtW / 2.0f;
 	float posY = 50.0f;
 
-	m_Mgs->display->drawString(RES::CH_16, { posX, posY }, actName, m_DebugActionFont);
+	m_Mgs->display->drawString({ posX, posY }, actName, DEBUG_ACT_FONT);
 }
 
 InputBuffer& Player::getIBuffer() 
@@ -174,3 +183,7 @@ InputBuffer& Player::getIBuffer()
 	return m_IBuffer;
 }
 
+void Player::attackSuccess(float a_Dmg, bool isContinuous)
+{
+	m_GameState->addHit(a_Dmg, isContinuous);
+}

@@ -14,7 +14,7 @@ private:
 	virtual void computeInput() override;
 	
 public:
-	Autumn(Managers* a_Managers, Actor* a_Target = nullptr, Transform a_Transform = Transform::zero());
+	Autumn(Managers* a_Managers, GameState* a_GameState, Actor* a_Target = nullptr, Transform a_Transform = Transform::zero());
 	virtual ~Autumn();
 	void start() override;
 	void update(float a_Dt) override;

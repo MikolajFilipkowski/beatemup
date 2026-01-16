@@ -194,12 +194,12 @@ void InputBuffer::drawBuffer()
 		m_Mgs->display->setSpriteModColor(spr, clr);
 
 		m_Mgs->display->drawSprite(RES::CIRCLE, { x + 3, y + 3 }, { size - 6, size - 6 });
-		m_Mgs->display->drawString(RES::CH_32, { chX, chY }, txt, m_DebugFont);
+		m_Mgs->display->drawString({ chX, chY }, txt, m_DebugFont);
 
 		if (entry.physicalBind == InputBind::RIGHT || entry.physicalBind == InputBind::LEFT) {
 			char smCh = (entry.physicalBind == InputBind::RIGHT) ? 'R' : 'L';
 			char smTxt[2] = { smCh, '\0' };
-			m_Mgs->display->drawString(RES::CH_16, { x + size * .65f, y + size * .65f }, smTxt, m_SmallDebugFont);
+			m_Mgs->display->drawString({ x + size * .65f, y + size * .65f }, smTxt, m_SmallDebugFont);
 		}
 		//m_Mgs->display->drawRect({ ch_x, ch_y }, { debFont.chSize * debFont.scale, debFont.chSize * debFont.scale }, ColorRGBA::red(), 2);
 		m_Mgs->display->setSpriteModColor(spr, ColorRGBA::white());

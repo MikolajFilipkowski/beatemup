@@ -8,6 +8,7 @@
 
 class Enemy : public Actor {
 protected:
+	
 	Actor* m_Target{};
 	float m_HP{ DEF_HP };
 	float m_AttackTimer{0.0f};
@@ -19,7 +20,7 @@ protected:
 	virtual void computeInput() override = 0;
 	bool chooseAttack();
 public:
-	Enemy(Managers* a_Managers, Actor* a_Target = nullptr, Transform a_Transform = Transform::zero());
+	Enemy(Managers* a_Managers, GameState* a_GameState, Actor* a_Target = nullptr, Transform a_Transform = Transform::zero());
 	virtual ~Enemy() override;
 	virtual void start() override = 0;
 	virtual void update(float a_Dt) override;

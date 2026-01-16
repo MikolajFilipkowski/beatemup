@@ -12,8 +12,21 @@ extern "C"
 #endif
 int main(int argc, char **argv) {
 	Engine engine{};
-	Game game{};
-	engine.init("Beat 'em up!", {1280, 720}, {0,0}, false);
+	GameLoader gameLoader{};
+	GameSettings settings{};
+	Game game{ gameLoader, settings };
+
+	bool loaded = gameLoader.loadGameSettings("game/data/settings.cfg", settings);
+	if (!loaded) return 1;
+
+	engine.init("Beat 'em up!", 
+		{
+			(int)settings.windowWidth, 
+			(int)settings.windowHeight
+		}, 
+		{1280, 720}, 
+		false
+	);
 	engine.run(&game);
 
 	return 0;

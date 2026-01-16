@@ -4,6 +4,8 @@
 
 #define ASSETS "game/assets/"
 
+inline constexpr int MAX_PLY_LEN = 10;
+
 inline constexpr float GRAVITY = 4500.0f;
 inline constexpr float PLY_SPEED = 450.0f;
 inline constexpr float ENEMY_SPEED = 300.0f;
@@ -22,11 +24,17 @@ inline constexpr float IC_OFF_Y = 0.0f;
 inline constexpr float MENU_BTN_H = 56.0f;
 inline constexpr float MENU_BTN_GAP = 8.0f;
 
+inline constexpr float BTN_X_MUL = .35f;
+inline constexpr float BTN_Y_MUL = .38f;
+inline constexpr float BTN_W_MUL = .3f;
+
 inline constexpr int DEF_BUFFER_SIZE = 16;
 inline constexpr int BUFFER_CLR_DECAY = 60;
 inline constexpr int BUFFER_DECAY = 10;
 inline constexpr int LOW_PRIO = 20;
 inline constexpr int MIN_FRTIME_LOW_PRIO = 2;
+
+inline constexpr int UINT8_MAXLEN = 4;
 
 inline constexpr SDL_Scancode NEW_GAME_KEY = SDL_SCANCODE_N;
 
@@ -37,18 +45,43 @@ inline constexpr float DEF_HP = 100.0f;
 inline constexpr FDims SHADOW_DIMS = { 96, 32 };
 inline constexpr float AFTER_HIT_INV = 0.25f;
 
-inline constexpr float MAX_DZ_HIT = 30.0f;
+inline constexpr float MAX_DZ_HIT = 35.0f;
 inline constexpr float COLLBOX_Z_SIZE = 20.0f;
 inline constexpr float COLLBOX_W_MUL = 0.9f;
 
+inline constexpr float STUN_DURATION = .1f;
 inline constexpr float DEATH_DURATION = 1.0f;
 
 inline constexpr float KNOCKBACK_X = 1850.0f;
 inline constexpr float KNOCKBACK_Y = -350.0f;
 
-inline constexpr float AI_ATT_MARGIN = .2f;
+inline constexpr float AI_ATT_MARGIN = .1f;
 inline constexpr int AI_Z_LAYERS = 5;
 inline constexpr float AI_Z_SEPARATION = 10.0f;
+
+inline constexpr float COMBO_DISPLAY_TIME = 2.0f;
+inline constexpr float COMBO_DECAY = 5.0f;
+inline constexpr float BASE_SCORE_MUL = 10.0f;
+inline constexpr float HITS_MUL = 0.01f;
+
+inline constexpr int GODLIKE_THR = 100U;
+inline constexpr float GODLIKE_MUL = 5.0f;
+inline constexpr const char* GODLIKE_TXT = "GODLIKE!";
+
+inline constexpr int BRILLIANT_THR = 50U;
+inline constexpr float BRILLIANT_MUL = 3.0f;
+inline constexpr const char* BRILLIANT_TXT = "BRILLIANT!";
+
+inline constexpr int GREAT_THR = 25U;
+inline constexpr float GREAT_MUL = 2.0f;
+inline constexpr const char* GREAT_TXT = "GREAT!";
+
+inline constexpr int NICE_THR = 10U;
+inline constexpr float NICE_MUL = 1.5f;
+inline constexpr const char* NICE_TXT = "NICE!";
+
+inline constexpr const char* HITS_LIT = "Hits";
+inline constexpr float COMBO_XOFF = -12.0f;
 
 enum class FacingDir {
 	LEFT,
@@ -141,6 +174,7 @@ namespace Colors {
 	inline constexpr ColorRGBA blue = ColorRGBA::blue();
 	inline constexpr ColorRGBA red = ColorRGBA::red();
 	inline constexpr ColorRGBA green = ColorRGBA::green();
+	inline constexpr ColorRGBA yellow = {0xFF, 0xFF, 0, 0xFF};
 	inline constexpr ColorRGBA vividBlue = { 0x1A, 0x43, 0xD9, 0xFF };
 	inline constexpr ColorRGBA gainsboro = { 0xDD, 0xDD, 0xDD, 0xFF };
 	inline constexpr ColorRGBA forestGreen = { 0x2E, 0x6F, 0x40, 0xFF };
@@ -200,3 +234,4 @@ namespace SceneID {
 		LEVEL,
 	};
 }
+

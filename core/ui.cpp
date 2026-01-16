@@ -98,7 +98,7 @@ void UITextElement::leftPos(Vector2 a_ParentPos, FDims a_ParentSize)
 void UITextElement::draw()
 {
 	if (getCharCount() == 0 && !m_Focused) {
-		m_Mgs->display->drawString(m_Font.key, m_Pos, m_PlaceholderText, m_PlaceholderFont, m_Size);
+		m_Mgs->display->drawString(m_Pos, m_PlaceholderText, m_PlaceholderFont, m_Size);
 
 		return;
 	}
@@ -120,7 +120,7 @@ void UITextElement::draw()
 		);
 	}
 
-	m_Mgs->display->drawString(m_Font.key, m_Pos, m_Buffer, m_Font, m_Size);
+	m_Mgs->display->drawString(m_Pos, m_Buffer, m_Font, m_Size);
 }
 
 UIContainer::~UIContainer()
@@ -324,7 +324,7 @@ int UIBackgroundContainer::getBorderSize()
 	return m_BorderSize;
 }
 
-void UISpriteBackgroundContainer::draw()
+void UISpriteContainer::draw()
 {
 	if (!m_Active) return;
 
@@ -336,18 +336,18 @@ void UISpriteBackgroundContainer::draw()
 	drawElements();
 }
 
-void UISpriteBackgroundContainer::setSprite(int a_SpriteKey)
+void UISpriteContainer::setSprite(int a_SpriteKey)
 {
 	m_SpriteKey = a_SpriteKey;
 }
 
-int UISpriteBackgroundContainer::getSprite()
+int UISpriteContainer::getSprite()
 {
 	return m_SpriteKey;
 }
 
 UIButton::UIButton(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Font a_Font, void (*a_OnClick)(SDL_Event& a_Event, UIButton* a_Button, Managers* a_Managers))
-	: UISpriteBackgroundContainer(a_Managers, a_Pos, a_Size), m_TextElement(a_Managers, a_Pos, a_Size, a_Font), m_OnClick(a_OnClick)
+	: UISpriteContainer(a_Managers, a_Pos, a_Size), m_TextElement(a_Managers, a_Pos, a_Size, a_Font), m_OnClick(a_OnClick)
 {
 	m_Focusable = true;
 	m_TextElement.centerPos(m_Pos, a_Size);
@@ -484,7 +484,7 @@ bool UIButton::isHovered() const
 }
 
 UITextInput::UITextInput(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Font a_Font, int a_MaxChars, Vector2 a_Padding)
-	: UISpriteBackgroundContainer(a_Managers, a_Pos, a_Size), 
+	: UISpriteContainer(a_Managers, a_Pos, a_Size), 
 	m_TextElement(a_Managers, a_Pos, a_Size, a_Font, a_MaxChars) 
 {
 	m_Focusable = true;
@@ -541,8 +541,13 @@ void UITextInput::setFocused(bool a_Focused)
 	}
 }
 
+const char* UITextInput::getContent() const
+{
+	return m_TextElement.getText();
+}
+
 UIHealthbar::UIHealthbar(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Vector2 a_Padding)
-	: UISpriteBackgroundContainer(a_Managers, a_Pos, a_Size), m_Padding(a_Padding) {}
+	: UISpriteContainer(a_Managers, a_Pos, a_Size), m_Padding(a_Padding) {}
 
 void UIHealthbar::draw()
 {

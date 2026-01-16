@@ -21,6 +21,7 @@ public:
 	void handleEvents();
 	void stop();
 	void destroy();
+	void throwError(const char* a_Msg, ...);
 
 	bool inDebugMode() const;
 	void setDebugMode(bool a_DebugMode);

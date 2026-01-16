@@ -2,9 +2,11 @@
 
 #include "../../core/core.h"
 #include "../config.h"
+#include "../game_structs.h"
 
 class Actor : public GameObject {
 protected:
+	GameState* m_GameState;
 	int m_Id;
 
 	int m_CurrentActKey{ 0 };
@@ -19,6 +21,7 @@ protected:
 	float m_InvTimer{ 0.0f };
 	float m_LastDmgTaken{ 0.0f };
 
+	float m_StunTimer{ 0.0f };
 	float m_DeathTimer{ 0.0f };
 	float m_IsDying{ false };
 
@@ -31,7 +34,7 @@ protected:
 	void loadAnims();
 	void unloadAnims();
 public:
-	Actor(Managers* a_Managers, Transform a_Transform = Transform::zero());
+	Actor(Managers* a_Managers, GameState* a_GameState, Transform a_Transform = Transform::zero());
 	virtual ~Actor();
 
 	int getCurrentAnimKey() const;
@@ -49,6 +52,7 @@ public:
 
 	virtual void actionFinish() {}
 	virtual void die() {}
+	virtual void hurt();
 	bool isDying() const;
 
 	virtual void postFixedUpdate(float a_FixedDt) override;
@@ -63,6 +67,7 @@ public:
 	bool canBeHit(Actor* a_Attacker) const;
 	void registerHit(Actor* a_Attacker);
 	virtual void takeDamage(float a_Dmg);
+	virtual void attackSuccess(float a_Dmg, bool isContinuous) {}
 
 	float& getHP();
 };

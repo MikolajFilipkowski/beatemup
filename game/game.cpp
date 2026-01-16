@@ -6,15 +6,12 @@
 #include <cstdlib>
 
 #define CH_ASSETS "game/assets/charsets/"
+#define UI_ASSETS "game/assets/ui/"
 
-Game::Game() : Application() {
-	m_InfoFont = {
-		RES::CH_16,
-		16,
-		.75f,
-		1.0f,
-		ColorRGBA::black()
-	};
+Game::Game(GameLoader& a_GameLoader, GameSettings& a_Settings) 
+	: Application(), m_GameLoader(a_GameLoader), m_Settings(a_Settings) 
+{
+	
 }
 
 bool Game::onStart(Managers* a_Managers) {
@@ -23,10 +20,15 @@ bool Game::onStart(Managers* a_Managers) {
 
 	srand((unsigned)time(0));
 
+	m_Mgs->display->setBorderless(m_Settings.borderless);
+	m_Mgs->display->setResizable(m_Settings.resizable);
+	m_Mgs->display->setFullscreen(m_Settings.fullscreen);
 	m_Mgs->display->setIcon("game/assets/punch_icon.bmp");
 
 	setupBindings();
+	setupStatuses();
 	loadCharsets();
+	loadUITextures();
 
 	m_Mgs->sprite->load("game/assets/circle.bmp", RES::CIRCLE);
 	m_Mgs->sprite->load("game/assets/shadow.bmp", RES::SHADOW);
@@ -35,10 +37,10 @@ bool Game::onStart(Managers* a_Managers) {
 
 	m_Mgs->object->setGravity(GRAVITY);
 
-	LevelScene* level = new LevelScene(m_Mgs);
+	LevelScene* level = new LevelScene(m_Mgs, &m_GameState);
 	m_Mgs->scene->add(SceneID::LEVEL, level);
 
-	MenuScene* menu = new MenuScene(m_Mgs);
+	MenuScene* menu = new MenuScene(m_Mgs, &m_GameState, m_Settings);
 	m_Mgs->scene->add(SceneID::MENU, menu);
 	m_Mgs->scene->load(SceneID::MENU, true);
 
@@ -46,9 +48,6 @@ bool Game::onStart(Managers* a_Managers) {
 }
 
 void Game::onUpdate(float a_Dt) {
-	//Rect vp = m_Mgs->display->getActiveCamera()->getViewport();
-	//printf("%.2f %.2f : %.2f %.2f\n", vp.x, vp.y, vp.x + vp.w, vp.y + vp.h);
-
 	m_Mgs->scene->update(a_Dt);
 	m_Mgs->ui->update(a_Dt);
 
@@ -72,46 +71,31 @@ void Game::onDraw() {
 
 	char buff[32];
 	sprintf_s(buff, 31, "FPS: %.0f", fps);
-	//length = strlen(buff);
 
-	float dy = m_InfoFont.chSize * m_InfoFont.scale;
+	float dy = INFO_FONT.chSize * INFO_FONT.scale;
 
-	m_Mgs->display->drawString(RES::CH_16, { 5,3 }, buff, m_InfoFont);
+	m_Mgs->display->drawString({ 5,3 }, buff, INFO_FONT);
 
 	sprintf_s(buff, 31, "Czas gry: %.1f", wt);
-	m_Mgs->display->drawString(RES::CH_16, { 5,3 + dy }, buff, m_InfoFont);
+	m_Mgs->display->drawString({ 5,3 + dy }, buff, INFO_FONT);
 
-	const char* req = "Wymagania: 1234ABJ";
-	float req_size = strlen(req) * m_InfoFont.chSize * m_InfoFont.spacing * m_InfoFont.scale;
-	m_Mgs->display->drawString(RES::CH_16, { log_w - 5 - req_size,3 }, req, m_InfoFont);
-	
-
-	//sprintf_s(buff, 31, "Czas trwania: %.2f", fps);
-
-	//float posX = f.chSize * f.scale * f.spacing * (float)length;
-	//m_Mgs->display->drawString(RES::CH_16, { posX, 0 }, buff, f);
-
-	//Uint64 txtSize = m_Mgs->sprite->loadedSpritesSize();
-	//printf("%lf\n", txtSize / (1024.0 * 1024.0));
-
-	/*Dims logDims = m_Mgs->display->getLogDims();
-	m_Mgs->display->drawFilledRect({ 4, 4 }, { (float)logDims.width - 8.0f, 64.0f }, ColorRGBA::blue(), ColorRGBA::red());
-
-	char text[128];
-
-	sprintf(text, "Czas trwania = %.1lf s  %.0lf klatek/s", m_Mgs->time->getWorldTime(), m_Mgs->time->getFPS());
-	m_Mgs->display->drawString(RES::CH_16, { (float)((logDims.width / 2) - strlen(text) * 24 / 2), 10 }, text, 1.25f);
-
-
-	sprintf(text, "Esc - wyjscie, F11 - fullscreen");
-	m_Mgs->display->drawString(RES::CH_16, { (float)((logDims.width / 2) - strlen(text) * 16 / 2), 40 }, text, 1.0f);*/
+	const char* req = "Wymagania: 1234ABCDJ";
+	float req_size = strlen(req) * INFO_FONT.chSize * INFO_FONT.spacing * INFO_FONT.scale;
+	m_Mgs->display->drawString({ log_w - 5 - req_size,3 }, req, INFO_FONT);
 }
 
 void Game::onDestroy() {
 	
 }
 
-
+void Game::loadUITextures()
+{
+	m_Mgs->sprite->load(UI_ASSETS "big_frame.bmp", RES::UI_BIG_FRAME);
+	m_Mgs->sprite->load(UI_ASSETS "small_frame.bmp", RES::UI_SMALL_FRAME);
+	m_Mgs->sprite->load(UI_ASSETS "button.bmp", RES::UI_BUTTON);
+	m_Mgs->sprite->load(UI_ASSETS "text_input.bmp", RES::UI_TEXT_INPUT);
+	m_Mgs->sprite->load(UI_ASSETS "punch.bmp", RES::PUNCH);
+}
 
 void Game::setupBindings()
 {
@@ -158,4 +142,12 @@ void Game::loadCharsets()
 	m_Mgs->sprite->load(CH_ASSETS "ps2p_16.bmp", RES::CH_16, true);
 	m_Mgs->sprite->load(CH_ASSETS "thf_32.bmp", RES::CH_32, true);
 	m_Mgs->sprite->load(CH_ASSETS "yg_64.bmp", RES::CH_64, true);
+}
+
+void Game::setupStatuses()
+{
+	m_GameState.addStatus({GODLIKE_THR, GODLIKE_TXT, GODLIKE_MUL});
+	m_GameState.addStatus({BRILLIANT_THR, BRILLIANT_TXT, BRILLIANT_MUL});
+	m_GameState.addStatus({GREAT_THR, GREAT_TXT, GREAT_MUL});
+	m_GameState.addStatus({NICE_THR, NICE_TXT, NICE_MUL});
 }

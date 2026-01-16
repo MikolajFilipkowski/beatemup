@@ -7,12 +7,6 @@ extern "C" {
 #include"./SDL2/include/SDL.h"
 }
 
-#ifndef _WIN32
-	#define strcpy_s(dest, size, src) strcpy(dest, src)
-	#define strcat_s(dest, size, src) strcat(dest, src)
-	#define sprintf_s snprintf
-#endif // !_WIN32
-
 inline constexpr SDL_Scancode FULLSCREEN_KEY = SDL_SCANCODE_F11;
 inline constexpr SDL_Scancode EXIT_KEY = SDL_SCANCODE_ESCAPE;
 inline constexpr SDL_Scancode DEBUG_KEY = SDL_SCANCODE_F3;
@@ -26,6 +20,7 @@ inline constexpr Uint32 MIN_FRAMETIME = (Uint32)(1000 / FPS_CAP);
 inline constexpr Uint32 MAX_FRAMETIME = 500;
 inline constexpr float FPS_INTERVAL = 1.0f;
 inline constexpr int MAX_TEXTSIZE = 256;
+inline constexpr int BTN_TEXTSIZE = 64;
 inline constexpr float BTN_PR_DUR = .15f;
 inline constexpr int BTN_FC_BRD = 60;
 inline constexpr float PULSE_SPD = 3.0f;
@@ -49,6 +44,7 @@ inline constexpr SDL_RendererFlip NO_FLIP = SDL_FLIP_NONE;
 inline constexpr SDL_RendererFlip H_FLIP = SDL_FLIP_HORIZONTAL;
 inline constexpr SDL_RendererFlip V_FLIP = SDL_FLIP_VERTICAL;
 
+inline constexpr int MAX_ERR_LEN = 512;
 
 struct Vector2 {
 	float x{ 0 }, y{ 0 };
@@ -298,6 +294,10 @@ struct Cuboid {
 struct ColorRGBA {
 	Uint8 r{ 0 }, g{ 0 }, b{ 0 }, a{ 0xFF };
 
+	constexpr ColorRGBA() {}
+	constexpr ColorRGBA(Uint8 a_R, Uint8 a_G, Uint8 a_B, Uint8 a_A)
+		: r(a_R), g(a_G), b(a_B), a(a_A) {}
+
 	static constexpr ColorRGBA black() {
 		return { 0, 0, 0, 0xFF };
 	}
@@ -338,8 +338,11 @@ struct Outline {
 	ColorRGBA color{ColorRGBA::transparent()};
 	float size{0.0f};
 
-	Outline() = default;
-	Outline(ColorRGBA a_Color, float a_Size) : color(a_Color), size(a_Size) {}
+	constexpr Outline() = default;
+	constexpr Outline(ColorRGBA a_Color, float a_Size) 
+		: color(a_Color), size(a_Size) {}
+	constexpr Outline(const Outline& a_Other) 
+		: color(a_Other.color), size(a_Other.size) {}
 };
 
 struct Font {
@@ -351,14 +354,18 @@ struct Font {
 	Outline outline;
 	float baseline;
 
-	Font() : key(0), chSize(0), scale(0), 
+	constexpr Font() : key(0), chSize(0), scale(0),
 		spacing(0), color(ColorRGBA::black()), outline(Outline()), baseline(0) {}
 
-	Font(int a_Key, int a_ChSize, float a_Scale, float a_Spacing, ColorRGBA a_Color, Outline a_Outline, float a_Baseline) 
+	constexpr Font(int a_Key, int a_ChSize, float a_Scale, float a_Spacing, ColorRGBA a_Color, Outline a_Outline, float a_Baseline) 
 		: key(a_Key), chSize(a_ChSize), scale(a_Scale),spacing(a_Spacing), color(a_Color), outline(a_Outline), baseline(a_Baseline) {}
 
-	Font(int a_Key, int a_ChSize, float a_Scale, float a_Spacing, ColorRGBA a_Color)
+	constexpr Font(int a_Key, int a_ChSize, float a_Scale, float a_Spacing, ColorRGBA a_Color)
 		: key(a_Key), chSize(a_ChSize), scale(a_Scale), spacing(a_Spacing), color(a_Color), outline(Outline()), baseline(0) {
+	}
+
+	float getWidth(int a_CharCount) const {
+		return a_CharCount * chSize * scale * spacing;
 	}
 };
 

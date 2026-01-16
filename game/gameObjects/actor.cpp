@@ -52,8 +52,8 @@ void Actor::unloadAnims()
 	}
 }
 
-Actor::Actor(Managers* a_Managers, Transform a_Transform)
-	: GameObject(a_Managers, a_Transform) 
+Actor::Actor(Managers* a_Managers, GameState* a_GameState, Transform a_Transform)
+	: GameObject(a_Managers, a_Transform), m_GameState(a_GameState)
 {
 	m_Id = rand();
 }
@@ -116,6 +116,11 @@ void Actor::fixedUpdate(float a_FixedDt)
 	if (m_CurrentActKey == 0) return;
 	ActionData* data = m_Mgs->object->getAction(m_CurrentActKey);
 
+	if (m_StunTimer > 0) {
+		m_StunTimer -= a_FixedDt;
+		m_StunTimer = (m_StunTimer > 0) ? m_StunTimer : 0;
+	}
+
 	m_ActTimer += a_FixedDt;
 
 	float totalDur = data->getTotalDuration();
@@ -170,14 +175,9 @@ void Actor::applyPhysics(float a_FixedDt, ActionData* a_Data, ActionFrame& a_Cur
 
 	float lookDir = (getFacingDir() == FacingDir::RIGHT) ? -1.0f : 1.0f;
 
-	computeInput();
-	/*
-	if (a_Data->interruptible || !m_Grounded)
+	if (m_StunTimer <= 0)
 		computeInput();
-	else
-		m_InputVel = Vector3::zero();*/
 
-	// Zmiana predkosci
 	m_Rb.vel.x = (a_CurrFrame.vel.x * lookDir) + m_InputVel.x;
 	m_Rb.vel.z = a_CurrFrame.vel.z + m_InputVel.z;
 
@@ -248,6 +248,12 @@ Cuboid Actor::getCollBox()
 	};
 }
 
+void Actor::hurt()
+{
+	float hurtTime = m_Mgs->object->getAction(Actions::HURT)->getTotalDuration();
+	m_StunTimer = hurtTime + STUN_DURATION;
+}
+
 bool Actor::isDying() const
 {
 	return m_IsDying;
@@ -282,6 +288,8 @@ void Actor::postFixedUpdate(float a_FixedDt)
 void Actor::draw()
 {
 	int activeAnimKey = getActiveAnim();
+	if (activeAnimKey == RES::NONE) return;
+
 	float act_w = (float)m_Mgs->anim->get(activeAnimKey)->frames[m_CurrentFrame].w;
 	drawShadow(RES::SHADOW, act_w, SHADOW_DIMS);
 
@@ -411,6 +419,7 @@ void Actor::registerHit(Actor* a_Attacker)
 		actualDmg -= m_LastDmgTaken;
 
 	takeDamage(actualDmg);
+	a_Attacker->attackSuccess(actualDmg, m_InvTimer > 0.0f);
 
 	m_LastDmgTaken = dmg;
 	m_InvTimer = AFTER_HIT_INV;
@@ -420,13 +429,11 @@ void Actor::takeDamage(float a_Dmg)
 {
 	m_HP -= a_Dmg;
 
-	//printf("DMG: %.1f\n", a_Dmg);
-
 	if (m_HP <= 0) {
-		//m_Mgs->object->remove(this);
 		startAction(Actions::DEATH);
 	}
 	else {
+		hurt();
 		startAction(Actions::HURT);
 	}
 }

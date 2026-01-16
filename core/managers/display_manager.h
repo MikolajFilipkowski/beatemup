@@ -58,6 +58,7 @@ public:
 	void toggleFullscreen();
 	Uint32 getFullscreenType() const;
 	void setBorderless(bool a_Borderless);
+	void setResizable(bool a_Resizable);
 
 	Vector2 worldToScreen(Vector3 a_WorldPos) const;
 	SDL_FRect worldToRect(Vector3 a_WorldPos, FDims a_Dims) const;
@@ -71,5 +72,5 @@ public:
 	void drawLine(Vector2 a_Start, Vector2 a_Dest, ColorRGBA a_Color);
 	void drawRect(Vector2 a_Pos, FDims a_Dims, ColorRGBA a_Color, int a_Thickness = 1);
 	void drawFilledRect(Vector2 a_Pos, FDims a_Dims, ColorRGBA a_FillColor, ColorRGBA a_OutlineColor, int a_Thickness = 1);
-	void drawString(int a_CharsetKey, Vector2 a_Pos, const char* a_Text, const Font& a_Font, FDims a_MaxSize = { 0,0 });
+	void drawString(Vector2 a_Pos, const char* a_Text, const Font& a_Font, FDims a_MaxSize = { 0,0 });
 };

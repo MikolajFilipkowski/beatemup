@@ -77,7 +77,7 @@ bool DisplayManager::checkStringBounds(const FDims& a_MaxSize, const Vector2& a_
 bool DisplayManager::init(const char* a_Title, Dims a_WinDims, Dims a_LogDims, bool a_Fullscreen)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-		printf("SDL_Init error: %s\n", SDL_GetError());
+		m_Mgs->engine->throwError("SDL_Init error: %s\n", SDL_GetError());
 		return false;
 	}
 
@@ -89,7 +89,7 @@ bool DisplayManager::init(const char* a_Title, Dims a_WinDims, Dims a_LogDims, b
 	m_Window = SDL_CreateWindow(a_Title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, a_WinDims.width, a_WinDims.height, winFlags);
 
 	if (!m_Window) {
-		printf("SDL_CreateWindow error: %s\n", SDL_GetError());
+		m_Mgs->engine->throwError("SDL_CreateWindow error: %s\n", SDL_GetError());
 		return false;
 	}
 
@@ -97,7 +97,7 @@ bool DisplayManager::init(const char* a_Title, Dims a_WinDims, Dims a_LogDims, b
 
 	if (!m_Renderer) {
 		SDL_DestroyWindow(m_Window);
-		printf("SDL_CreateRenderer error: %s\n", SDL_GetError());
+		m_Mgs->engine->throwError("SDL_CreateRenderer error: %s\n", SDL_GetError());
 		return false;
 	}
 
@@ -272,6 +272,11 @@ void DisplayManager::setBorderless(bool a_Borderless)
 	m_Borderless = a_Borderless;
 }
 
+void DisplayManager::setResizable(bool a_Resizable)
+{
+	SDL_SetWindowResizable(m_Window, (SDL_bool)a_Resizable);
+}
+
 Vector2 DisplayManager::worldToScreen(Vector3 a_WorldPos) const
 {
 	Camera* cam = getActiveCamera();
@@ -424,10 +429,10 @@ void DisplayManager::drawFilledRect(Vector2 a_Pos, FDims a_Dims, ColorRGBA a_Fil
 	drawRect(a_Pos, a_Dims, a_OutlineColor, a_Thickness);
 }
 
-void DisplayManager::drawString(int a_CharsetKey, Vector2 a_Pos, const char* a_Text, const Font& a_Font, FDims a_MaxSize)
+void DisplayManager::drawString(Vector2 a_Pos, const char* a_Text, const Font& a_Font, FDims a_MaxSize)
 {
 	if (a_Text == nullptr || *a_Text == '\0') return;
-	const Sprite* sprite = m_Mgs->sprite->get(a_CharsetKey);
+	const Sprite* sprite = m_Mgs->sprite->get(a_Font.key);
 	if (sprite == nullptr) return;
 
 	Dims charDims = { sprite->width / 16 , sprite->height / 16 };

@@ -2,7 +2,8 @@
 
 #include "engine.h"
 
-#include <stdio.h>
+#include <cstdio>
+#include <cstdarg>
 
 Engine::Engine() {
 	m_Mgs.engine = this;
@@ -120,6 +121,26 @@ void Engine::destroy()
 			*m_Mgs.m_Array[i] = nullptr;
 		}
 	}
+}
+
+void Engine::throwError(const char* a_Msg, ...)
+{
+	va_list args;
+	va_start(args, a_Msg);
+
+	char buff[MAX_ERR_LEN]{};
+
+	vsnprintf(buff, MAX_ERR_LEN, a_Msg, args);
+	fprintf(stderr, buff);
+	if (m_Mgs.display == nullptr) return;
+
+	SDL_Window* win = m_Mgs.display->m_Window;
+	if (win == nullptr) return;
+
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error!", buff, win);
+
+	stop();
+	va_end(args);
 }
 
 bool Engine::inDebugMode() const

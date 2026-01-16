@@ -3,6 +3,7 @@
 #include <cstdio>
 #include "../core/core.h"
 #include "config.h"
+#include "game_structs.h"
 
 class GameLoader {
 private:
@@ -10,10 +11,14 @@ private:
 
 	static constexpr int MAX_LINE_LEN = 512;
 
+	static constexpr const char* FILE_NF_ERR = "File %s not found.\n";
+	static constexpr const char* SETT_SYN_ERR = "File %s has incorrect syntax (line %d).\n";
+	static constexpr const char* SETT_KEY_ERR = "Invalid key in %s (line %d)\n";
+
 	static constexpr const char* HEADER_FORMAT = "[%d] %d %d %d %x %d %d %d %d %x";
 	static constexpr int HEADER_VARS = 10;
 	static constexpr const char* HEADER_ERR = "Action file has incorrect header data.\n";
-
+	
 	static constexpr const char* NAME_ERR = "Action name too long! Max 64 characters.\n";
 
 	static constexpr const char* FR_FORMAT = "< %d > %f %f %f %f %f | %f %f %f %f | %f %f %f %f";
@@ -26,6 +31,7 @@ private:
 public:
 	GameLoader() {}
 	void init(Managers* a_Managers);
+	bool loadGameSettings(const char* a_FilePath, GameSettings& a_Settings);
 	void loadActionData(const char* a_FilePath);
 	bool parseHeader(char* a_Line, FILE* a_File, ActionData* a_Act, 
 					int& a_Id, int& a_SeqLen, int& a_FrCount);

@@ -1,14 +1,13 @@
 #include "enemy.h"
 
-Enemy::Enemy(Managers* a_Managers, Actor* a_Target, Transform a_Transform)
-	: Actor(a_Managers, a_Transform), m_Target(a_Target)
-{}
+Enemy::Enemy(Managers* a_Managers, GameState* a_GameState, Actor* a_Target, Transform a_Transform)
+	: Actor(a_Managers, a_GameState, a_Transform), m_Target(a_Target) {}
 
 Enemy::~Enemy() {}
 
 bool Enemy::chooseAttack()
 {
-	if (m_AttackTimer > 0.0f) return false;
+	if (m_AttackTimer > 0.0f || m_StunTimer > 0.0f) return false;
 	int rnd = rand() % totalChance();
 
 	auto& acts = m_Mgs->object->getAllActions();

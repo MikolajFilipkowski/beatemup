@@ -85,8 +85,8 @@ void Autumn::computeInput() {
 
 
 
-Autumn::Autumn(Managers* a_Managers, Actor* a_Target, Transform a_Transform)
-	: Enemy(a_Managers, a_Target, a_Transform)
+Autumn::Autumn(Managers* a_Managers, GameState* a_GameState, Actor* a_Target, Transform a_Transform)
+	: Enemy(a_Managers, a_GameState, a_Target, a_Transform)
 {
 	if (s_Instances == 0) {
 		m_Mgs->sprite->load(AUTUMN_ASSETS "idle.bmp", getAnimFromAct(Actions::IDLE));

@@ -6,13 +6,15 @@
 #include "scenes/level_scene.h"
 #include "scenes/menu_scene.h"
 #include "game_loader.h"
+#include "game_structs.h"
 
 class Game : public Application {
 protected:
-	GameLoader m_GameLoader{};
-	Font m_InfoFont;
+	GameLoader& m_GameLoader;
+	GameSettings& m_Settings;
+	GameState m_GameState;
 public:
-	Game();
+	Game(GameLoader& a_GameLoader, GameSettings& a_Settings);
 	virtual ~Game() = default;
 	bool onStart(Managers* a_Managers) override;
 	void onUpdate(float a_Dt) override;
@@ -20,6 +22,8 @@ public:
 	void onDraw() override;
 	void onDestroy() override;
 
+	void loadUITextures();
 	void setupBindings();
 	void loadCharsets();
+	void setupStatuses();
 };
