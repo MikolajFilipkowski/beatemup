@@ -227,7 +227,6 @@ void Actor::applyPhysics(float a_FixedDt, ActionData* a_Data, ActionFrame& a_Cur
 		if (!m_Grounded) {
 			m_Grounded = true;
 			actionFinish();
-			//startAction(1);
 		}
 	}
 	else {
@@ -240,7 +239,7 @@ Cuboid Actor::getCollBox()
 	Rect& hbox = getCurrFrame().hurtbox;
 	if (hbox.h == 0 || hbox.w == 0) return Cuboid();
 
-	bool dirMul = (getFacingDir() == FacingDir::RIGHT) ? 1 : -1;
+	int dirMul = (getFacingDir() == FacingDir::RIGHT) ? 1 : -1;
 	float posX = m_Rb.currPos.x;
 	float offset = (hbox.x + hbox.w / 2.0f) * dirMul;
 

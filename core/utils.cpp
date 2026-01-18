@@ -32,3 +32,12 @@ char* ltrim(char* a_Str) {
 	while (isspace(*a_Str)) a_Str++;
 	return a_Str;
 }
+
+char* trim(char* a_Str) {
+	int len = strlen(a_Str);
+	while (len > 0 && (a_Str[len - 1] == '\r' 
+		|| a_Str[len - 1] == '\n' || a_Str[len - 1] == ' ')) {
+		a_Str[--len] = '\0';
+	}
+	return a_Str;
+}

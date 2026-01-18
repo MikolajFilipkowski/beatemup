@@ -132,7 +132,7 @@ void Engine::throwError(const char* a_Msg, ...)
 	char buff[MAX_ERR_LEN]{};
 
 	vsnprintf(buff, MAX_ERR_LEN, a_Msg, args);
-	fprintf(stderr, buff);
+	fprintf(stderr, "%s", buff);
 
 	// Logowanie bledu do pliku
 	FILE* errLogs = fopen(ERR_LOG_PATH, "a");

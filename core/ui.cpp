@@ -593,7 +593,6 @@ void UIHealthbar::draw()
 		m_Mgs->display->drawSprite(m_SpriteKey, m_Pos, m_Size);
 
 	float val = *m_LinkedVal;
-	int wf = m_Mgs->time->getWorldFrame();
 
 	Vector2 barPos = m_Pos + m_Padding;
 	FDims barSize = m_Size - (m_Padding * 2);
@@ -677,7 +676,7 @@ void UIHealthbar::setFill(int a_Key)
 	m_FillKey = a_Key;
 }
 
-int UIHealthbar::getFill()
+int UIHealthbar::getFill() const
 {
 	return m_FillKey;
 }
@@ -714,12 +713,12 @@ void UIScrollableContainer::calculateViewport()
 			maxY = maxElY;
 	}
 
-	m_Viewport = { 
+	m_Viewport = Rect(
 		m_Pos.x, 
 		m_Pos.y,
 		m_Size.width, 
 		(maxY - minY) + m_Padding.y * 2.0f
-	};
+	);
 
 	if (m_Viewport.h <= 0 || m_Viewport.w <= 0)
 		m_Viewport = Rect();

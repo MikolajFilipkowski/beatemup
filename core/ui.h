@@ -193,7 +193,7 @@ public:
 	void linkVals(float* a_Val);
 
 	void setFill(int a_Key);
-	int getFill();
+	int getFill() const;
 	void setGhost(int a_Key);
 	int getGhost();
 };

@@ -6,8 +6,8 @@
 #include <iostream>
 
 ActionData::ActionData(int a_Prio, int a_Win, int a_Cond, bool a_Inter, int a_Owner, Array<int>* a_Seq, Array<ActionFrame>* a_Frames)
-	: priority(a_Prio), inputWindow(a_Win), conditions(a_Cond),
-	interruptible(a_Inter), owner(a_Owner), m_Sequence(a_Seq), m_Frames(a_Frames)
+	: m_Sequence(a_Seq), m_Frames(a_Frames), priority(a_Prio), inputWindow(a_Win), 
+	conditions(a_Cond), interruptible(a_Inter),  owner(a_Owner)
 {
 	sealData();
 }

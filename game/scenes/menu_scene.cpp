@@ -4,8 +4,8 @@
 #include <cstdio>
 #include "level_scene.h"
 
-#define BG_ASSETS "game/assets/backgrounds/default/"
-#define UI_ASSETS "game/assets/ui/"
+#define BG_ASSETS "./game/assets/backgrounds/default/"
+#define UI_ASSETS "./game/assets/ui/"
 
 static void onLevelSelector(SDL_Event& ev, UIButton* button, Managers* m_Mgs) {
 	if (m_Mgs->scene->getCurrentSceneIdx() == SceneID::MENU) {

@@ -425,7 +425,7 @@ bool GameLoader::parseLvlPreambule(FILE* a_File, LoadedLevel& a_Level, char* a_B
 			mask |= LvlMask::INFO_WIDTH;
 		}
 		else if (strstr(key, "background")) {
-			a_Level.background = copy_string(ltrim(value));
+			a_Level.background = copy_string(trim(ltrim(value)));
 			mask |= LvlMask::INFO_BACKGROUND;
 		}
 		else break;

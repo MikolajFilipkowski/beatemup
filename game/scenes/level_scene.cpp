@@ -6,9 +6,9 @@
 #include "../gameObjects/doyle.h"
 #include "../gameObjects/autumn.h"
 
-#define BG_ASSETS "game/assets/backgrounds/"
-#define UI_ASSETS "game/assets/ui/"
-#define OBS_ASSETS "game/assets/obstacles/"
+#define BG_LVL_ASSETS "./game/assets/backgrounds/"
+#define UI_ASSETS "./game/assets/ui/"
+#define OBS_ASSETS "./game/assets/obstacles/"
 
 static void onNextLevel(SDL_Event& ev, UIButton* button, Managers* m_Mgs) {
 	auto lvlSc = (LevelScene*)m_Mgs->scene->get(SceneID::LEVEL);
@@ -104,13 +104,13 @@ LoadedZone* LevelScene::getWinZone() const
 void LevelScene::loadGraphics()
 {
 	// Wczytywanie warstw tla
-	loadLayer(RES::BG_ELEMENT1, BG_ASSETS, m_LoadedLevel->background, "element1.bmp");
-	loadLayer(RES::BG_BUILDINGS, BG_ASSETS, m_LoadedLevel->background, "buildings.bmp");
-	loadLayer(RES::BG_ROAD, BG_ASSETS, m_LoadedLevel->background, "road.bmp");
-	loadLayer(RES::BG_SKY, BG_ASSETS, m_LoadedLevel->background, "sky.bmp");
-	loadLayer(RES::BG_WALL1, BG_ASSETS, m_LoadedLevel->background, "wall1.bmp");
-	loadLayer(RES::BG_WALL2, BG_ASSETS, m_LoadedLevel->background, "wall2.bmp");
-	loadLayer(RES::BG_ELEMENT2, BG_ASSETS, m_LoadedLevel->background, "element2.bmp");
+	loadLayer(RES::BG_ELEMENT1, BG_LVL_ASSETS, m_LoadedLevel->background, "element1.bmp");
+	loadLayer(RES::BG_BUILDINGS, BG_LVL_ASSETS, m_LoadedLevel->background, "buildings.bmp");
+	loadLayer(RES::BG_ROAD, BG_LVL_ASSETS, m_LoadedLevel->background, "road.bmp");
+	loadLayer(RES::BG_SKY, BG_LVL_ASSETS, m_LoadedLevel->background, "sky.bmp");
+	loadLayer(RES::BG_WALL1, BG_LVL_ASSETS, m_LoadedLevel->background, "wall1.bmp");
+	loadLayer(RES::BG_WALL2, BG_LVL_ASSETS, m_LoadedLevel->background, "wall2.bmp");
+	loadLayer(RES::BG_ELEMENT2, BG_LVL_ASSETS, m_LoadedLevel->background, "element2.bmp");
 
 	m_Mgs->sprite->load(UI_ASSETS "hb_frame.bmp", RES::HB_FRAME);
 	m_Mgs->sprite->load(UI_ASSETS "hb_fill.bmp", RES::HB_FILL);
@@ -404,7 +404,6 @@ void LevelScene::pauseModal()
 	createModal();
 
 	const Dims& logDims = m_Mgs->display->getLogDims();
-	float elW = logDims.width * BTN_X_MUL;
 	float elH = logDims.height * BTN_Y_MUL;
 	float dy = MENU_BTN_H + MENU_BTN_GAP;
 	const float ch_size = TITLE_FONT.chSize * TITLE_FONT.scale;

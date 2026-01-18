@@ -4,7 +4,6 @@ Obstacle::Obstacle(Managers* a_Managers, Transform a_Transform, Vector3 a_Dims, 
 	: SpriteObject(a_Managers, a_Transform, a_SpriteKey), m_Dims(a_Dims)
 {
 	m_Rb.mass = a_Mass;
-	Sprite* spr = m_Mgs->sprite->get(a_SpriteKey);
 }
 
 Obstacle::~Obstacle()
