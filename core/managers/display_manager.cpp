@@ -324,6 +324,11 @@ void DisplayManager::setSpriteModColor(const Sprite* a_Sprite, const ColorRGBA& 
 	SDL_SetTextureAlphaMod(a_Sprite->texture, a_Color.a);
 }
 
+void DisplayManager::setClip(SDL_Rect* clip)
+{
+	SDL_RenderSetClipRect(m_Renderer, clip);
+}
+
 void DisplayManager::drawSprite(int a_SpriteKey, Vector2 a_Pos, FDims a_Dims)
 {
 	Sprite* sprite = m_Mgs->sprite->get(a_SpriteKey);

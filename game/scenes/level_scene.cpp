@@ -6,16 +6,27 @@
 #include "../gameObjects/doyle.h"
 #include "../gameObjects/autumn.h"
 
-#define MENU_ASSETS "game/assets/levels/menu/"
+#define BG_ASSETS "game/assets/backgrounds/"
 #define UI_ASSETS "game/assets/ui/"
+#define OBS_ASSETS "game/assets/obstacles/"
 
 static void onNextLevel(SDL_Event& ev, UIButton* button, Managers* m_Mgs) {
-	
+	auto lvlSc = (LevelScene*)m_Mgs->scene->get(SceneID::LEVEL);
+	lvlSc->changeLevel(button->getId() + 1, true);
 };
 
 static void onRestart(SDL_Event& ev, UIButton* button, Managers* m_Mgs) {
-	
+	auto lvlSc = (LevelScene*)m_Mgs->scene->get(SceneID::LEVEL);
+	lvlSc->changeLevel(button->getId());
 };
+
+static void onSave(SDL_Event& ev, UIButton* button, Managers* m_Mgs) {
+	if (m_Mgs->scene->getCurrentSceneIdx() == SceneID::LEVEL) {
+		LevelScene* scene = (LevelScene*)m_Mgs->scene->getCurrentScene();
+		scene->saveScore();
+		m_Mgs->scene->load(SceneID::MENU, false);
+	}
+}
 
 static void onQuit(SDL_Event& ev, UIButton* button, Managers* m_Mgs) {
 	if (m_Mgs->scene->getCurrentSceneIdx() == SceneID::LEVEL) {
@@ -50,34 +61,76 @@ void LevelScene::setFontsAlpha(float a_DiplayTimer)
 	}
 }
 
-LevelScene::LevelScene(Managers* a_Managers, GameState* a_GameState)
-	: GameScene(a_Managers), m_GameState(a_GameState) 
+void LevelScene::reinitializeScene()
+{
+	if (m_LevelQueued == 0) return;
+
+	int score = 0;
+	if (m_PreserveScore)
+		score = m_GameState->getScore();
+
+	destroy();
+	if (loadFromFile(m_LevelQueued))
+		start();
+
+	m_GameState->setScore(score);
+
+	m_LevelQueued = 0;
+}
+
+LoadedZone* LevelScene::getZone(float a_PosX) const
+{
+	for (Uint32 i = 0; i < m_LoadedLevel->zoneCount; i++) {
+		LoadedZone& zone = m_LoadedLevel->zones[i];
+
+		if (zone.beginning.x <= a_PosX && zone.end.x >= a_PosX)
+			return &zone;
+	}
+	return &(m_LoadedLevel->zones[0]);
+}
+
+LoadedZone* LevelScene::getWinZone() const
+{
+	for (Uint32 i = 0; i < m_LoadedLevel->zoneCount; i++) {
+		LoadedZone& zone = m_LoadedLevel->zones[i];
+
+		if (zone.flags & WIN_FLAG)
+			return &zone;
+	}
+	return nullptr;
+}
+
+LevelScene::LevelScene(Managers* a_Managers, GameState* a_GameState, GameLoader* a_GameLoader, GameSettings& a_Settings)
+	: GameScene(a_Managers), m_GameState(a_GameState), m_GameLoader(a_GameLoader), m_Settings(a_Settings)
 {
 }
 
 void LevelScene::start()
 {
+	if (m_LoadedLevel == nullptr) return;
 	m_Mgs->display->showCursor(false);
 
-	m_Mgs->sprite->load(MENU_ASSETS "boxes.bmp", RES::MENU_BOXES);
-	m_Mgs->sprite->load(MENU_ASSETS "buildings.bmp", RES::MENU_BUILDINGS);
-	m_Mgs->sprite->load(MENU_ASSETS "road.bmp", RES::MENU_ROAD);
-	m_Mgs->sprite->load(MENU_ASSETS "sky.bmp", RES::MENU_SKY);
-	m_Mgs->sprite->load(MENU_ASSETS "wall1.bmp", RES::MENU_WALL1);
-	m_Mgs->sprite->load(MENU_ASSETS "wall2.bmp", RES::MENU_WALL2);
-	m_Mgs->sprite->load(MENU_ASSETS "wheels.bmp", RES::MENU_WHEELS);
+	// Wczytywanie warstw tla
+	loadLayer(RES::BG_ELEMENT1, BG_ASSETS, m_LoadedLevel->background, "element1.bmp");
+	loadLayer(RES::BG_BUILDINGS, BG_ASSETS, m_LoadedLevel->background, "buildings.bmp");
+	loadLayer(RES::BG_ROAD, BG_ASSETS, m_LoadedLevel->background, "road.bmp");
+	loadLayer(RES::BG_SKY, BG_ASSETS, m_LoadedLevel->background, "sky.bmp");
+	loadLayer(RES::BG_WALL1, BG_ASSETS, m_LoadedLevel->background, "wall1.bmp");
+	loadLayer(RES::BG_WALL2, BG_ASSETS, m_LoadedLevel->background, "wall2.bmp");
+	loadLayer(RES::BG_ELEMENT2, BG_ASSETS, m_LoadedLevel->background, "element2.bmp");
 
 	m_Mgs->sprite->load(UI_ASSETS "hb_frame.bmp", RES::HB_FRAME);
 	m_Mgs->sprite->load(UI_ASSETS "hb_fill.bmp", RES::HB_FILL);
 	m_Mgs->sprite->load(UI_ASSETS "hb_ghost.bmp", RES::HB_GHOST);
+	m_Mgs->sprite->load(OBS_ASSETS "barrel.bmp", RES::BARREL);
 
-	addLayer(RES::MENU_SKY, 0.1f, 1280.0f, 720.0f);
-	addLayer(RES::MENU_BUILDINGS, 0.2f, 1280.0f, 720.0f);
-	addLayer(RES::MENU_WALL2, 1.0f, 1280.0f, 720.0f);
-	addLayer(RES::MENU_WALL1, 1.0f, 1280.0f, 720.0f);
-	addLayer(RES::MENU_BOXES, 1.0f, 1280.0f, 720.0f);
-	addLayer(RES::MENU_WHEELS, 1.0f, 1280.0f, 720.0f);
-	addLayer(RES::MENU_ROAD, 1.0f, 2000.0f, 720.f);
+	addLayer(RES::BG_SKY, 0.1f, 1280.0f, 720.0f);
+	addLayer(RES::BG_BUILDINGS, 0.2f, 1280.0f, 720.0f);
+	addLayer(RES::BG_WALL2, 1.0f, 1280.0f, 720.0f);
+	addLayer(RES::BG_WALL1, 1.0f, 1280.0f, 720.0f);
+	addLayer(RES::BG_ELEMENT1, 1.0f, 1280.0f, 720.0f);
+	addLayer(RES::BG_ELEMENT2, 1.0f, 1280.0f, 720.0f);
+	addLayer(RES::BG_ROAD, 1.0f, 2000.0f, 720.f);
 	
 	Transform tr = {
 		{0,0,350},
@@ -90,24 +143,31 @@ void LevelScene::start()
 
 	m_Camera = new PlayerCamera(m_Mgs, m_Player, { 0,0,500.0f });
 	m_Mgs->display->setActiveCamera((Camera*)m_Camera);
+	m_EnemyCount = 0;
 
-	Transform doyleTr = {
-		{300,0,350},
-		0.0,
-		H_FLIP,
-		{2.5f, 2.5f}
-	};
-
-	Transform autumnTr = {
-		{-300,0,350},
-		0.0,
-		NO_FLIP,
-		{2.5f, 2.7f}
-	};
-
-	for (int i = 0; i < 10; i++) {
-		auto doyle = new Doyle(m_Mgs, m_GameState, (Actor*)m_Player, doyleTr);
-		auto autumn = new Autumn(m_Mgs, m_GameState, (Actor*)m_Player, autumnTr);
+	for (Uint32 i = 0; i < m_LoadedLevel->enemyCount; i++) {
+		auto enemy = m_LoadedLevel->enemies[i];
+		Transform enemyTr = { enemy.pos, 0.0, H_FLIP, {2.5f, 2.5f} };
+		if (enemy.type == EnemyType::DOYLE) {
+			new Doyle(m_Mgs, m_GameState, (Actor*)m_Player, enemyTr, m_EnemyCount);
+		}
+		else if (enemy.type == EnemyType::AUTUMN) {
+			enemyTr.scale.y = 2.7f;
+			new Autumn(m_Mgs, m_GameState, (Actor*)m_Player, enemyTr, m_EnemyCount);
+		}
+	}
+	for (Uint32 i = 0; i < m_LoadedLevel->obstacleCount; i++) {
+		auto obstacle = m_LoadedLevel->obstacles[i];
+		int sprKey = getObstacleSpriteKey(obstacle.type);
+		Sprite* spr = m_Mgs->sprite->get(sprKey);
+		Vector2 scale = {};
+		scale.x = obstacle.dims.x / (float)spr->width;
+		scale.y = obstacle.dims.y / (float)spr->height;
+		Transform obsTr = {
+			obstacle.pos,
+			0.0, NO_FLIP, scale
+		};
+		new Obstacle(m_Mgs, obsTr, obstacle.dims, sprKey, obstacle.mass);
 	}
 
 	m_GameState->reset();
@@ -123,11 +183,22 @@ void LevelScene::start()
 
 void LevelScene::update(float a_Dt)
 {
+	if (m_LevelQueued != 0) {
+		reinitializeScene();
+		return;
+	}
 	if (m_Mgs->input->getKeyDown(SDL_SCANCODE_P)) {
 		if (m_Paused)
 			destroyModal();
 		else
 			pauseModal();
+	}
+	if (m_Mgs->input->getKeyDown(SDL_SCANCODE_F5)) {
+		for (auto& obj : m_Mgs->object->getAllObjects()) {
+			if ((obj->getType() & ObjectType::ENEMY) == ObjectType::ENEMY) {
+				obj->setRemovalFlag(true);
+			}
+		}
 	}
 
 	if (m_Paused) return;
@@ -136,7 +207,39 @@ void LevelScene::update(float a_Dt)
 
 void LevelScene::fixedUpdate(float a_FixedDt)
 {
+	if (m_LevelQueued != 0) {
+		reinitializeScene();
+		return;
+	}
 	if (m_Paused) return;
+
+	for (auto& obj : m_Mgs->object->getAllObjects()) {
+		Rigidbody& rb = obj->getRb();
+		Bounds& bounds = rb.bounds;
+		if (bounds.applyBounds) {
+			LoadedZone* zone = getZone(rb.currPos.x);
+			rb.bounds.maxX = m_LoadedLevel->width;
+			rb.bounds.minX = 0;
+			rb.bounds.maxZ = zone->end.y;
+			rb.bounds.minZ = zone->beginning.y;
+		}
+		if (obj->getType() & ObjectType::CAMERA) {
+			float vpW = m_Mgs->display->getActiveCamera()->getViewport().w / 2.0f;
+			rb.bounds.minX += vpW;
+			rb.bounds.maxX -= vpW;
+			rb.bounds.minZ = rb.currPos.z;
+			rb.bounds.maxZ = rb.currPos.z;
+		}
+	}
+
+	Vector3 plyPos = m_Player->getRb().currPos;
+	LoadedZone* winZone = getWinZone();
+	if (winZone && plyPos.x > winZone->beginning.x && 
+		plyPos.x < winZone->end.x && m_EnemyCount == 0
+	) {
+		endModal(true);
+	}
+
 	m_Mgs->object->fixedUpdateAll(a_FixedDt);
 	m_GameState->tick(a_FixedDt);
 }
@@ -149,6 +252,7 @@ void LevelScene::draw()
 	if (m_Mgs->engine->inDebugMode()) {
 		m_Player->getIBuffer().drawBuffer();
 		m_Player->drawActionName();
+		m_Player->drawPos();
 
 		for (auto& obj : m_Mgs->object->getAllObjects()) {
 			if (!(obj->getType() & ObjectType::ACTOR)) continue;
@@ -217,25 +321,40 @@ void LevelScene::drawComboMul(float a_DiplayTimer)
 void LevelScene::destroy()
 {
 	m_Mgs->object->clear();
+	m_EnemyCount = 0;
+	m_PreserveScore = false;
 
 	if (m_Mgs->ui) m_Mgs->ui->clear();
+	delete m_LoadedLevel;
+	m_LoadedLevel = nullptr;
 	m_Healthbar = nullptr;
 	m_Player = nullptr;
 	m_Camera = nullptr;
 	m_Modal = nullptr;
 	m_Paused = false;
 
-	m_Mgs->sprite->unload(RES::MENU_BOXES);
-	m_Mgs->sprite->unload(RES::MENU_BUILDINGS);
-	m_Mgs->sprite->unload(RES::MENU_ROAD);
-	m_Mgs->sprite->unload(RES::MENU_SKY);
-	m_Mgs->sprite->unload(RES::MENU_WALL1);
-	m_Mgs->sprite->unload(RES::MENU_WALL2);
-	m_Mgs->sprite->unload(RES::MENU_WHEELS);
+	m_Mgs->sprite->unload(RES::BG_ELEMENT1);
+	m_Mgs->sprite->unload(RES::BG_BUILDINGS);
+	m_Mgs->sprite->unload(RES::BG_ROAD);
+	m_Mgs->sprite->unload(RES::BG_SKY);
+	m_Mgs->sprite->unload(RES::BG_WALL1);
+	m_Mgs->sprite->unload(RES::BG_WALL2);
+	m_Mgs->sprite->unload(RES::BG_ELEMENT2);
 
 	m_Mgs->sprite->unload(RES::HB_FRAME);
 	m_Mgs->sprite->unload(RES::HB_FILL);
 	m_Mgs->sprite->unload(RES::HB_GHOST);
+}
+
+void LevelScene::saveScore() const
+{
+	m_GameLoader->saveScore(m_GameState);
+}
+
+void LevelScene::changeLevel(int a_Id, bool a_PreserveScore)
+{
+	m_LevelQueued = a_Id;
+	m_PreserveScore = a_PreserveScore;
 }
 
 void LevelScene::createModal()
@@ -332,15 +451,19 @@ void LevelScene::endModal(bool hasWon)
 	);
 	scoreTxt->setText(scoreBuff);
 
-	UIButton* continueBtn = new UIButton(
-		m_Mgs,
-		{ elW, elH + dy },
-		{ logDims.width * .3f, MENU_BTN_H },
-		BUTTON_FONT,
-		(hasWon) ? onNextLevel : onRestart
-	);
-	continueBtn->setSprite(RES::UI_BUTTON);
-	continueBtn->setText("Kontynuuj");
+	if (!hasWon || m_LoadedLevel->id < m_Settings.levels) {
+		UIButton* continueBtn = new UIButton(
+			m_Mgs,
+			{ elW, elH + dy },
+			{ logDims.width * .3f, MENU_BTN_H },
+			BUTTON_FONT,
+			(hasWon) ? onNextLevel : onRestart
+		);
+		continueBtn->setId(m_LoadedLevel->id);
+		continueBtn->setSprite(RES::UI_BUTTON);
+		continueBtn->setText("Kontynuuj");
+		m_Modal->addElement((UIElement*)continueBtn);
+	}
 
 	UIButton* quitBtn = new UIButton(
 		m_Mgs,
@@ -354,7 +477,6 @@ void LevelScene::endModal(bool hasWon)
 
 	m_Modal->addElement((UIElement*)endTxt);
 	m_Modal->addElement((UIElement*)scoreTxt);
-	m_Modal->addElement((UIElement*)continueBtn);
 	m_Modal->addElement((UIElement*)quitBtn);
 }
 
@@ -397,14 +519,15 @@ void LevelScene::gameOverModal()
 	);
 	scoreTxt->setText(scoreBuff);
 
-	UIButton* continueBtn = new UIButton(
+	UIButton* saveBtn = new UIButton(
 		m_Mgs,
 		{ elW, elH + dy },
 		{ logDims.width * .3f, MENU_BTN_H },
-		BUTTON_FONT
+		BUTTON_FONT,
+		onSave
 	);
-	continueBtn->setSprite(RES::UI_BUTTON);
-	continueBtn->setText("Zapisz");
+	saveBtn->setSprite(RES::UI_BUTTON);
+	saveBtn->setText("Zapisz");
 
 	UIButton* quitBtn = new UIButton(
 		m_Mgs,
@@ -418,11 +541,14 @@ void LevelScene::gameOverModal()
 
 	m_Modal->addElement((UIElement*)endTxt);
 	m_Modal->addElement((UIElement*)scoreTxt);
-	m_Modal->addElement((UIElement*)continueBtn);
+	m_Modal->addElement((UIElement*)saveBtn);
 	m_Modal->addElement((UIElement*)quitBtn);
 }
 
-void LevelScene::loadFromFile(const char* a_FileName)
+bool LevelScene::loadFromFile(int a_Id)
 {
-	assert(m_Mgs->scene->getCurrentScene() == this && "Scene should be loaded before being displayed!");
+	delete m_LoadedLevel;
+
+	m_LoadedLevel = new LoadedLevel();
+	return m_GameLoader->loadLevel(a_Id, *m_LoadedLevel);
 }

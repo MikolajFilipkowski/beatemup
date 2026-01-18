@@ -137,12 +137,20 @@ void ObjectManager::updatePhysics()
 	for (int i = 0; i < m_ObjectArray.count(); i++) {
 		GameObject*& obj1 = m_ObjectArray[i];
 		Rigidbody& rb1 = obj1->getRb();
+		Vector3& pos = rb1.currPos;
 		if (obj1->getRemovalFlag()) continue;
+
+		if (rb1.bounds.applyBounds) {
+			if (pos.x < rb1.bounds.minX) pos.x = rb1.bounds.minX;
+			if (pos.x > rb1.bounds.maxX) pos.x = rb1.bounds.maxX;
+			if (pos.z < rb1.bounds.minZ) pos.z = rb1.bounds.minZ;
+			if (pos.z > rb1.bounds.maxZ) pos.z = rb1.bounds.maxZ;
+		}
 
 		Cuboid coll1 = obj1->getCollBox();
 		if (coll1.h == 0 || coll1.w == 0 || coll1.d == 0)
 			continue;
-
+		
 		for (int j = i + 1; j < m_ObjectArray.count(); j++) {
 			GameObject*& obj2 = m_ObjectArray[j];
 			Rigidbody& rb2 = obj2->getRb();

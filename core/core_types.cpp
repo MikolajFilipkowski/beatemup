@@ -105,6 +105,14 @@ void GameScene::drawLayer(BackgroundLayer& a_Layer, float a_CamX, Dims& a_LogDim
 	}
 }
 
+void GameScene::loadLayer(int a_SpriteKey, const char* a_BaseDir, const char* a_BackgroundDir, const char* a_FileName)
+{
+	char path[MAX_TEXTSIZE]{};
+
+	snprintf(path, MAX_TEXTSIZE, "%s%s/%s", a_BaseDir, a_BackgroundDir, a_FileName);
+	m_Mgs->sprite->load(path, a_SpriteKey);
+}
+
 GameObject::GameObject(Managers* a_Managers, Transform a_Transform) 
 	: m_Mgs(a_Managers),
 	m_Transform(a_Transform),
@@ -208,6 +216,7 @@ Camera::Camera(Managers* a_Managers, Vector3 a_Pos) : GameObject(a_Managers) {
 	m_Transform.pos = a_Pos;
 	m_Rb.currPos = a_Pos;
 	m_Rb.prevPos = a_Pos;
+	m_Rb.bounds.applyBounds = true;
 }
 
 Camera::~Camera() {}

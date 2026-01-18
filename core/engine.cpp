@@ -4,6 +4,7 @@
 
 #include <cstdio>
 #include <cstdarg>
+#include <ctime>
 
 Engine::Engine() {
 	m_Mgs.engine = this;
@@ -132,6 +133,19 @@ void Engine::throwError(const char* a_Msg, ...)
 
 	vsnprintf(buff, MAX_ERR_LEN, a_Msg, args);
 	fprintf(stderr, buff);
+
+	// Logowanie bledu do pliku
+	FILE* errLogs = fopen(ERR_LOG_PATH, "a");
+	if (errLogs) {
+		time_t now = time(0);
+		tm* t = localtime(&now);
+		fprintf(errLogs, "[ %04d/%02d/%02d %02d:%02d:%02d ] %s", 
+			t->tm_year + 1900, t->tm_mon + 1, t->tm_mday, 
+			t->tm_hour, t->tm_min, t->tm_sec, buff
+		);
+		fclose(errLogs);
+	}
+	
 	if (m_Mgs.display == nullptr) return;
 
 	SDL_Window* win = m_Mgs.display->m_Window;
@@ -156,4 +170,9 @@ void Engine::setDebugMode(bool a_Debug)
 bool Engine::isRunning() const
 {
 	return m_Running;
+}
+
+Managers* Engine::getMgs()
+{
+	return &m_Mgs;
 }

@@ -41,13 +41,14 @@ void Doyle::computeInput() {
 
 	float diffX = tPos.x - ePos.x;
 	float diffZ = tPos.z - ePos.z;
+	float fabsX = fabsf(diffX);
 
 	if (getCurrAction()->canMove) {
-		if (fabsf(diffZ) > 5.0f) {
-			m_InputVel.z += (diffZ > 0) ? ENEMY_SPEED * Z_AXIS_MUL : -ENEMY_SPEED * Z_AXIS_MUL;
+		if (fabsf(diffZ) > 5.0f && fabsX < 800.0f) {
+			m_InputVel.z += (diffZ > 0) ? ENEMY_SPEED * 0.3f * Z_AXIS_MUL : -ENEMY_SPEED * 0.3f * Z_AXIS_MUL;
 		}
 
-		if (fabsf(diffX) > 30.0f) {
+		if (fabsX > 30.0f && fabsX < 900.0f) {
 			m_InputVel.x += (diffX > 0) ? ENEMY_SPEED : -ENEMY_SPEED;
 		}
 
@@ -78,8 +79,8 @@ void Doyle::computeInput() {
 	}
 }
 
-Doyle::Doyle(Managers* a_Managers, GameState* a_GameState, Actor* a_Target, Transform a_Transform)
-	: Enemy(a_Managers, a_GameState, a_Target, a_Transform)
+Doyle::Doyle(Managers* a_Managers, GameState* a_GameState, Actor* a_Target, Transform a_Transform, int& a_EnemyCount)
+	: Enemy(a_Managers, a_GameState, a_Target, a_Transform, a_EnemyCount)
 {
 	if (s_Instances == 0) {
 		m_Mgs->sprite->load(DOYLE_ASSETS "idle.bmp", getAnimFromAct(Actions::IDLE));
@@ -99,10 +100,12 @@ Doyle::Doyle(Managers* a_Managers, GameState* a_GameState, Actor* a_Target, Tran
 	m_AttackChances.put(Actions::WHEEL_PUNCH, WHEEL_ATT_CHANCE);
 
 	s_Instances++;
+	m_EnemyCount++;
 }
 
 Doyle::~Doyle() {
 	s_Instances--;
+	m_EnemyCount--;
 
 	if (s_Instances == 0) {
 		unloadAnims();

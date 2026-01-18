@@ -15,12 +15,13 @@ protected:
 	bool m_Attacking{ false };
 	Font m_DebugActionFont;
 	Map<int, int> m_AttackChances{};
+	int& m_EnemyCount;
 
 	virtual int getAnimFromAct(int a_ActKey) const override = 0;
 	virtual void computeInput() override = 0;
 	bool chooseAttack();
 public:
-	Enemy(Managers* a_Managers, GameState* a_GameState, Actor* a_Target = nullptr, Transform a_Transform = Transform::zero());
+	Enemy(Managers* a_Managers, GameState* a_GameState, Actor* a_Target, Transform a_Transform, int& a_EnemyCount);
 	virtual ~Enemy() override;
 	virtual void start() override = 0;
 	virtual void update(float a_Dt) override;

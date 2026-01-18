@@ -74,6 +74,9 @@
     <ClCompile Include="game\game_structs.cpp">
       <Filter>game</Filter>
     </ClCompile>
+    <ClCompile Include="game\gameObjects\obstacle.cpp">
+      <Filter>game\gameObjects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core\managers\display_manager.h">
@@ -166,6 +169,9 @@
     <ClInclude Include="game\fonts.h">
       <Filter>game</Filter>
     </ClInclude>
+    <ClInclude Include="game\gameObjects\obstacle.h">
+      <Filter>game\gameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="game\assets\eti.bmp">
@@ -183,26 +189,26 @@
     <Image Include="game\assets\charsets\yg_64.bmp">
       <Filter>game\assets\charsets</Filter>
     </Image>
-    <Image Include="game\assets\levels\menu\wheels.bmp">
-      <Filter>game\assets\levels\menu</Filter>
+    <Image Include="game\assets\backgrounds\default\element2.bmp">
+      <Filter>game\assets\backgrounds\default</Filter>
     </Image>
-    <Image Include="game\assets\levels\menu\boxes.bmp">
-      <Filter>game\assets\levels\menu</Filter>
+    <Image Include="game\assets\backgrounds\default\element1.bmp">
+      <Filter>game\assets\backgrounds\default</Filter>
     </Image>
-    <Image Include="game\assets\levels\menu\buildings.bmp">
-      <Filter>game\assets\levels\menu</Filter>
+    <Image Include="game\assets\backgrounds\default\buildings.bmp">
+      <Filter>game\assets\backgrounds\default</Filter>
     </Image>
-    <Image Include="game\assets\levels\menu\road.bmp">
-      <Filter>game\assets\levels\menu</Filter>
+    <Image Include="game\assets\backgrounds\default\road.bmp">
+      <Filter>game\assets\backgrounds\default</Filter>
     </Image>
-    <Image Include="game\assets\levels\menu\sky.bmp">
-      <Filter>game\assets\levels\menu</Filter>
+    <Image Include="game\assets\backgrounds\default\sky.bmp">
+      <Filter>game\assets\backgrounds\default</Filter>
     </Image>
-    <Image Include="game\assets\levels\menu\wall2.bmp">
-      <Filter>game\assets\levels\menu</Filter>
+    <Image Include="game\assets\backgrounds\default\wall2.bmp">
+      <Filter>game\assets\backgrounds\default</Filter>
     </Image>
-    <Image Include="game\assets\levels\menu\wall1.bmp">
-      <Filter>game\assets\levels\menu</Filter>
+    <Image Include="game\assets\backgrounds\default\wall1.bmp">
+      <Filter>game\assets\backgrounds\default</Filter>
     </Image>
     <Image Include="game\assets\player\ply_walk.bmp">
       <Filter>game\assets\player</Filter>
@@ -324,6 +330,33 @@
     <Image Include="game\assets\player\ply_high_kick.bmp">
       <Filter>game\assets\player</Filter>
     </Image>
+    <Image Include="game\assets\player\ply_jump_punch.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\player\ply_jump_kick.bmp">
+      <Filter>game\assets\player</Filter>
+    </Image>
+    <Image Include="game\assets\backgrounds\level2\wall2.bmp">
+      <Filter>game\assets\backgrounds\level2</Filter>
+    </Image>
+    <Image Include="game\assets\backgrounds\level2\road.bmp">
+      <Filter>game\assets\backgrounds\level2</Filter>
+    </Image>
+    <Image Include="game\assets\backgrounds\level2\sky.bmp">
+      <Filter>game\assets\backgrounds\level2</Filter>
+    </Image>
+    <Image Include="game\assets\backgrounds\level2\wall1.bmp">
+      <Filter>game\assets\backgrounds\level2</Filter>
+    </Image>
+    <Image Include="game\assets\backgrounds\level2\element1.bmp">
+      <Filter>game\assets\backgrounds\level2</Filter>
+    </Image>
+    <Image Include="game\assets\backgrounds\level2\element2.bmp">
+      <Filter>game\assets\backgrounds\level2</Filter>
+    </Image>
+    <Image Include="game\assets\backgrounds\level2\buildings.bmp">
+      <Filter>game\assets\backgrounds\level2</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -347,9 +380,6 @@
     <Filter Include="game\gameObjects">
       <UniqueIdentifier>{8d6ec7a8-77ff-4eab-8b8f-867d8f62a275}</UniqueIdentifier>
     </Filter>
-    <Filter Include="game\assets\levels">
-      <UniqueIdentifier>{146c1078-a0e9-431a-a7ab-a51b322ea257}</UniqueIdentifier>
-    </Filter>
     <Filter Include="game\assets\doyle">
       <UniqueIdentifier>{bc0491a2-f487-4958-b53d-b57d5a2a39bc}</UniqueIdentifier>
     </Filter>
@@ -359,14 +389,20 @@
     <Filter Include="game\scenes">
       <UniqueIdentifier>{27d3ff2a-3786-4112-b10c-af024d42a443}</UniqueIdentifier>
     </Filter>
-    <Filter Include="game\assets\levels\menu">
-      <UniqueIdentifier>{cc68c9d4-0ade-4006-8497-8a82bf77eee2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="game\assets\ui">
       <UniqueIdentifier>{ee6d2c7e-ebf2-4e4e-ab5c-5c1f9e217ca3}</UniqueIdentifier>
     </Filter>
     <Filter Include="game\data">
       <UniqueIdentifier>{c2029dd4-2d7d-4e23-a3d7-a28e8a9c03f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\assets\backgrounds">
+      <UniqueIdentifier>{146c1078-a0e9-431a-a7ab-a51b322ea257}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\assets\backgrounds\default">
+      <UniqueIdentifier>{cc68c9d4-0ade-4006-8497-8a82bf77eee2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="game\assets\backgrounds\level2">
+      <UniqueIdentifier>{2bb45f3d-9504-46bf-8838-ee72206c8a10}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -377,6 +413,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="game\data\settings.cfg">
+      <Filter>game\data</Filter>
+    </None>
+    <None Include="game\data\level_1.cfg">
+      <Filter>game\data</Filter>
+    </None>
+    <None Include="game\data\level_2.cfg">
       <Filter>game\data</Filter>
     </None>
   </ItemGroup>

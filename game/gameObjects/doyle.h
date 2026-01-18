@@ -13,7 +13,7 @@ private:
 	virtual int getAnimFromAct(int a_ActKey) const override;
 	virtual void computeInput() override;
 public:
-	Doyle(Managers* a_Managers, GameState* a_GameState, Actor* a_Target = nullptr, Transform a_Transform = Transform::zero());
+	Doyle(Managers* a_Managers, GameState* a_GameState, Actor* a_Target, Transform a_Transform, int& a_EnemyCount);
 	virtual ~Doyle();
 	void start() override;
 	void update(float a_Dt) override;

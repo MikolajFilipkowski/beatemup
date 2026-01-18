@@ -9,6 +9,11 @@ PlayerCamera::PlayerCamera(Managers* a_Managers, Player* a_Ply, Vector3 a_Pos) :
 
 PlayerCamera::~PlayerCamera(){}
 
+Uint8 PlayerCamera::getType() const
+{
+	return ObjectType::CAMERA;
+}
+
 void PlayerCamera::update(float a_Dt)
 {
 	assert(m_Player != nullptr && "Player is nullptr");

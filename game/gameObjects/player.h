@@ -28,6 +28,7 @@ public:
 	virtual Uint8 getType() const override;
 	
 	void drawActionName();
+	void drawPos();
 
 	InputBuffer& getIBuffer();
 

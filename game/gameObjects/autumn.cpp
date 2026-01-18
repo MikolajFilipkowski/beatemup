@@ -33,6 +33,14 @@ void Autumn::computeInput() {
 		m_AttackTimer -= m_Mgs->time->getFixedDt();
 		m_AttackTimer = (m_AttackTimer <= 0.0f) ? 0.0f : m_AttackTimer;
 	}
+	if (m_ChargeTimer > 0.0f) {
+		m_ChargeTimer -= m_Mgs->time->getFixedDt();
+		m_ChargeTimer = (m_ChargeTimer <= 0.0f) ? 0.0f : m_ChargeTimer;
+	}
+	if (m_DashTimer > 0.0f) {
+		m_DashTimer -= m_Mgs->time->getFixedDt();
+		m_DashTimer = (m_DashTimer <= 0.0f) ? 0.0f : m_DashTimer;
+	}
 
 	if (!m_Target || !m_Grounded) return;
 
@@ -50,16 +58,45 @@ void Autumn::computeInput() {
 	float diffZ = tPos.z - ePos.z;
 
 	if (getCurrAction()->canMove) {
-		if (fabsf(diffZ) > 5.0f) {
+		if (fabsf(diffZ) > 3.0f) {
 			m_InputVel.z += (diffZ > 0) ? ENEMY_SPEED * Z_AXIS_MUL : -ENEMY_SPEED * Z_AXIS_MUL;
 		}
 
-		if (fabsf(diffX) > 30.0f) {
-			m_InputVel.x += (diffX > 0) ? ENEMY_SPEED : -ENEMY_SPEED;
+		int fabsX = (int)fabsf(diffX);
+		bool reversed = false;
+
+		if ((m_ChargeTimer > 0.0f || m_DashTimer <= 0.0f) && fabsX >= 500.0f && fabsX < 900.0f) {
+			m_InputVel.x += (diffX > 0) ? ENEMY_SPEED * .6f : -ENEMY_SPEED * .6f;
+		}
+		else if (m_DashTimer <= 0.0f && fabsX > 100.0f && fabsX < 500.0f) {
+			startAction(Actions::DASH_FORWARD);
+			m_ChargeTimer = CHARGE_COOLDOWN;
+			m_DashTimer = DASH_COOLDOWN;
+			return;
+		}
+		else if (m_ChargeTimer > 0.0f && fabsX > 30.0f) {
+			m_InputVel.x += (diffX > 0) ? ENEMY_SPEED * 1.75f : -ENEMY_SPEED * 1.75f;
+		}
+		else if (m_ChargeTimer <= 0.0f && fabsX >= 500.0f) {
+			m_Transform.flip = (diffX > 0) ? NO_FLIP : H_FLIP;
+			m_InputVel.x = 0;
+		}
+		else if (m_ChargeTimer <= 0.0f && fabsX >= 450.0f && fabsX < 500.0f) {
+			m_InputVel.x += (diffX > 0) ? -ENEMY_SPEED * 2.0f : ENEMY_SPEED * 2.0f;
+			reversed = true;
+		}
+		else if (m_ChargeTimer <= 0.0f && fabsX < 500.0f) {
+			m_InputVel.x += (diffX > 0) ? -ENEMY_SPEED * 2.0f : ENEMY_SPEED * 2.0f;
+		}
+		else {
+			m_InputVel.x = 0;
 		}
 
 		if (m_InputVel.x != 0) {
-			m_Transform.flip = (m_InputVel.x > 0) ? NO_FLIP : H_FLIP;
+			if (!reversed)
+				m_Transform.flip = (m_InputVel.x > 0) ? NO_FLIP : H_FLIP;
+			else
+				m_Transform.flip = (m_InputVel.x < 0) ? NO_FLIP : H_FLIP;
 			isMoving = true;
 		}
 
@@ -85,8 +122,8 @@ void Autumn::computeInput() {
 
 
 
-Autumn::Autumn(Managers* a_Managers, GameState* a_GameState, Actor* a_Target, Transform a_Transform)
-	: Enemy(a_Managers, a_GameState, a_Target, a_Transform)
+Autumn::Autumn(Managers* a_Managers, GameState* a_GameState, Actor* a_Target, Transform a_Transform, int& a_EnemyCount)
+	: Enemy(a_Managers, a_GameState, a_Target, a_Transform, a_EnemyCount)
 {
 	if (s_Instances == 0) {
 		m_Mgs->sprite->load(AUTUMN_ASSETS "idle.bmp", getAnimFromAct(Actions::IDLE));
@@ -106,10 +143,12 @@ Autumn::Autumn(Managers* a_Managers, GameState* a_GameState, Actor* a_Target, Tr
 	m_AttackChances.put(Actions::WHEEL_PUNCH, WHEEL_ATT_CHANCE);
 
 	s_Instances++;
+	m_EnemyCount++;
 }
 
 Autumn::~Autumn() {
 	s_Instances--;
+	m_EnemyCount--;
 
 	if (s_Instances == 0) {
 		unloadAnims();

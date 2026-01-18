@@ -1,7 +1,7 @@
 #include "enemy.h"
 
-Enemy::Enemy(Managers* a_Managers, GameState* a_GameState, Actor* a_Target, Transform a_Transform)
-	: Actor(a_Managers, a_GameState, a_Transform), m_Target(a_Target) {}
+Enemy::Enemy(Managers* a_Managers, GameState* a_GameState, Actor* a_Target, Transform a_Transform, int& a_EnemyCount)
+	: Actor(a_Managers, a_GameState, a_Transform), m_Target(a_Target), m_EnemyCount(a_EnemyCount) {}
 
 Enemy::~Enemy() {}
 

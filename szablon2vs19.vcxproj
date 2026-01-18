@@ -35,6 +35,7 @@
     <ClCompile Include="game\gameObjects\autumn.cpp" />
     <ClCompile Include="game\gameObjects\doyle.cpp" />
     <ClCompile Include="game\gameObjects\enemy.cpp" />
+    <ClCompile Include="game\gameObjects\obstacle.cpp" />
     <ClCompile Include="game\game_loader.cpp" />
     <ClCompile Include="game\game.cpp" />
     <ClCompile Include="game\gameObjects\player.cpp" />
@@ -55,6 +56,13 @@
     <Image Include="game\assets\autumn\autumn_idle.bmp" />
     <Image Include="game\assets\autumn\autumn_jump.bmp" />
     <Image Include="game\assets\autumn\autumn_walk.bmp" />
+    <Image Include="game\assets\backgrounds\level2\buildings.bmp" />
+    <Image Include="game\assets\backgrounds\level2\element2.bmp" />
+    <Image Include="game\assets\backgrounds\level2\element1.bmp" />
+    <Image Include="game\assets\backgrounds\level2\road.bmp" />
+    <Image Include="game\assets\backgrounds\level2\sky.bmp" />
+    <Image Include="game\assets\backgrounds\level2\wall1.bmp" />
+    <Image Include="game\assets\backgrounds\level2\wall2.bmp" />
     <Image Include="game\assets\charsets\def_8.bmp" />
     <Image Include="game\assets\circle.bmp" />
     <Image Include="game\assets\doyle\doyle_attack1.bmp" />
@@ -68,14 +76,14 @@
     <Image Include="game\assets\doyle\doyle_walk.bmp" />
     <Image Include="game\assets\eti.bmp" />
     <Image Include="game\assets\charsets\ps2p_16.bmp" />
-    <Image Include="game\assets\levels\menu\boxes.bmp" />
-    <Image Include="game\assets\levels\menu\buildings.bmp" />
+    <Image Include="game\assets\backgrounds\default\element1.bmp" />
+    <Image Include="game\assets\backgrounds\default\buildings.bmp" />
     <Image Include="game\assets\menu_bg.bmp" />
-    <Image Include="game\assets\levels\menu\road.bmp" />
-    <Image Include="game\assets\levels\menu\sky.bmp" />
-    <Image Include="game\assets\levels\menu\wall1.bmp" />
-    <Image Include="game\assets\levels\menu\wall2.bmp" />
-    <Image Include="game\assets\levels\menu\wheels.bmp" />
+    <Image Include="game\assets\backgrounds\default\road.bmp" />
+    <Image Include="game\assets\backgrounds\default\sky.bmp" />
+    <Image Include="game\assets\backgrounds\default\wall1.bmp" />
+    <Image Include="game\assets\backgrounds\default\wall2.bmp" />
+    <Image Include="game\assets\backgrounds\default\element2.bmp" />
     <Image Include="game\assets\charsets\thf_32.bmp" />
     <Image Include="game\assets\charsets\yg_64.bmp" />
     <Image Include="game\assets\player\ply_attack1.bmp" />
@@ -86,6 +94,8 @@
     <Image Include="game\assets\player\ply_hurt.bmp" />
     <Image Include="game\assets\player\ply_idle.bmp" />
     <Image Include="game\assets\player\ply_jump.bmp" />
+    <Image Include="game\assets\player\ply_jump_kick.bmp" />
+    <Image Include="game\assets\player\ply_jump_punch.bmp" />
     <Image Include="game\assets\player\ply_walk.bmp" />
     <Image Include="game\assets\player\ply_attack2.bmp" />
     <Image Include="game\assets\punch_icon.bmp" />
@@ -121,6 +131,7 @@
     <ClInclude Include="game\gameObjects\autumn.h" />
     <ClInclude Include="game\gameObjects\doyle.h" />
     <ClInclude Include="game\gameObjects\enemy.h" />
+    <ClInclude Include="game\gameObjects\obstacle.h" />
     <ClInclude Include="game\game_loader.h" />
     <ClInclude Include="game\config.h" />
     <ClInclude Include="game\game.h" />
@@ -136,6 +147,8 @@
     <Text Include="game\data\actions.cfg" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="game\data\level_1.cfg" />
+    <None Include="game\data\level_2.cfg" />
     <None Include="game\data\settings.cfg" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

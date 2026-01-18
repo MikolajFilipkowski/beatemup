@@ -12,8 +12,7 @@ void SpriteManager::load(const char* a_FileName, int a_Key, bool a_IsCharset)
 	SDL_Surface* surface = SDL_LoadBMP(a_FileName);
 
 	if (surface == NULL) {
-		m_Mgs->engine->stop();
-		printf("SDL_LoadBMP(%s) error: %s\n", a_FileName, SDL_GetError());
+		m_Mgs->engine->throwError("SDL_LoadBMP(%s) error: %s\n", a_FileName, SDL_GetError());
 		return;
 	}
 
@@ -28,8 +27,7 @@ void SpriteManager::load(const char* a_FileName, int a_Key, bool a_IsCharset)
 	SDL_FreeSurface(surface);
 
 	if (texture == NULL) {
-		m_Mgs->engine->stop();
-		printf("SDL_CreateTextureFromSurface(%s) error: %s\n", a_FileName, SDL_GetError());
+		m_Mgs->engine->throwError("SDL_CreateTextureFromSurface(%s) error: %s\n", a_FileName, SDL_GetError());
 		return;
 	}
 

@@ -14,6 +14,7 @@ protected:
 	bool m_Focused{ false };
 	bool m_Focusable{ false };
 	int m_Id{ -1 };
+	bool m_ShouldFollow{ false };
 public:
 	UIElement(Managers* a_Managers, Vector2 a_Pos, FDims a_Size);
 	UIElement(const UIElement&) = delete;
@@ -28,17 +29,23 @@ public:
 
 	Vector2& getPosition() { return m_Pos; }
 	FDims& getSize() { return m_Size; }
-	void setPosition(Vector2 a_Pos) { m_Pos = a_Pos; }
+	void setPosition(Vector2 a_Pos);
 	void setSize(FDims a_Size) { this->m_Size = a_Size; }
 	bool isActive() const { return m_Active; }
 	void setActive(bool a_Active) { m_Active = a_Active; }
 	bool isFocused() const { return m_Focused; }
 	virtual void setFocused(bool a_Focused);
 
+	bool isFollowing() const { return m_ShouldFollow; }
+	void setFollow(bool a_Follow) { m_ShouldFollow = a_Follow; }
+
 	bool isFocusable() const { return m_Focusable; }
 	void setFocusable(bool a_Focusable) { m_Focusable = a_Focusable; }
 
 	bool isMouseOver(Vector2 a_MousePos);
+
+	virtual void onChangePos(Vector2 a_OldPos) {}
+	virtual void onParentChangedPos(Vector2 a_OldPos, Vector2 a_NewPos) {}
 };
 
 class UITextElement : public UIElement {
@@ -50,6 +57,7 @@ protected:
 	Font m_PlaceholderFont;
 public:
 	UITextElement(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Font a_Font, int a_MaxChars = 255);
+	virtual ~UITextElement();
 	void setText(const char* a_Text);
 	char* getText() const;
 	void setFont(Font a_Font);
@@ -64,6 +72,7 @@ public:
 	void leftPos(Vector2 a_ParentPos, FDims a_ParentSize);
 
 	virtual void draw() override;
+	virtual void onParentChangedPos(Vector2 a_OldPos, Vector2 a_NewPos) override;
 };
 
 class UIContainer : public UIElement {
@@ -74,7 +83,7 @@ public:
 	UIContainer(Managers* a_Managers, Vector2 a_Pos, FDims a_Size) 
 		: UIElement(a_Managers, a_Pos, a_Size) {}
 	virtual ~UIContainer();
-	void addElement(UIElement* a_Element);
+	virtual void addElement(UIElement* a_Element);
 	void setFocusedElement(int a_Idx);
 	int getFocusedElement() const;
 
@@ -94,6 +103,8 @@ public:
 
 	void detectHover(SDL_Event& a_Event);
 	virtual void onHoverEv(int a_ElIdx);
+
+	virtual void onChangePos(Vector2 a_OldPos) override;
 };
 
 class UIBackgroundContainer : public UIContainer {
@@ -154,6 +165,7 @@ protected:
 	UITextElement m_TextElement;
 public:
 	UITextInput(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Font a_Font, int a_MaxChars = 255, Vector2 a_Padding = {0,0});
+	virtual ~UITextInput() = default;
 	virtual void draw() override;
 	virtual void handleEvents(SDL_Event& a_Event) override;
 	void setPlaceholder(const char* a_Text, ColorRGBA a_Color);
@@ -184,4 +196,24 @@ public:
 	int getFill();
 	void setGhost(int a_Key);
 	int getGhost();
+};
+
+static constexpr float DEF_SCROLL_FACTOR = 20.0f;
+class UIScrollableContainer : public UISpriteContainer {
+	float m_ScrollFactor{ DEF_SCROLL_FACTOR };
+	float m_ScrollPos{ 0 };
+	Rect m_Viewport;
+	Vector2 m_Padding;
+
+	void calculateViewport();
+public:
+	UIScrollableContainer(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Vector2 a_Padding = { 0,0 });
+	virtual void draw() override;
+	virtual void onScrollEv(int a_Y) override;
+	virtual void addElement(UIElement* a_Element) override;
+
+	void setScrollFactor(float a_ScrollFactor);
+	float getScrollFactor() const;
+
+	const Rect& getViewport() const;
 };

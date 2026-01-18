@@ -4,16 +4,19 @@
 #include "../config.h"
 #include "../fonts.h"
 #include "../game_structs.h"
+#include "../game_loader.h"
 
 enum class MenuState {
 	NONE,
 	MAIN,
 	LEVEL_SEL,
+	SCORES,
 };
 
 class MenuScene : public GameScene {
 protected:
 	GameState* m_GameState;
+	GameLoader* m_GameLoader;
 	GameSettings& m_Settings;
 	UISpriteContainer* m_Menu{};
 	UITextInput* m_TextInput{};
@@ -22,7 +25,7 @@ protected:
 
 	void getElInfo(const Dims& a_LogDims, float& a_ElW, float& a_ElH, float& a_Dy);
 public:
-	MenuScene(Managers* a_Managers, GameState* a_GameState, GameSettings& a_Settings);
+	MenuScene(Managers* a_Managers, GameState* a_GameState, GameLoader* a_GameLoader, GameSettings& a_Settings);
 	virtual ~MenuScene() { destroy(); }
 	virtual void start() override;
 	virtual void update(float a_Dt) override;
@@ -35,11 +38,13 @@ public:
 	void setPlayerName();
 
 	void createMenuCont(const Dims& a_LogDims);
+	void createScrollCont(const Dims& a_LogDims, Highscore* a_Scores, int a_Count);
 
 	void loadBackgrounds();
 	void loadTitle(const Dims& a_LogDims);
 	void loadMainMenu(const Dims& a_LogDims);
 	void loadLevelSelector(const Dims& a_LogDims);
+	void loadScoreViewer(const Dims& a_LogDims);
 
 	void loadMainButtons(float a_ElW, float a_ElH, float a_Dy, const Dims& a_LogDims);
 	void loadLevelButtons(float a_ElW, float a_ElH, float a_Dy, const Dims& a_LogDims);

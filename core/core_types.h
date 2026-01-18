@@ -7,6 +7,8 @@ extern "C" {
 #include"./SDL2/include/SDL.h"
 }
 
+inline constexpr const char* ERR_LOG_PATH = "logs/error.log";
+
 inline constexpr SDL_Scancode FULLSCREEN_KEY = SDL_SCANCODE_F11;
 inline constexpr SDL_Scancode EXIT_KEY = SDL_SCANCODE_ESCAPE;
 inline constexpr SDL_Scancode DEBUG_KEY = SDL_SCANCODE_F3;
@@ -369,11 +371,18 @@ struct Font {
 	}
 };
 
+struct Bounds {
+	float minX{ 0 }, maxX{ 0 };
+	float minZ{ 0 }, maxZ{ 0 };
+	bool applyBounds{ false };
+};
+
 struct Rigidbody {
 	Vector3 vel{};
 	Vector3 prevPos{};
 	Vector3 currPos{};
 	float mass{ 1.0f };
+	Bounds bounds{};
 };
 
 enum class InputType : Uint8 {
@@ -478,6 +487,7 @@ public:
 	void addLayer(int a_SpriteKey, float a_ScrollFactor, float a_Width, float a_Height);
 	void drawBackground();
 	void drawLayer(BackgroundLayer& a_Layer, float a_CamX, Dims& a_LogDims);
+	void loadLayer(int a_SpriteKey, const char* a_BaseDir, const char* a_BackgroundDir, const char* a_FileName);
 };
 
 class GameObject {

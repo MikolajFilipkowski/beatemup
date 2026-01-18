@@ -45,6 +45,11 @@ void SceneManager::load(int a_Key, bool a_Instant)
 	if (a_Instant) changeScene();
 }
 
+Scene* SceneManager::get(int a_Key)
+{
+	return m_Scenes.get(a_Key);
+}
+
 Scene* SceneManager::getCurrentScene()
 {
 	return m_CurrentScene;

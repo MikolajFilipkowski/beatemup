@@ -15,7 +15,7 @@ inline constexpr float Z_AXIS_MUL = .6f;
 inline constexpr float IN_AIR_MUL = .9f;
 
 inline constexpr float CAMERA_LERP = .2f;
-inline constexpr float CAMERA_THR = .25f;
+inline constexpr float CAMERA_THR = .15f;
 
 inline constexpr float IC_SIZE = 50.0f;
 inline constexpr float IC_OFF_X = -64.0f;
@@ -34,7 +34,9 @@ inline constexpr int BUFFER_DECAY = 10;
 inline constexpr int LOW_PRIO = 20;
 inline constexpr int MIN_FRTIME_LOW_PRIO = 2;
 
+inline constexpr int SHORT_TEXT_MAXLEN = 64;
 inline constexpr int UINT8_MAXLEN = 4;
+inline constexpr int INT32_MAXLEN = 10;
 
 inline constexpr SDL_Scancode NEW_GAME_KEY = SDL_SCANCODE_N;
 
@@ -83,6 +85,8 @@ inline constexpr const char* NICE_TXT = "NICE!";
 inline constexpr const char* HITS_LIT = "Hits";
 inline constexpr float COMBO_XOFF = -12.0f;
 
+inline constexpr Uint8 WIN_FLAG = 1;
+
 enum class FacingDir {
 	LEFT,
 	RIGHT
@@ -98,9 +102,23 @@ namespace ObjectType {
 		ENEMY = (1U << 2) | ACTOR,
 		DOYLE = (1U << 3) | ENEMY,
 		AUTUMN = (1U << 4) | ENEMY,
+		CAMERA = (1U << 5),
 		ALL = 0xFFU
 	};
 };
+
+namespace EnemyType {
+	enum : Uint8 {
+		DOYLE = 1,
+		AUTUMN = 2,
+	};
+}
+
+namespace ObstacleType {
+	enum : Uint8 {
+		BARREL = 1,
+	};
+}
 
 namespace ActionCond {
 	enum : Uint8 {
@@ -124,16 +142,17 @@ namespace RES {
 		UI_SMALL_FRAME,
 		UI_BUTTON,
 		UI_TEXT_INPUT,
-		MENU_BOXES,
-		MENU_WHEELS,
-		MENU_BUILDINGS,
-		MENU_ROAD,
-		MENU_WALL1,
-		MENU_WALL2,
-		MENU_SKY,
+		BG_ELEMENT1,
+		BG_ELEMENT2,
+		BG_BUILDINGS,
+		BG_ROAD,
+		BG_WALL1,
+		BG_WALL2,
+		BG_SKY,
 		HB_FRAME,
 		HB_FILL,
 		HB_GHOST,
+		BARREL,
 
 		ANIMS_OFFSET,
 	};
@@ -149,6 +168,8 @@ namespace RES {
 		PLY_LIGHT_ATT,
 		PLY_WHEEL_PUNCH,
 		PLY_HIGH_KICK,
+		PLY_JUMP_KICK,
+		PLY_JUMP_PUNCH,
 		DOYLE_IDLE,
 		DOYLE_WALK,
 		DOYLE_HURT,
@@ -167,6 +188,8 @@ namespace RES {
 		AUTUMN_WHEEL_PUNCH,
 	};
 }
+
+
 
 namespace Colors {
 	inline constexpr ColorRGBA black = ColorRGBA::black();
@@ -224,6 +247,8 @@ namespace Actions {
 		HEAVY_ATTACK,
 		WHEEL_PUNCH,
 		HIGH_KICK,
+		JUMP_KICK,
+		JUMP_PUNCH
 	};
 }
 

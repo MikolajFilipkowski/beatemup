@@ -2,6 +2,13 @@
 
 #include "game_structs.h"
 
+int getObstacleSpriteKey(int a_ObstacleKey) {
+	switch (a_ObstacleKey) {
+	case ObstacleType::BARREL:
+		return RES::BARREL;
+	}
+}
+
 void GameState::addStatus(MulStatus a_Status)
 {
 	int i = 0;
@@ -42,31 +49,36 @@ void GameState::resetMul() {
 	m_CurrentStatus = nullptr;
 }
 
+const char* GameState::getPlayerName() const
+{
+	return m_PlayerName;
+}
+
 void GameState::setPlayerName(const char* a_PlayerName)
 {
 	strncpy(m_PlayerName, a_PlayerName, MAX_PLY_LEN);
 	m_PlayerName[MAX_PLY_LEN] = '\0';
 }
 
-void GameState::addHit(float dmg, bool isContinuous) {
-	if (!isContinuous)
+void GameState::addHit(float a_Dmg, bool a_IsContinuous) {
+	if (!a_IsContinuous)
 		m_Hits++;
 
 	m_ResetTimer = COMBO_DECAY;
 	float hits_mul = 1.0f + m_Hits * HITS_MUL;
 
 	for (auto& status : m_Statuses) {
-		if (status.threshold == m_Hits && !isContinuous)
+		if (status.threshold == m_Hits && !a_IsContinuous)
 			m_DisplayTimer = COMBO_DISPLAY_TIME;
 		if (status.threshold <= m_Hits) {
 			m_CurrentStatus = &status;
-			m_Score += (int)(dmg * BASE_SCORE_MUL * status.mul * hits_mul);
+			m_Score += (int)(a_Dmg * BASE_SCORE_MUL * status.mul * hits_mul);
 			return;
 		}
 	}
 
 	m_CurrentStatus = nullptr;
-	m_Score += (int)(dmg * BASE_SCORE_MUL);
+	m_Score += (int)(a_Dmg * BASE_SCORE_MUL);
 }
 
 float GameState::getDisplayTimer() const
@@ -79,7 +91,13 @@ int GameState::getScore() const
 	return m_Score;
 }
 
+void GameState::setScore(int a_Score)
+{
+	m_Score = a_Score;
+}
+
 const MulStatus* GameState::getCurrentStatus() const
 {
 	return m_CurrentStatus;
 }
+

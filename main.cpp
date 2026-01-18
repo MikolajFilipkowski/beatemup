@@ -12,7 +12,7 @@ extern "C"
 #endif
 int main(int argc, char **argv) {
 	Engine engine{};
-	GameLoader gameLoader{};
+	GameLoader gameLoader{engine.getMgs()};
 	GameSettings settings{};
 	Game game{ gameLoader, settings };
 

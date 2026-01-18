@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "ui.h"
 
 #include "core.h"
@@ -7,6 +9,12 @@
 
 UIElement::UIElement(Managers* m_Mgs, Vector2 a_Pos, FDims a_Size)
 	: m_Mgs(m_Mgs), m_Pos(a_Pos), m_Size(a_Size) {}
+
+void UIElement::setPosition(Vector2 a_Pos) { 
+	Vector2 oldPos = m_Pos;
+	m_Pos = a_Pos;
+	onChangePos(oldPos);
+}
 
 void UIElement::setFocused(bool a_Focused) {
 	if (m_Focusable)
@@ -26,9 +34,14 @@ UITextElement::UITextElement(Managers* m_Mgs, Vector2 a_Pos, FDims a_Size, Font 
 	memset(m_Buffer, 0, MAX_TEXTSIZE);
 }
 
+UITextElement::~UITextElement()
+{
+	delete[] m_PlaceholderText;
+}
+
 void UITextElement::setText(const char* a_Text)
 {
-	strcpy_s(m_Buffer, m_MaxCharCount, a_Text);
+	strncpy(m_Buffer, a_Text, m_MaxCharCount);
 	m_Buffer[m_MaxCharCount] = '\0';
 }
 
@@ -121,6 +134,14 @@ void UITextElement::draw()
 	}
 
 	m_Mgs->display->drawString(m_Pos, m_Buffer, m_Font, m_Size);
+}
+
+void UITextElement::onParentChangedPos(Vector2 a_OldPos, Vector2 a_NewPos)
+{
+	if (m_ShouldFollow) {
+		Vector2 change = a_NewPos - a_OldPos;
+		m_Pos += change;
+	}
 }
 
 UIContainer::~UIContainer()
@@ -286,6 +307,16 @@ void UIContainer::detectHover(SDL_Event& a_Event)
 void UIContainer::onHoverEv(int a_ElIdx) {
 	if (m_Array[a_ElIdx]->isFocusable()) {
 		setFocusedElement(a_ElIdx);
+	}
+}
+
+void UIContainer::onChangePos(Vector2 a_OldPos)
+{
+	int count = getElementCount();
+	if (count <= 0) return;
+
+	for (int i = 0; i < count; i++) {
+		m_Array[i]->onParentChangedPos(a_OldPos, m_Pos);
 	}
 }
 
@@ -523,7 +554,7 @@ void UITextInput::handleEvents(SDL_Event& a_Event)
 		if (first < 32) return;
 
 		if (charCount < maxCharCount) {
-			strcat_s(txt, (rsize_t)maxCharCount + 1, a_Event.text.text);
+			strncat(txt, a_Event.text.text, (size_t)maxCharCount + 1);
 		}
 	}
 }
@@ -538,6 +569,11 @@ void UITextInput::setFocused(bool a_Focused)
 	if (m_Focusable) {
 		m_Focused = a_Focused;
 		m_TextElement.setFocused(a_Focused);
+
+		if (m_Focused)
+			SDL_StartTextInput();
+		else
+			SDL_StopTextInput();
 	}
 }
 
@@ -654,4 +690,117 @@ void UIHealthbar::setGhost(int a_Key)
 int UIHealthbar::getGhost()
 {
 	return m_GhostKey;
+}
+
+void UIScrollableContainer::calculateViewport()
+{
+	if (getElementCount() == 0) {
+		m_Viewport = Rect();
+		return;
+	}
+
+	float minY = m_Array[0]->getPosition().y;
+	float maxY = minY + m_Array[0]->getSize().height;
+	float minElY, maxElY;
+
+	for (const auto& el : m_Array) {
+		if (el == nullptr) continue;
+
+		minElY = el->getPosition().y;
+		maxElY = minElY + el->getSize().height;
+		if (minElY < minY)
+			minY = minElY;
+		if (maxElY > maxY)
+			maxY = maxElY;
+	}
+
+	m_Viewport = { 
+		m_Pos.x, 
+		m_Pos.y,
+		m_Size.width, 
+		(maxY - minY) + m_Padding.y * 2.0f
+	};
+
+	if (m_Viewport.h <= 0 || m_Viewport.w <= 0)
+		m_Viewport = Rect();
+}
+
+UIScrollableContainer::UIScrollableContainer(Managers* a_Managers, Vector2 a_Pos, FDims a_Size, Vector2 a_Padding)
+	: UISpriteContainer(a_Managers, a_Pos, a_Size), m_Padding(a_Padding) {}
+
+void UIScrollableContainer::draw()
+{
+	if (!m_Active) return;
+
+	m_Mgs->display->drawFilledRect(m_Pos, m_Size, m_Background, m_Border, m_BorderSize);
+
+	if (m_SpriteKey != 0)
+		m_Mgs->display->drawSprite(m_SpriteKey, m_Pos, m_Size);
+
+	SDL_Rect clip = {
+		(int)(m_Pos.x + m_Padding.x),
+		(int)m_Pos.y, 
+		(int)(m_Size.width - 2 * m_Padding.x),
+		(int)m_Size.height
+	};
+
+	m_Mgs->display->setClip(&clip);
+
+	for (auto& el : m_Array) {
+		if (el == nullptr) continue;
+
+		Vector2 pos = el->getPosition();
+		FDims size = el->getSize();
+
+		Vector2 newPos = {
+			m_Pos.x + pos.x + m_Padding.x,
+			m_Pos.y + pos.y + m_Padding.y + m_ScrollPos
+		};
+
+		el->setPosition(newPos);
+
+		bool inter = m_Viewport.intersects({
+			newPos.x,
+			newPos.y,
+			size.width,
+			size.height
+		});
+
+		if (inter) 
+			el->draw();
+
+		el->setPosition(pos);
+	}
+
+	m_Mgs->display->setClip(NULL);
+}
+
+void UIScrollableContainer::onScrollEv(int a_Y)
+{
+	m_ScrollPos += a_Y * m_ScrollFactor;
+	float maxScroll = m_Viewport.h - m_Size.height;
+	maxScroll = (maxScroll > 0) ? maxScroll : 0.0f;
+
+	m_ScrollPos = clamp(m_ScrollPos, -maxScroll, 0.0f);
+}
+
+void UIScrollableContainer::addElement(UIElement* a_Element)
+{
+	m_Array.add(a_Element);
+	calculateViewport();
+}
+
+void UIScrollableContainer::setScrollFactor(float a_ScrollFactor)
+{
+	m_ScrollFactor = a_ScrollFactor;
+}
+
+float UIScrollableContainer::getScrollFactor() const
+{
+	return m_ScrollFactor;
+}
+
+const Rect& UIScrollableContainer::getViewport() const
+{
+	return m_Viewport;
 }

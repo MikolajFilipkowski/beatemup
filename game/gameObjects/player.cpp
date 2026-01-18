@@ -29,6 +29,10 @@ int Player::getAnimFromAct(int a_ActKey) const
 		return RES::PLY_WHEEL_PUNCH;
 	case Actions::HIGH_KICK:
 		return RES::PLY_HIGH_KICK;
+	case Actions::JUMP_KICK:
+		return RES::PLY_JUMP_KICK;
+	case Actions::JUMP_PUNCH:
+		return RES::PLY_JUMP_PUNCH;
 	default: 
 		return RES::NONE;
 	}
@@ -119,6 +123,8 @@ void Player::start()
 	m_Mgs->sprite->load(PLY_ASSETS "attack2.bmp", getAnimFromAct(Actions::HEAVY_ATTACK));
 	m_Mgs->sprite->load(PLY_ASSETS "attack3.bmp", getAnimFromAct(Actions::WHEEL_PUNCH));
 	m_Mgs->sprite->load(PLY_ASSETS "high_kick.bmp", getAnimFromAct(Actions::HIGH_KICK));
+	m_Mgs->sprite->load(PLY_ASSETS "jump_kick.bmp", getAnimFromAct(Actions::JUMP_KICK));
+	m_Mgs->sprite->load(PLY_ASSETS "jump_punch.bmp", getAnimFromAct(Actions::JUMP_PUNCH));
 
 	loadAnims();
 
@@ -176,6 +182,20 @@ void Player::drawActionName()
 	float posY = 50.0f;
 
 	m_Mgs->display->drawString({ posX, posY }, actName, DEBUG_ACT_FONT);
+}
+
+void Player::drawPos()
+{
+	char buff[MAX_TEXTSIZE];
+
+	Vector3& pos = m_Rb.currPos;
+	snprintf(buff, (size_t)(MAX_TEXTSIZE - 1), "XYZ: %.3f / %.3f / %.3f", pos.x, pos.y, pos.z);
+
+	float dy = INFO_FONT.chSize * INFO_FONT.scale;
+	float posX = 5.0f;
+	float posY = 5.0f + 2 * dy;
+
+	m_Mgs->display->drawString({ posX, posY }, buff, INFO_FONT);
 }
 
 InputBuffer& Player::getIBuffer() 

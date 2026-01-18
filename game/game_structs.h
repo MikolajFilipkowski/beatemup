@@ -3,6 +3,8 @@
 #include "../core/core.h"
 #include "config.h"
 
+int getObstacleSpriteKey(int a_ObstacleKey);
+
 struct GameSettings {
 	Uint32 windowWidth{ 0 };
 	Uint32 windowHeight{ 0 };
@@ -16,6 +18,46 @@ struct MulStatus {
 	Uint8 threshold;
 	const char* text;
 	float mul;
+};
+
+struct LoadedZone {
+	Vector2 beginning{};
+	Vector2 end{};
+	Uint8 flags{ 0U };
+};
+
+struct LoadedEnemy {
+	Uint8 type{ 0U };
+	Vector3 pos{};
+};
+
+struct LoadedObstacle {
+	Uint8 type{ 0U };
+	Vector3 pos{};
+	Vector3 dims{};
+	float mass{ 0.0f };
+};
+
+struct LoadedLevel {
+	int id{ 0 };
+	LoadedEnemy* enemies{};
+	Uint32 enemyCount{ 0 };
+	LoadedObstacle* obstacles{};
+	Uint32 obstacleCount{ 0 };
+	LoadedZone* zones{};
+	Uint32 zoneCount{ 0 };
+	float width{ 0.0f };
+	char* background{};
+
+	LoadedLevel() = default;
+	LoadedLevel(const LoadedLevel&) = delete;
+	LoadedLevel& operator=(const LoadedLevel&) = delete;
+	virtual ~LoadedLevel() {
+		delete[] enemies;
+		delete[] obstacles;
+		delete[] zones;
+		delete[] background;
+	}
 };
 
 class GameState {
@@ -34,11 +76,13 @@ public:
 	void tick(float a_FixedDt);
 	void reset();
 	void resetMul();
+	const char* getPlayerName() const;
 	void setPlayerName(const char* a_PlayerName);
 
-	void addHit(float dmg, bool isContinuous);
+	void addHit(float a_Dmg, bool a_IsContinuous);
 
 	float getDisplayTimer() const;
 	int getScore() const;
+	void setScore(int a_Score);
 	const MulStatus* getCurrentStatus() const;
 };

@@ -23,8 +23,6 @@ private:
 	~DisplayManager() override;
 	void destroy() override;
 
-	
-
 	void drawStringOutline(Vector2 a_Pos, const char* a_Text, const Font& a_Font, const Sprite*& a_Sprite, FDims a_MaxSize);
 	void drawOutline(const Vector2& a_Pos, const SDL_Rect& a_Src, SDL_FRect& a_Dest, const Outline& a_Outline, SDL_Texture* a_Texture);
 	bool checkStringBounds(const FDims& a_MaxSize, const Vector2& a_StartingPos, 
@@ -65,6 +63,7 @@ public:
 
 	void setDrawColor(ColorRGBA a_Color);
 	void setSpriteModColor(const Sprite* a_Sprite, const ColorRGBA& a_Color);
+	void setClip(SDL_Rect* clip);
 	void drawSprite(int a_SpriteKey, Vector2 a_Pos, FDims a_Dims = {0,0});
 	void drawClippedSprite(int a_SpriteKey, Vector2 a_Pos, FDims a_Dims, SDL_Rect a_Clip);
 	void drawSprite(int a_SpriteKey, Transform a_Transform);

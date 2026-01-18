@@ -10,6 +10,7 @@ char* copy_string(const char* a_Str);
 
 int clamp(int a_Val, int a_Min, int a_Max);
 float clamp(float a_Val, float a_Min, float a_Max);
+char* ltrim(char* a_Str);
 
 template <typename T>
 constexpr bool isStr() { return false; }
@@ -119,6 +120,10 @@ public:
 
 template<typename T>
 inline Array<T>::Array(int count) : m_ArrCount(count) {
+	if (count <= 0) {
+		m_Array = nullptr;
+		return;
+	}
 	m_Array = new T[m_ArrCount];
 }
 

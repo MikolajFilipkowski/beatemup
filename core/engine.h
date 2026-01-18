@@ -27,4 +27,6 @@ public:
 	void setDebugMode(bool a_DebugMode);
 
 	bool isRunning() const;
+
+	Managers* getMgs();
 };

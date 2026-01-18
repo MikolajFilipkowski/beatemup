@@ -56,6 +56,7 @@ Actor::Actor(Managers* a_Managers, GameState* a_GameState, Transform a_Transform
 	: GameObject(a_Managers, a_Transform), m_GameState(a_GameState)
 {
 	m_Id = rand();
+	m_Rb.bounds.applyBounds = true;
 }
 
 Actor::~Actor() {

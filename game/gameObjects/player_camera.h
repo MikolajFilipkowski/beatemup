@@ -11,6 +11,8 @@ public:
 	PlayerCamera(Managers* a_Managers, Player* a_Ply, Vector3 a_Pos = { 0, 0, 500.0f });
 	~PlayerCamera();
 
+	virtual Uint8 getType() const override;
+
 	void update(float a_Dt) override;
 	void fixedUpdate(float a_FixedDt) override;
 };

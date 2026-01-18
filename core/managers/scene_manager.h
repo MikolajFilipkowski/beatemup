@@ -23,6 +23,7 @@ private:
 public:
 	void add(int a_Key, Scene* a_Scene);
 	void load(int a_Key, bool a_Instant = false);
+	Scene* get(int a_Key);
 	Scene* getCurrentScene();
 	int getCurrentSceneIdx() const;
 

@@ -16,7 +16,6 @@ Game::Game(GameLoader& a_GameLoader, GameSettings& a_Settings)
 
 bool Game::onStart(Managers* a_Managers) {
 	m_Mgs = a_Managers;
-	m_GameLoader.init(m_Mgs);
 
 	srand((unsigned)time(0));
 
@@ -37,10 +36,10 @@ bool Game::onStart(Managers* a_Managers) {
 
 	m_Mgs->object->setGravity(GRAVITY);
 
-	LevelScene* level = new LevelScene(m_Mgs, &m_GameState);
+	LevelScene* level = new LevelScene(m_Mgs, &m_GameState, &m_GameLoader, m_Settings);
 	m_Mgs->scene->add(SceneID::LEVEL, level);
 
-	MenuScene* menu = new MenuScene(m_Mgs, &m_GameState, m_Settings);
+	MenuScene* menu = new MenuScene(m_Mgs, &m_GameState, &m_GameLoader, m_Settings);
 	m_Mgs->scene->add(SceneID::MENU, menu);
 	m_Mgs->scene->load(SceneID::MENU, true);
 
@@ -51,8 +50,16 @@ void Game::onUpdate(float a_Dt) {
 	m_Mgs->scene->update(a_Dt);
 	m_Mgs->ui->update(a_Dt);
 
-	if (m_Mgs->input->getKeyDown(NEW_GAME_KEY))
-		m_Mgs->scene->load(SceneID::LEVEL, false);
+	if (m_Mgs->input->getKeyDown(NEW_GAME_KEY)) {
+		auto lvlSc = (LevelScene*)m_Mgs->scene->get(SceneID::LEVEL);
+		if (m_Mgs->scene->getCurrentSceneIdx() == SceneID::LEVEL) {
+			lvlSc->changeLevel(1);
+		}
+		else {
+			if (lvlSc->loadFromFile(1));
+			m_Mgs->scene->load(SceneID::LEVEL, false);
+		}
+	}
 }
 
 void Game::onFixedUpdate(float a_FixedDt) {
@@ -65,7 +72,6 @@ void Game::onDraw() {
 
 	float wt = m_Mgs->time->getWorldTime();
 	float fps = m_Mgs->time->getFPS();
-	//size_t length = 0;
 
 	float log_w = (float)m_Mgs->display->getLogWidth();
 
@@ -79,7 +85,7 @@ void Game::onDraw() {
 	sprintf_s(buff, 31, "Czas gry: %.1f", wt);
 	m_Mgs->display->drawString({ 5,3 + dy }, buff, INFO_FONT);
 
-	const char* req = "Wymagania: 1234ABCDJ";
+	const char* req = "Wymagania: 1234ABCDEHIJ";
 	float req_size = strlen(req) * INFO_FONT.chSize * INFO_FONT.spacing * INFO_FONT.scale;
 	m_Mgs->display->drawString({ log_w - 5 - req_size,3 }, req, INFO_FONT);
 }

@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include "utils.h"
+#include <cctype>
 
 char* copy_string(const char* a_Str) {
 	if (a_Str == nullptr) return nullptr;
@@ -25,4 +26,9 @@ float clamp(float a_Val, float a_Min, float a_Max)
 	if (a_Val < a_Min) return a_Min;
 	if (a_Val > a_Max) return a_Max;
 	return a_Val;
+}
+
+char* ltrim(char* a_Str) {
+	while (isspace(*a_Str)) a_Str++;
+	return a_Str;
 }
