@@ -99,6 +99,9 @@
     <Image Include="game\assets\player\ply_walk.bmp" />
     <Image Include="game\assets\player\ply_attack2.bmp" />
     <Image Include="game\assets\punch_icon.bmp" />
+    <Image Include="icon.ico">
+      <DeploymentContent>true</DeploymentContent>
+    </Image>
     <Image Include="game\assets\shadow.bmp" />
     <Image Include="game\assets\ui\big_frame.bmp" />
     <Image Include="game\assets\ui\button.bmp" />
@@ -141,6 +144,7 @@
     <ClInclude Include="game\input_buffer.h" />
     <ClInclude Include="game\scenes\level_scene.h" />
     <ClInclude Include="game\scenes\menu_scene.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CREDITS.txt" />
@@ -150,6 +154,9 @@
     <None Include="game\data\level_1.cfg" />
     <None Include="game\data\level_2.cfg" />
     <None Include="game\data\settings.cfg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -182,7 +189,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -272,6 +279,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

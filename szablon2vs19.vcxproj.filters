@@ -172,6 +172,7 @@
     <ClInclude Include="game\gameObjects\obstacle.h">
       <Filter>game\gameObjects</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="game\assets\eti.bmp">
@@ -357,6 +358,7 @@
     <Image Include="game\assets\backgrounds\level2\buildings.bmp">
       <Filter>game\assets\backgrounds\level2</Filter>
     </Image>
+    <Image Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="core">
@@ -421,5 +423,8 @@
     <None Include="game\data\level_2.cfg">
       <Filter>game\data</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
   </ItemGroup>
 </Project>
