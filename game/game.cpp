@@ -56,8 +56,8 @@ void Game::onUpdate(float a_Dt) {
 			lvlSc->changeLevel(1);
 		}
 		else {
-			if (lvlSc->loadFromFile(1));
-			m_Mgs->scene->load(SceneID::LEVEL, false);
+			if (lvlSc->loadFromFile(1))
+				m_Mgs->scene->load(SceneID::LEVEL, false);
 		}
 	}
 }
@@ -75,19 +75,19 @@ void Game::onDraw() {
 
 	float log_w = (float)m_Mgs->display->getLogWidth();
 
-	char buff[32];
-	sprintf_s(buff, 31, "FPS: %.0f", fps);
+	char buff[SHORT_TEXT_MAXLEN];
+	snprintf(buff, SHORT_TEXT_MAXLEN, "FPS: %.0f", fps);
 
 	float dy = INFO_FONT.chSize * INFO_FONT.scale;
 
-	m_Mgs->display->drawString({ 5,3 }, buff, INFO_FONT);
+	m_Mgs->display->drawString({ INFO_POSX, INFO_POSY }, buff, INFO_FONT);
 
-	sprintf_s(buff, 31, "Czas gry: %.1f", wt);
-	m_Mgs->display->drawString({ 5,3 + dy }, buff, INFO_FONT);
+	snprintf(buff, SHORT_TEXT_MAXLEN, "Czas gry: %.1f", wt);
+	m_Mgs->display->drawString({ INFO_POSX, INFO_POSY + dy }, buff, INFO_FONT);
 
-	const char* req = "Wymagania: 1234ABCDEHIJ";
+	const char* req = "Wymagania: 1234ABCDEFGHIJ";
 	float req_size = strlen(req) * INFO_FONT.chSize * INFO_FONT.spacing * INFO_FONT.scale;
-	m_Mgs->display->drawString({ log_w - 5 - req_size,3 }, req, INFO_FONT);
+	m_Mgs->display->drawString({ log_w - INFO_POSX - req_size,INFO_POSY }, req, INFO_FONT);
 }
 
 void Game::onDestroy() {

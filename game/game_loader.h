@@ -80,6 +80,7 @@ private:
 public:
 	GameLoader(Managers* a_Managers);
 	bool loadGameSettings(const char* a_FilePath, GameSettings& a_Settings);
+	bool parseSettLine(GameSettings& a_Settings, char* a_Key, char* a_Val);
 	void loadActionData(const char* a_FilePath);
 	bool parseHeader(char* a_Line, FILE* a_File, ActionData* a_Act, 
 					int& a_Id, int& a_SeqLen, int& a_FrCount);

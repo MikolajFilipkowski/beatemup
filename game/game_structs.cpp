@@ -6,7 +6,10 @@ int getObstacleSpriteKey(int a_ObstacleKey) {
 	switch (a_ObstacleKey) {
 	case ObstacleType::BARREL:
 		return RES::BARREL;
+	default:
+		return RES::NONE;
 	}
+	
 }
 
 void GameState::addStatus(MulStatus a_Status)

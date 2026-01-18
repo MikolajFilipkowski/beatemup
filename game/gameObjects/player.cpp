@@ -47,9 +47,7 @@ void Player::computeInput()
 	// Zmiana stanu inputEntries z IN_USE na USED po animacji + delay
 	if (m_BufferDecay > 0) {
 		m_BufferDecay--;
-
-		if (m_BufferDecay <= 0)
-			m_IBuffer.flagUsed();
+		if (m_BufferDecay <= 0) m_IBuffer.flagUsed();
 	}
 
 	if (currAct->canMove) {
@@ -59,22 +57,18 @@ void Player::computeInput()
 			m_InputVel.x += currSpeed;
 		if (m_Mgs->input->getInput(InputBind::LEFT))
 			m_InputVel.x -= currSpeed;
-
 		if (m_Mgs->input->getInput(InputBind::UP))
 			m_InputVel.z -= currSpeed * Z_AXIS_MUL;
 		if (m_Mgs->input->getInput(InputBind::DOWN))
 			m_InputVel.z += currSpeed * Z_AXIS_MUL;
-
 		
 		if (m_InputVel.x != 0) {
 			m_Transform.flip = (m_InputVel.x > 0) ? NO_FLIP : H_FLIP;
 			isMoving = true;
 		}
-
 		if (m_InputVel.z != 0)
 			isMoving = true;
 	}
-	
 
 	if (!canInterrupt) return;
 	int buffActKey = m_IBuffer.getNextAct();
@@ -85,26 +79,18 @@ void Player::computeInput()
 		ActionData* buffAct = m_Mgs->object->getAction(buffActKey);
 		if (buffAct->priority > currAct->priority)
 			startAction(buffActKey);
-
 		return;
 	}
 
 	int walkPrio = m_Mgs->object->getAction(Actions::WALK)->priority;
 	if (currAct->priority > walkPrio) return;
 
-	if (isMoving) {
-		startAction(Actions::WALK);
-	}
-	else {
-		startAction(Actions::IDLE);
-	}
+	if (isMoving) startAction(Actions::WALK);
+	else startAction(Actions::IDLE);
 }
 
 Player::Player(Managers* a_Managers, GameState* a_GameState, Transform a_Transform)
-	: Actor(a_Managers, a_GameState, a_Transform), m_IBuffer(a_Managers, this) 
-{
-	
-}
+	: Actor(a_Managers, a_GameState, a_Transform), m_IBuffer(a_Managers, this) {}
 
 Player::~Player()
 {
@@ -159,9 +145,7 @@ void Player::hurt()
 void Player::die()
 {
 	if (m_Mgs->scene->getCurrentSceneIdx() == SceneID::LEVEL) {
-		//m_Mgs->scene->load(SceneID::MENU);
 		LevelScene* scene = (LevelScene*)m_Mgs->scene->getCurrentScene();
-		//scene->endModal(false);
 		scene->endModal(false);
 	}
 }

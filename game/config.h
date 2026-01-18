@@ -14,12 +14,23 @@ inline constexpr float MIN_SPEED = .5f;
 inline constexpr float Z_AXIS_MUL = .6f;
 inline constexpr float IN_AIR_MUL = .9f;
 
+inline constexpr float ACTOR_SCALE = 2.5f;
+inline constexpr float AUTUMN_SCALE_Y = 2.7f;
+
+inline constexpr float PLY_POS_X = 200.0f;
+inline constexpr float PLY_POS_Z = 350.0f;
+
+inline constexpr float CAM_POS_Z = 500.0f;
+
 inline constexpr float CAMERA_LERP = .2f;
 inline constexpr float CAMERA_THR = .15f;
 
 inline constexpr float IC_SIZE = 50.0f;
 inline constexpr float IC_OFF_X = -64.0f;
 inline constexpr float IC_OFF_Y = 0.0f;
+
+inline constexpr float INFO_POSX = 5.0f;
+inline constexpr float INFO_POSY = 3.0f;
 
 inline constexpr float MENU_BTN_H = 56.0f;
 inline constexpr float MENU_BTN_GAP = 8.0f;
@@ -86,6 +97,17 @@ inline constexpr const char* HITS_LIT = "Hits";
 inline constexpr float COMBO_XOFF = -12.0f;
 
 inline constexpr Uint8 WIN_FLAG = 1;
+
+inline constexpr const char* PLACEHOLDER_TEXT = "Pseudonim";
+inline constexpr ColorRGBA PLACEHOLDER_CLR = { 0x77, 0x77, 0x77, 0xFF };
+inline constexpr ColorRGBA SCROLL_AREA_CLR = { 0x33, 0x33, 0x33, 0x99 };
+
+inline constexpr float BG_DEF_W = 1280.0f;
+inline constexpr float BG_DEF_H = 720.0f;
+inline constexpr float BG_DEF_SPD = 1.0f;
+inline constexpr float BG_BLD_SPD = .2f;
+inline constexpr float BG_SKY_SPD = .1f;
+inline constexpr float BG_ROAD_W = 1280.0f;
 
 enum class FacingDir {
 	LEFT,

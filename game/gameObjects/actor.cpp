@@ -52,6 +52,50 @@ void Actor::unloadAnims()
 	}
 }
 
+bool Actor::handleActFinish(float a_FixedDt, ActionData* a_Data)
+{
+	float totalDur = a_Data->getTotalDuration();
+	if (m_ActTimer >= totalDur) {
+		if (m_CurrentActKey == Actions::DEATH) {
+			if (!m_IsDying) {
+				m_IsDying = true;
+				m_DeathTimer = DEATH_DURATION;
+				return false;
+			}
+			m_DeathTimer -= a_FixedDt;
+
+			if (m_DeathTimer <= 0)
+				die();
+
+			return false;
+		}
+
+		actionFinish();
+		if (a_Data->shouldLoop) {
+			m_ActTimer = fmodf(m_ActTimer, totalDur);
+		}
+		else {
+			startAction(1);
+			return false;
+		}
+	}
+	return true;
+}
+
+void Actor::calcFriction()
+{
+	// Tarcie / Opor
+	if (m_InputVel.x != 0.0f)
+		m_InputVel.x *= FRICTION;
+	if (m_InputVel.z != 0.0f)
+		m_InputVel.z *= FRICTION;
+
+	if (fabsf(m_InputVel.x) < MIN_SPEED)
+		m_InputVel.x = 0;
+	if (fabsf(m_InputVel.z) < MIN_SPEED)
+		m_InputVel.z = 0;
+}
+
 Actor::Actor(Managers* a_Managers, GameState* a_GameState, Transform a_Transform)
 	: GameObject(a_Managers, a_Transform), m_GameState(a_GameState)
 {
@@ -124,32 +168,8 @@ void Actor::fixedUpdate(float a_FixedDt)
 
 	m_ActTimer += a_FixedDt;
 
-	float totalDur = data->getTotalDuration();
-	if (m_ActTimer >= totalDur) {
-		if (m_CurrentActKey == Actions::DEATH) {
-			if (!m_IsDying) {
-				m_IsDying = true;
-				m_DeathTimer = DEATH_DURATION;
-				return;
-			}
-			m_DeathTimer -= a_FixedDt;
 
-			if (m_DeathTimer <= 0) 
-				die();
-
-			return;
-		}
-
-		actionFinish();
-		if (data->shouldLoop) {
-			m_ActTimer = fmodf(m_ActTimer, totalDur);
-		}
-		else {
-			startAction(1);
-			return;
-		}
-	}
-
+	if (!handleActFinish(a_FixedDt, data)) return;
 	auto frames = data->getFrames();
 
 	// Kalkulacja nr klatki
@@ -192,17 +212,8 @@ void Actor::applyPhysics(float a_FixedDt, ActionData* a_Data, ActionFrame& a_Cur
 	if (!m_Grounded) {
 		m_Rb.vel.y += gravity * a_FixedDt;
 	}
-
-	// Tarcie / Opor
-	if (m_InputVel.x != 0.0f) 
-		m_InputVel.x *= FRICTION;
-	if (m_InputVel.z != 0.0f) 
-		m_InputVel.z *= FRICTION;
+	calcFriction();
 	
-	if (fabsf(m_InputVel.x) < MIN_SPEED)
-		m_InputVel.x = 0;
-	if (fabsf(m_InputVel.z) < MIN_SPEED)
-		m_InputVel.z = 0;
 
 	// Zmiana pozycji na bazie predkosci
 	pos.x += m_Rb.vel.x * a_FixedDt;

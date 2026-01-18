@@ -15,6 +15,7 @@ private:
 	float m_ChargeTimer{ 0.0f };
 	inline static int s_Instances = 0;
 	virtual int getAnimFromAct(int a_ActKey) const override;
+	bool calcMovement(float& a_DiffX, float& a_DiffZ, bool& a_IsMoving);
 	virtual void computeInput() override;
 	
 public:

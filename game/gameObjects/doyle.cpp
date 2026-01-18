@@ -25,6 +25,10 @@ int Doyle::getAnimFromAct(int a_ActKey) const {
 		return RES::NONE;
 	}
 }
+static constexpr float DOYLE_ATT_Z_DIST = 5.0f;
+static constexpr float DOYLE_SIGHT_DIST = 800.0f;
+static constexpr float DOYLE_ZAXIS_MUL = .3f;
+static constexpr float DOYLE_ATT_X_DIST = 30.0f;
 
 void Doyle::computeInput() {
 	if (!m_Target || !m_Grounded) return;
@@ -44,19 +48,16 @@ void Doyle::computeInput() {
 	float fabsX = fabsf(diffX);
 
 	if (getCurrAction()->canMove) {
-		if (fabsf(diffZ) > 5.0f && fabsX < 800.0f) {
-			m_InputVel.z += (diffZ > 0) ? ENEMY_SPEED * 0.3f * Z_AXIS_MUL : -ENEMY_SPEED * 0.3f * Z_AXIS_MUL;
+		if (fabsf(diffZ) > DOYLE_ATT_Z_DIST && fabsX < DOYLE_SIGHT_DIST) {
+			m_InputVel.z += (diffZ > 0) ? ENEMY_SPEED * DOYLE_ZAXIS_MUL * Z_AXIS_MUL : -ENEMY_SPEED * DOYLE_ZAXIS_MUL * Z_AXIS_MUL;
 		}
-
-		if (fabsX > 30.0f && fabsX < 900.0f) {
+		if (fabsX > DOYLE_ATT_X_DIST && fabsX < DOYLE_SIGHT_DIST) {
 			m_InputVel.x += (diffX > 0) ? ENEMY_SPEED : -ENEMY_SPEED;
 		}
-
 		if (m_InputVel.x != 0) {
 			m_Transform.flip = (m_InputVel.x > 0) ? NO_FLIP : H_FLIP;
 			isMoving = true;
 		}
-
 		if (m_InputVel.z != 0)
 			isMoving = true;
 	}

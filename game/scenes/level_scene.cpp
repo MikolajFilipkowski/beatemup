@@ -100,16 +100,9 @@ LoadedZone* LevelScene::getWinZone() const
 	return nullptr;
 }
 
-LevelScene::LevelScene(Managers* a_Managers, GameState* a_GameState, GameLoader* a_GameLoader, GameSettings& a_Settings)
-	: GameScene(a_Managers), m_GameState(a_GameState), m_GameLoader(a_GameLoader), m_Settings(a_Settings)
-{
-}
 
-void LevelScene::start()
+void LevelScene::loadGraphics()
 {
-	if (m_LoadedLevel == nullptr) return;
-	m_Mgs->display->showCursor(false);
-
 	// Wczytywanie warstw tla
 	loadLayer(RES::BG_ELEMENT1, BG_ASSETS, m_LoadedLevel->background, "element1.bmp");
 	loadLayer(RES::BG_BUILDINGS, BG_ASSETS, m_LoadedLevel->background, "buildings.bmp");
@@ -124,35 +117,51 @@ void LevelScene::start()
 	m_Mgs->sprite->load(UI_ASSETS "hb_ghost.bmp", RES::HB_GHOST);
 	m_Mgs->sprite->load(OBS_ASSETS "barrel.bmp", RES::BARREL);
 
-	addLayer(RES::BG_SKY, 0.1f, 1280.0f, 720.0f);
-	addLayer(RES::BG_BUILDINGS, 0.2f, 1280.0f, 720.0f);
-	addLayer(RES::BG_WALL2, 1.0f, 1280.0f, 720.0f);
-	addLayer(RES::BG_WALL1, 1.0f, 1280.0f, 720.0f);
-	addLayer(RES::BG_ELEMENT1, 1.0f, 1280.0f, 720.0f);
-	addLayer(RES::BG_ELEMENT2, 1.0f, 1280.0f, 720.0f);
-	addLayer(RES::BG_ROAD, 1.0f, 2000.0f, 720.f);
+	addLayer(RES::BG_SKY, BG_SKY_SPD, BG_DEF_W, BG_DEF_H);
+	addLayer(RES::BG_BUILDINGS, BG_BLD_SPD, BG_DEF_W, BG_DEF_H);
+	addLayer(RES::BG_WALL2, BG_DEF_SPD, BG_DEF_W, BG_DEF_H);
+	addLayer(RES::BG_WALL1, BG_DEF_SPD, BG_DEF_W, BG_DEF_H);
+	addLayer(RES::BG_ELEMENT1, BG_DEF_SPD, BG_DEF_W, BG_DEF_H);
+	addLayer(RES::BG_ELEMENT2, BG_DEF_SPD, BG_DEF_W, BG_DEF_H);
+	addLayer(RES::BG_ROAD, BG_DEF_SPD, BG_ROAD_W, BG_DEF_H);
+}
+
+LevelScene::LevelScene(Managers* a_Managers, GameState* a_GameState, GameLoader* a_GameLoader, GameSettings& a_Settings)
+	: GameScene(a_Managers), m_GameState(a_GameState), m_GameLoader(a_GameLoader), m_Settings(a_Settings)
+{
+}
+
+static constexpr Vector2 HEALTHBAR_POS = { 5, 50 };
+static constexpr FDims HEALTHBAR_DIMS = { 300, 45 };
+static constexpr Vector2 HEALTHBAR_PADD = { 19, 0 };
+void LevelScene::start()
+{
+	if (m_LoadedLevel == nullptr) return;
+	m_Mgs->display->showCursor(false);
+
+	loadGraphics();
 	
 	Transform tr = {
-		{0,0,350},
+		{PLY_POS_X, 0, PLY_POS_Z},
 		0.0,
 		NO_FLIP,
-		{2.5f, 2.5f}
+		{ACTOR_SCALE, ACTOR_SCALE}
 	};
 
 	m_Player = new Player(m_Mgs, m_GameState, tr);
 
-	m_Camera = new PlayerCamera(m_Mgs, m_Player, { 0,0,500.0f });
+	m_Camera = new PlayerCamera(m_Mgs, m_Player, { 0, 0, CAM_POS_Z });
 	m_Mgs->display->setActiveCamera((Camera*)m_Camera);
 	m_EnemyCount = 0;
 
 	for (Uint32 i = 0; i < m_LoadedLevel->enemyCount; i++) {
 		auto enemy = m_LoadedLevel->enemies[i];
-		Transform enemyTr = { enemy.pos, 0.0, H_FLIP, {2.5f, 2.5f} };
+		Transform enemyTr = { enemy.pos, 0.0, H_FLIP, {ACTOR_SCALE, ACTOR_SCALE} };
 		if (enemy.type == EnemyType::DOYLE) {
 			new Doyle(m_Mgs, m_GameState, (Actor*)m_Player, enemyTr, m_EnemyCount);
 		}
 		else if (enemy.type == EnemyType::AUTUMN) {
-			enemyTr.scale.y = 2.7f;
+			enemyTr.scale.y = AUTUMN_SCALE_Y;
 			new Autumn(m_Mgs, m_GameState, (Actor*)m_Player, enemyTr, m_EnemyCount);
 		}
 	}
@@ -172,7 +181,7 @@ void LevelScene::start()
 
 	m_GameState->reset();
 
-	m_Healthbar = new UIHealthbar(m_Mgs, { 5, 50 }, { 300, 45}, {19, 0});
+	m_Healthbar = new UIHealthbar(m_Mgs, HEALTHBAR_POS, HEALTHBAR_DIMS, HEALTHBAR_PADD);
 	m_Healthbar->setMax(m_Player->getHP());
 	m_Healthbar->linkVals(&m_Player->getHP());
 	m_Healthbar->setSprite(RES::HB_FRAME);
@@ -180,6 +189,7 @@ void LevelScene::start()
 	m_Healthbar->setGhost(RES::HB_GHOST);
 	m_Mgs->ui->add((UIElement*)m_Healthbar);
 }
+
 
 void LevelScene::update(float a_Dt)
 {
@@ -270,6 +280,7 @@ void LevelScene::draw()
 static constexpr float COMBO_YPOS = .05f;
 static constexpr float COMBO_HITS_DY = .7f;
 static constexpr float COMBO_TXT_DY = .9f;
+static constexpr float COMBO_OFF_DY = 3.0f;
 
 void LevelScene::drawComboMul(float a_DiplayTimer)
 {
@@ -288,7 +299,7 @@ void LevelScene::drawComboMul(float a_DiplayTimer)
 
 	m_Mgs->display->drawString(
 		{
-			(logDims.width / 2.0f) - (txtW / 2.0f) + (COMBO_XOFF * 3.0f),
+			(logDims.width / 2.0f) - (txtW / 2.0f) + (COMBO_XOFF * COMBO_OFF_DY),
 			logDims.height * COMBO_YPOS
 		},
 		hits,
@@ -357,6 +368,10 @@ void LevelScene::changeLevel(int a_Id, bool a_PreserveScore)
 	m_PreserveScore = a_PreserveScore;
 }
 
+static constexpr float MODAL_X = .23f;
+static constexpr float MODAL_W = .54f;
+static constexpr float MODAL_Y = .18f;
+static constexpr float MODAL_H = .64f;
 void LevelScene::createModal()
 {
 	m_Paused = true;
@@ -365,8 +380,8 @@ void LevelScene::createModal()
 	const Dims& logDims = m_Mgs->display->getLogDims();
 	m_Modal = new UISpriteContainer(
 		m_Mgs,
-		{ logDims.width * .23f, logDims.height * .18f },
-		{ logDims.width * .54f, logDims.height * .64f }
+		{ logDims.width * MODAL_X, logDims.height * MODAL_Y },
+		{ logDims.width * MODAL_W, logDims.height * MODAL_H }
 	);
 	m_Modal->setSprite(RES::UI_BIG_FRAME);
 
@@ -451,7 +466,7 @@ void LevelScene::endModal(bool hasWon)
 	);
 	scoreTxt->setText(scoreBuff);
 
-	if (!hasWon || m_LoadedLevel->id < m_Settings.levels) {
+	if (!hasWon || m_LoadedLevel->id < (int)m_Settings.levels) {
 		UIButton* continueBtn = new UIButton(
 			m_Mgs,
 			{ elW, elH + dy },

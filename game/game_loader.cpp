@@ -63,7 +63,6 @@ bool GameLoader::loadGameSettings(const char* a_FilePath, GameSettings& a_Settin
 
 	while (fgets(line, sizeof(line), file)) {
 		if (shouldSkip(line)) continue;
-
 		char* key = strtok(line, "=");
 		char* val = strtok(NULL, "\n");
 
@@ -73,19 +72,7 @@ bool GameLoader::loadGameSettings(const char* a_FilePath, GameSettings& a_Settin
 			return false;
 		}
 
-		if (!strcmp(key, "window_width"))
-			a_Settings.windowWidth = strtoul(val, NULL, 10);
-		else if (!strcmp(key, "window_height"))
-			a_Settings.windowHeight = strtoul(val, NULL, 10);
-		else if (!strcmp(key, "fullscreen"))
-			a_Settings.fullscreen = !(strtoul(val, NULL, 10) == 0U);
-		else if (!strcmp(key, "borderless"))
-			a_Settings.borderless = !(strtoul(val, NULL, 10) == 0U);
-		else if (!strcmp(key, "resizable"))
-			a_Settings.resizable = !(strtoul(val, NULL, 10) == 0U);
-		else if (!strcmp(key, "levels"))
-			a_Settings.levels = strtoul(val, NULL, 10);
-		else {
+		if (!parseSettLine(a_Settings, key, val)){
 			m_Mgs->engine->throwError(SETT_KEY_ERR, a_FilePath, lineCounter);
 			fclose(file);
 			return false;
@@ -108,6 +95,25 @@ bool GameLoader::loadGameSettings(const char* a_FilePath, GameSettings& a_Settin
 		m_Mgs->engine->throwError(FILE_NF_ERR, line);
 		return false;
 	}
+	return true;
+}
+
+bool GameLoader::parseSettLine(GameSettings& a_Settings, char* a_Key, char* a_Val)
+{
+	if (!strcmp(a_Key, "window_width"))
+		a_Settings.windowWidth = strtoul(a_Val, NULL, 10);
+	else if (!strcmp(a_Key, "window_height"))
+		a_Settings.windowHeight = strtoul(a_Val, NULL, 10);
+	else if (!strcmp(a_Key, "fullscreen"))
+		a_Settings.fullscreen = !(strtoul(a_Val, NULL, 10) == 0U);
+	else if (!strcmp(a_Key, "borderless"))
+		a_Settings.borderless = !(strtoul(a_Val, NULL, 10) == 0U);
+	else if (!strcmp(a_Key, "resizable"))
+		a_Settings.resizable = !(strtoul(a_Val, NULL, 10) == 0U);
+	else if (!strcmp(a_Key, "levels"))
+		a_Settings.levels = strtoul(a_Val, NULL, 10);
+	else
+		return false;
 	return true;
 }
 
@@ -254,8 +260,8 @@ void GameLoader::saveScore(GameState* a_State)
 	if (strcmp(name, "") == 0)
 		name = "Anonym";
 
-	strncpy(hs.name, name, MAX_PLY_LEN);
-	hs.name[MAX_PLY_LEN] = '\0';
+	strncpy(hs.name, name, (size_t)MAX_PLY_LEN - 1);
+	hs.name[MAX_PLY_LEN - 1] = '\0';
 
 	FILE* file = fopen(SCORES_PATH, "ab");
 	if (!file) {
@@ -307,7 +313,7 @@ bool GameLoader::loadLevel(int a_Id, LoadedLevel& a_Level)
 	char buff[MAX_LINE_LEN]{};
 	bool preambuleLoaded = false;
 
-	snprintf(buff, (size_t)MAX_LINE_LEN - 1, LEVEL_PATH, a_Id);
+	snprintf(buff, MAX_LINE_LEN, LEVEL_PATH, a_Id);
 	char fpath[MAX_LINE_LEN];
 	strncpy(fpath, buff, MAX_LINE_LEN);
 
@@ -323,7 +329,7 @@ bool GameLoader::loadLevel(int a_Id, LoadedLevel& a_Level)
 	Uint32 zonesC = 0;
 	bool success = true;
 
-	while (fgets(buff, MAX_LINE_LEN - 1, file)) {
+	while (fgets(buff, MAX_LINE_LEN, file)) {
 		if (shouldSkip(buff)) continue;
 
 		if (strstr(buff, "[INFO]")) {
@@ -395,7 +401,7 @@ bool GameLoader::parseLvlPreambule(FILE* a_File, LoadedLevel& a_Level, char* a_B
 	char *key, *value;
 	Uint8 mask = 0;
 
-	while (mask != LvlMask::INFO_ALL && fgets(a_Buffer, MAX_LINE_LEN - 1, a_File)) {
+	while (mask != LvlMask::INFO_ALL && fgets(a_Buffer, MAX_LINE_LEN, a_File)) {
 		if (shouldSkip(a_Buffer)) continue;
 		key = strtok(a_Buffer, "=");
 		value = strtok(NULL, "\n");
@@ -440,7 +446,7 @@ bool GameLoader::parseLvlEnemy(FILE* a_File, LoadedLevel& a_Level, Uint32& a_Loa
 	int type;
 	Vector3 pos;
 
-	while (mask != LvlMask::ENEMY_ALL && fgets(a_Buffer, MAX_LINE_LEN - 1, a_File)) {
+	while (mask != LvlMask::ENEMY_ALL && fgets(a_Buffer, MAX_LINE_LEN, a_File)) {
 		if (shouldSkip(a_Buffer)) continue;
 		key = strtok(a_Buffer, "=");
 		value = strtok(NULL, "\n");
@@ -479,7 +485,7 @@ bool GameLoader::parseLvlObstacle(FILE* a_File, LoadedLevel& a_Level, Uint32& a_
 	float mass = 0.0f;
 	Vector3 pos, dims;
 
-	while (mask != LvlMask::OBSTACLE_ALL && fgets(a_Buffer, MAX_LINE_LEN - 1, a_File)) {
+	while (mask != LvlMask::OBSTACLE_ALL && fgets(a_Buffer, MAX_LINE_LEN, a_File)) {
 		if (shouldSkip(a_Buffer)) continue;
 		key = strtok(a_Buffer, "=");
 		value = strtok(NULL, "\n");
@@ -527,7 +533,7 @@ bool GameLoader::parseLvlZone(FILE* a_File, LoadedLevel& a_Level, Uint32& a_Load
 	Vector2 beginning, end;
 	Uint8 flags, mask = 0;
 
-	while (mask != LvlMask::ZONE_ALL && fgets(a_Buffer, MAX_LINE_LEN - 1, a_File)) {
+	while (mask != LvlMask::ZONE_ALL && fgets(a_Buffer, MAX_LINE_LEN, a_File)) {
 		if (shouldSkip(a_Buffer)) continue;
 		key = strtok(a_Buffer, "=");
 		value = strtok(NULL, "\n");

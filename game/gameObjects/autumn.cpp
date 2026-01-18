@@ -27,20 +27,72 @@ int Autumn::getAnimFromAct(int a_ActKey) const {
 		return RES::NONE;
 	}
 }
+static constexpr float AUTUMN_ATT_Z_DIST = 3.0f;
+static constexpr float AUTUMN_SIGHT_DIST = 900.0f;
+static constexpr float AUTUMN_SPD_MUL = .6f;
+static constexpr float AUTUMN_CHARGE_MUL = 1.75f;
+static constexpr float AUTUMN_RUN_MUL = 2.0f;
+static constexpr float AUTUMN_ATT_X_DIST = 30.0f;
+static constexpr float AUTUMN_SCARED_DIST = 450.0f;
+static constexpr float AUTUMN_CHARGE_DIST = 500.0f;
+
+bool Autumn::calcMovement(float& a_DiffX, float& a_DiffZ, bool& a_IsMoving)
+{
+	if (fabsf(a_DiffZ) > AUTUMN_ATT_Z_DIST) {
+		m_InputVel.z += (a_DiffZ > 0) ? ENEMY_SPEED * Z_AXIS_MUL : -ENEMY_SPEED * Z_AXIS_MUL;
+	}
+
+	int fabsX = (int)fabsf(a_DiffX);
+	bool reversed = false;
+
+	if ((m_ChargeTimer > 0.0f || m_DashTimer <= 0.0f) && fabsX >= AUTUMN_CHARGE_DIST && fabsX < AUTUMN_SIGHT_DIST) {
+		m_InputVel.x += (a_DiffX > 0) ? ENEMY_SPEED * AUTUMN_SPD_MUL : -ENEMY_SPEED * AUTUMN_SPD_MUL;
+	}
+	else if (m_DashTimer <= 0.0f && fabsX > 100.0f && fabsX < AUTUMN_CHARGE_DIST) {
+		startAction(Actions::DASH_FORWARD);
+		m_ChargeTimer = CHARGE_COOLDOWN;
+		m_DashTimer = DASH_COOLDOWN;
+		return false;
+	}
+	else if (m_ChargeTimer > 0.0f && fabsX > AUTUMN_ATT_X_DIST) {
+		m_InputVel.x += (a_DiffX > 0) ? ENEMY_SPEED * AUTUMN_CHARGE_MUL : -ENEMY_SPEED * AUTUMN_CHARGE_MUL;
+	}
+	else if (m_ChargeTimer <= 0.0f && fabsX >= AUTUMN_CHARGE_DIST) {
+		m_Transform.flip = (a_DiffX > 0) ? NO_FLIP : H_FLIP;
+		m_InputVel.x = 0;
+	}
+	else if (m_ChargeTimer <= 0.0f && fabsX >= AUTUMN_SCARED_DIST && fabsX < AUTUMN_CHARGE_DIST) {
+		m_InputVel.x += (a_DiffX > 0) ? -ENEMY_SPEED * AUTUMN_RUN_MUL : ENEMY_SPEED * AUTUMN_RUN_MUL;
+		reversed = true;
+	}
+	else if (m_ChargeTimer <= 0.0f && fabsX < AUTUMN_CHARGE_DIST) {
+		m_InputVel.x += (a_DiffX > 0) ? -ENEMY_SPEED * AUTUMN_RUN_MUL : ENEMY_SPEED * AUTUMN_RUN_MUL;
+	}
+	else {
+		m_InputVel.x = 0;
+	}
+
+	if (m_InputVel.x != 0) {
+		if (!reversed)
+			m_Transform.flip = (m_InputVel.x > 0) ? NO_FLIP : H_FLIP;
+		else
+			m_Transform.flip = (m_InputVel.x < 0) ? NO_FLIP : H_FLIP;
+		a_IsMoving = true;
+	}
+
+	if (m_InputVel.z != 0)
+		a_IsMoving = true;
+
+	return true;
+}
 
 void Autumn::computeInput() {
-	if (m_AttackTimer > 0.0f) {
-		m_AttackTimer -= m_Mgs->time->getFixedDt();
-		m_AttackTimer = (m_AttackTimer <= 0.0f) ? 0.0f : m_AttackTimer;
-	}
-	if (m_ChargeTimer > 0.0f) {
-		m_ChargeTimer -= m_Mgs->time->getFixedDt();
-		m_ChargeTimer = (m_ChargeTimer <= 0.0f) ? 0.0f : m_ChargeTimer;
-	}
-	if (m_DashTimer > 0.0f) {
-		m_DashTimer -= m_Mgs->time->getFixedDt();
-		m_DashTimer = (m_DashTimer <= 0.0f) ? 0.0f : m_DashTimer;
-	}
+	m_AttackTimer -= m_Mgs->time->getFixedDt();
+	m_AttackTimer = (m_AttackTimer <= 0.0f) ? 0.0f : m_AttackTimer;
+	m_ChargeTimer -= m_Mgs->time->getFixedDt();
+	m_ChargeTimer = (m_ChargeTimer <= 0.0f) ? 0.0f : m_ChargeTimer;
+	m_DashTimer -= m_Mgs->time->getFixedDt();
+	m_DashTimer = (m_DashTimer <= 0.0f) ? 0.0f : m_DashTimer;
 
 	if (!m_Target || !m_Grounded) return;
 
@@ -58,50 +110,8 @@ void Autumn::computeInput() {
 	float diffZ = tPos.z - ePos.z;
 
 	if (getCurrAction()->canMove) {
-		if (fabsf(diffZ) > 3.0f) {
-			m_InputVel.z += (diffZ > 0) ? ENEMY_SPEED * Z_AXIS_MUL : -ENEMY_SPEED * Z_AXIS_MUL;
-		}
-
-		int fabsX = (int)fabsf(diffX);
-		bool reversed = false;
-
-		if ((m_ChargeTimer > 0.0f || m_DashTimer <= 0.0f) && fabsX >= 500.0f && fabsX < 900.0f) {
-			m_InputVel.x += (diffX > 0) ? ENEMY_SPEED * .6f : -ENEMY_SPEED * .6f;
-		}
-		else if (m_DashTimer <= 0.0f && fabsX > 100.0f && fabsX < 500.0f) {
-			startAction(Actions::DASH_FORWARD);
-			m_ChargeTimer = CHARGE_COOLDOWN;
-			m_DashTimer = DASH_COOLDOWN;
-			return;
-		}
-		else if (m_ChargeTimer > 0.0f && fabsX > 30.0f) {
-			m_InputVel.x += (diffX > 0) ? ENEMY_SPEED * 1.75f : -ENEMY_SPEED * 1.75f;
-		}
-		else if (m_ChargeTimer <= 0.0f && fabsX >= 500.0f) {
-			m_Transform.flip = (diffX > 0) ? NO_FLIP : H_FLIP;
-			m_InputVel.x = 0;
-		}
-		else if (m_ChargeTimer <= 0.0f && fabsX >= 450.0f && fabsX < 500.0f) {
-			m_InputVel.x += (diffX > 0) ? -ENEMY_SPEED * 2.0f : ENEMY_SPEED * 2.0f;
-			reversed = true;
-		}
-		else if (m_ChargeTimer <= 0.0f && fabsX < 500.0f) {
-			m_InputVel.x += (diffX > 0) ? -ENEMY_SPEED * 2.0f : ENEMY_SPEED * 2.0f;
-		}
-		else {
-			m_InputVel.x = 0;
-		}
-
-		if (m_InputVel.x != 0) {
-			if (!reversed)
-				m_Transform.flip = (m_InputVel.x > 0) ? NO_FLIP : H_FLIP;
-			else
-				m_Transform.flip = (m_InputVel.x < 0) ? NO_FLIP : H_FLIP;
-			isMoving = true;
-		}
-
-		if (m_InputVel.z != 0)
-			isMoving = true;
+		bool computeFurther = calcMovement(diffX, diffZ, isMoving);
+		if (!computeFurther) return;
 	}
 
 	if (!canInterrupt) return;

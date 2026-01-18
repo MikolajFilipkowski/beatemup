@@ -33,6 +33,8 @@ protected:
 	int getActiveAnim();
 	void loadAnims();
 	void unloadAnims();
+	bool handleActFinish(float a_FixedDt, ActionData* a_Data);
+	void calcFriction();
 public:
 	Actor(Managers* a_Managers, GameState* a_GameState, Transform a_Transform = Transform::zero());
 	virtual ~Actor();

@@ -32,6 +32,9 @@ private:
 	void reinitializeScene();
 	LoadedZone* getZone(float a_PosX) const;
 	LoadedZone* getWinZone() const;
+	void loadGraphics();
+	void endModalButtons(bool a_HasWon, float a_ElW, float a_ElH, float a_Dy, const Dims& a_LogDims);
+	void gameOverModalButtons(float a_ElW, float a_ElH, float a_Dy, const Dims& a_LogDims);
 public:
 	LevelScene(Managers* a_Managers, GameState* a_GameState, GameLoader* a_GameLoader, GameSettings& a_Settings);
 	void start() override;

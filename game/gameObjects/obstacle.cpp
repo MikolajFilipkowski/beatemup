@@ -11,11 +11,6 @@ Obstacle::~Obstacle()
 {
 }
 
-void Obstacle::start()
-{
-
-}
-
 Cuboid Obstacle::getCollBox()
 {
 	return {

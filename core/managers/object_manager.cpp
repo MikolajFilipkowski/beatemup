@@ -27,6 +27,54 @@ void ObjectManager::startIfNeeded(GameObject*& a_Object)
 	}
 }
 
+void ObjectManager::checkCollisions(int a_I, GameObject*& a_Obj1, Rigidbody& a_Rb1, Cuboid& a_Coll1)
+{
+	for (int j = a_I + 1; j < m_ObjectArray.count(); j++) {
+		GameObject*& obj2 = m_ObjectArray[j];
+		Rigidbody& rb2 = obj2->getRb();
+
+		if (obj2 == a_Obj1 || obj2->getRemovalFlag())
+			continue;
+		Cuboid coll2 = obj2->getCollBox();
+
+		Vector3 ov = a_Coll1.overlap(coll2);
+		if (ov.x == 0 || ov.y == 0 || ov.z == 0)
+			continue;
+
+		float weight1, weight2;
+		if (a_Rb1.mass <= 0 && rb2.mass <= 0)
+			continue;
+		else if (a_Rb1.mass <= 0) {
+			weight1 = 0.0f;
+			weight2 = 1.0f;
+		}
+		else if (rb2.mass <= 0) {
+			weight2 = 0.0f;
+			weight1 = 1.0f;
+		}
+		else {
+			float totalMass = a_Rb1.mass + rb2.mass;
+			if (totalMass <= 0) continue;
+			weight1 = rb2.mass / totalMass;
+			weight2 = a_Rb1.mass / totalMass;
+		}
+
+		float dir;
+		if (ov.x < ov.z) {
+			dir = (a_Coll1.x > coll2.x) ? 1.0f : -1.0f;
+			a_Rb1.currPos.x += ov.x * dir * weight1;
+			rb2.currPos.x -= ov.x * dir * weight2;
+		}
+		else {
+			dir = (a_Coll1.z > coll2.z) ? 1.0f : -1.0f;
+			a_Rb1.currPos.z += ov.z * dir * weight1;
+			rb2.currPos.z -= ov.z * dir * weight2;
+		}
+
+		a_Coll1 = a_Obj1->getCollBox();
+	}
+}
+
 void ObjectManager::add(GameObject* a_Object)
 {
 	m_ObjectArray.add(a_Object);
@@ -151,51 +199,6 @@ void ObjectManager::updatePhysics()
 		if (coll1.h == 0 || coll1.w == 0 || coll1.d == 0)
 			continue;
 		
-		for (int j = i + 1; j < m_ObjectArray.count(); j++) {
-			GameObject*& obj2 = m_ObjectArray[j];
-			Rigidbody& rb2 = obj2->getRb();
-
-			if (obj2 == obj1 || obj2->getRemovalFlag()) 
-				continue;
-			Cuboid coll2 = obj2->getCollBox();
-
-			Vector3 ov = coll1.overlap(coll2);
-			if (ov.x == 0 || ov.y == 0 || ov.z == 0)
-				continue;
-
-			
-			float weight1, weight2;
-			if (rb1.mass <= 0 && rb2.mass <= 0) 
-				continue;
-			else if (rb1.mass <= 0) {
-				weight1 = 0.0f;
-				weight2 = 1.0f;
-			}
-			else if (rb2.mass <= 0) {
-				weight2 = 0.0f;
-				weight1 = 1.0f;
-			}
-			else {
-				float totalMass = rb1.mass + rb2.mass;
-				if (totalMass <= 0) continue;
-				weight1 = rb2.mass / totalMass;
-				weight2 = rb1.mass / totalMass;
-			}
-				
-
-			float dir;
-			if (ov.x < ov.z) {
-				dir = (coll1.x > coll2.x) ? 1.0f : -1.0f;
-				rb1.currPos.x += ov.x * dir * weight1;
-				rb2.currPos.x -= ov.x * dir * weight2;
-			}
-			else {
-				dir = (coll1.z > coll2.z) ? 1.0f : -1.0f;
-				rb1.currPos.z += ov.z * dir * weight1;
-				rb2.currPos.z -= ov.z * dir * weight2;
-			}
-
-			coll1 = obj1->getCollBox();
-		}
+		checkCollisions(i, obj1, rb1, coll1);
 	}
 }

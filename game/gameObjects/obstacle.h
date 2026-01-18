@@ -10,7 +10,6 @@ protected:
 public:
 	Obstacle(Managers* a_Managers, Transform a_Transform, Vector3 a_Dims, int a_SpriteKey, float a_Mass);
 	virtual ~Obstacle() override;
-	virtual void start() override;
 
 	virtual Cuboid getCollBox() override;
 };

@@ -22,6 +22,13 @@ static void onScoreViewer(SDL_Event& ev, UIButton* button, Managers* m_Mgs) {
 	}
 };
 
+static void onBack(SDL_Event& ev, UIButton* button, Managers* m_Mgs) {
+	if (m_Mgs->scene->getCurrentSceneIdx() == SceneID::MENU) {
+		MenuScene* scene = (MenuScene*)m_Mgs->scene->getCurrentScene();
+		scene->setNextState(MenuState::MAIN);
+	}
+};
+
 static void onQuit(SDL_Event& ev, UIButton* button, Managers* m_Mgs) {
 	m_Mgs->engine->stop();
 };
@@ -59,6 +66,7 @@ void MenuScene::start()
 	m_Mgs->display->setActiveCamera(m_Cam);
 }
 
+static constexpr float MENU_CAM_SCROLL_SPD = 60.0f;
 void MenuScene::update(float a_Dt)
 {
 	if (m_TextInput == nullptr && m_Mgs->input->getKeyDown(SDL_SCANCODE_Q)) {
@@ -71,7 +79,7 @@ void MenuScene::update(float a_Dt)
 
 	if (m_Cam == nullptr) return;
 	Vector3 pos = m_Cam->getPosition();
-	m_Cam->setPosition({pos.x + 60.0f * a_Dt, pos.y, pos.z});
+	m_Cam->setPosition({pos.x + MENU_CAM_SCROLL_SPD * a_Dt, pos.y, pos.z});
 }
 
 void MenuScene::fixedUpdate(float a_FixedDt)
@@ -132,21 +140,31 @@ void MenuScene::setPlayerName()
 	m_GameState->setPlayerName(m_TextInput->getContent());
 }
 
+static constexpr float MENU_RECT_X = .23f;
+static constexpr float MENU_RECT_W = 1.0f - 2 * MENU_RECT_X;
+static constexpr float MENU_RECT_Y = .18f;
+static constexpr float MENU_RECT_H = 1.0f - 2 * MENU_RECT_Y;
 void MenuScene::createMenuCont(const Dims& a_LogDims)
 {
 	m_Menu = new UISpriteContainer(
 		m_Mgs,
-		{ a_LogDims.width * .23f, a_LogDims.height * .18f },
-		{ a_LogDims.width * .54f, a_LogDims.height * .64f }
+		{ a_LogDims.width * MENU_RECT_X, a_LogDims.height * MENU_RECT_Y },
+		{ a_LogDims.width * MENU_RECT_W, a_LogDims.height * MENU_RECT_H }
 	);
 	m_Menu->setSprite(RES::UI_BIG_FRAME);
 }
 
+static constexpr float CONT_RECT_X = .25f;
+static constexpr float CONT_RECT_W = 1.0f - 2 * CONT_RECT_X;
+static constexpr float CONT_RECT_Y = .35f;
+static constexpr float CONT_RECT_H = 1.0f - 2 * CONT_RECT_Y;
+static constexpr Vector2 TEXT_EL_OFFSETT = Vector2(5, 14);
+
 void MenuScene::createScrollCont(const Dims& a_LogDims, Highscore* a_Scores, int a_Count)
 {
 	Rect contRect = {
-		a_LogDims.width * .25f, a_LogDims.height * .35f,
-		a_LogDims.width * .5f, a_LogDims.height * .4f
+		a_LogDims.width * CONT_RECT_X, a_LogDims.height * CONT_RECT_Y,
+		a_LogDims.width * CONT_RECT_W, a_LogDims.height * CONT_RECT_H
 	};
 	auto scrollCont = new UIScrollableContainer(
 		m_Mgs,
@@ -154,7 +172,7 @@ void MenuScene::createScrollCont(const Dims& a_LogDims, Highscore* a_Scores, int
 		{ contRect.w, contRect.h },
 		{0,2}
 	);
-	scrollCont->setBackground({ 0x33, 0x33, 0x33, 0x99 });
+	scrollCont->setBackground(SCROLL_AREA_CLR);
 	m_Menu->addElement((UIElement*)scrollCont);
 
 	if (a_Scores == nullptr || a_Count == 0) return;
@@ -168,7 +186,6 @@ void MenuScene::createScrollCont(const Dims& a_LogDims, Highscore* a_Scores, int
 		};
 
 		auto sprCont = new UISpriteContainer(m_Mgs, pos, size);
-		//sprCont->setBackground({0x33, 0x33, 0x33, 0x55});
 		sprCont->setBorder(Colors::black, 1);
 
 		auto scoreTxt = new UITextElement(m_Mgs,
@@ -180,9 +197,8 @@ void MenuScene::createScrollCont(const Dims& a_LogDims, Highscore* a_Scores, int
 			BUTTON_FONT
 		);
 		scoreTxt->setFollow(true);
-		scoreTxt->leftPos(pos + Vector2(5, 14), size);
-		snprintf(buff, (size_t)(MAX_TEXTSIZE - 1), "%s: %d", a_Scores[i].name, a_Scores[i].score);
-		buff[MAX_TEXTSIZE - 1] = '\0';
+		scoreTxt->leftPos(pos + TEXT_EL_OFFSETT, size);
+		snprintf(buff, MAX_TEXTSIZE, "%s: %d", a_Scores[i].name, a_Scores[i].score);
 
 		scoreTxt->setText(buff);
 		sprCont->addElement(scoreTxt);
@@ -202,17 +218,17 @@ void MenuScene::loadBackgrounds()
 	m_Mgs->sprite->load(BG_ASSETS "wall2.bmp", RES::BG_WALL2);
 	m_Mgs->sprite->load(BG_ASSETS "element2.bmp", RES::BG_ELEMENT2);
 
-	addLayer(RES::BG_SKY, 0.1f, 1280.0f, 720.0f);
-	addLayer(RES::BG_BUILDINGS, 0.2f, 1280.0f, 720.0f);
-	addLayer(RES::BG_WALL2, 1.0f, 1280.0f, 720.0f);
-	addLayer(RES::BG_WALL1, 1.0f, 1280.0f, 720.0f);
-	addLayer(RES::BG_ELEMENT1, 1.0f, 1280.0f, 720.0f);
-	addLayer(RES::BG_ELEMENT2, 1.0f, 1280.0f, 720.0f);
-	addLayer(RES::BG_ROAD, 1.0f, 2000.0f, 720.f);
+	addLayer(RES::BG_SKY, BG_SKY_SPD, BG_DEF_W, BG_DEF_H);
+	addLayer(RES::BG_BUILDINGS, BG_BLD_SPD, BG_DEF_W, BG_DEF_H);
+	addLayer(RES::BG_WALL2, BG_DEF_SPD, BG_DEF_W, BG_DEF_H);
+	addLayer(RES::BG_WALL1, BG_DEF_SPD, BG_DEF_W, BG_DEF_H);
+	addLayer(RES::BG_ELEMENT1, BG_DEF_SPD, BG_DEF_W, BG_DEF_H);
+	addLayer(RES::BG_ELEMENT2, BG_DEF_SPD, BG_DEF_W, BG_DEF_H);
+	addLayer(RES::BG_ROAD, BG_DEF_SPD, BG_ROAD_W, BG_DEF_H);
 }
 
 
-
+static constexpr float TITLE_Y = .225f;
 void MenuScene::loadTitle(const Dims& a_LogDims)
 {
 	m_Mgs->sprite->setSpriteColor(RES::PUNCH, TITLE_FONT.color);
@@ -222,7 +238,7 @@ void MenuScene::loadTitle(const Dims& a_LogDims)
 	const float t_size = (strlen(t_text)) * ch_size * TITLE_FONT.spacing;
 
 	const float t_x = (a_LogDims.width / 2.0f) - (t_size / 2.0f);
-	const float t_y = a_LogDims.height * .225f;
+	const float t_y = a_LogDims.height * TITLE_Y;
 
 	UISpriteContainer* punch = new UISpriteContainer(
 		m_Mgs, { t_x + IC_OFF_X, t_y + IC_OFF_Y }, { IC_SIZE, IC_SIZE }
@@ -241,6 +257,11 @@ void MenuScene::loadTitle(const Dims& a_LogDims)
 	m_Menu->addElement((UIElement*)title);
 }
 
+static constexpr float TXTIN_X = .35f;
+static constexpr float TXTIN_Y = .32f;
+static constexpr float TXTIN_W = .3f;
+static constexpr float TXTIN_H = 1.5f;
+static constexpr Vector2 TXTIN_PADD = { 50, 0 };
 void MenuScene::loadMainMenu(const Dims& a_LogDims)
 {
 	createMenuCont(a_LogDims);
@@ -251,17 +272,15 @@ void MenuScene::loadMainMenu(const Dims& a_LogDims)
 
 	m_TextInput = new UITextInput(
 		m_Mgs,
-		{ a_LogDims.width * .35f, a_LogDims.height * .32f },
-		{ a_LogDims.width * .3f, MENU_BTN_H * 1.5f },
+		{ a_LogDims.width * TXTIN_X, a_LogDims.height * TXTIN_Y },
+		{ a_LogDims.width * TXTIN_W, MENU_BTN_H * TXTIN_H },
 		INPUT_FONT,
 		MAX_PLY_LEN,
-		{ 50, 0 }
+		TXTIN_PADD
 	);
 
-	//txt_input->setBackground(ColorRGBA::white());
-	//txt_input->setBorder(ColorRGBA::black(), 3);
 	m_TextInput->setSprite(RES::UI_TEXT_INPUT);
-	m_TextInput->setPlaceholder("Pseudonim", { 0x77, 0x77, 0x77, 0xFF });
+	m_TextInput->setPlaceholder(PLACEHOLDER_TEXT, PLACEHOLDER_CLR);
 
 	m_Menu->addElement((UIElement*)m_TextInput);
 
@@ -287,6 +306,8 @@ void MenuScene::loadLevelSelector(const Dims& a_LogDims)
 	loadLevelButtons(el_w, el_h, dy, a_LogDims);
 }
 
+static constexpr float BTN_W = .3f;
+static constexpr float BACK_BTN_POS = 3.5f;
 void MenuScene::loadScoreViewer(const Dims& a_LogDims)
 {
 	int count;
@@ -298,60 +319,82 @@ void MenuScene::loadScoreViewer(const Dims& a_LogDims)
 	createMenuCont(a_LogDims);
 	createScrollCont(a_LogDims, scores, count);
 
+	float el_w, el_h, dy;
+	getElInfo(a_LogDims, el_w, el_h, dy);
+
+	UIButton* backBtn = new UIButton(
+		m_Mgs,
+		{ el_w, el_h + BACK_BTN_POS * dy},
+		{ a_LogDims.width * BTN_W, MENU_BTN_H },
+		BUTTON_FONT,
+		onBack
+	);
+	backBtn->setSprite(RES::UI_BUTTON);
+	backBtn->setText("Cofnij");
+
+	m_Menu->addElement((UIElement*)backBtn);
 	m_Mgs->ui->add(m_Menu);
 
 	loadTitle(a_LogDims);
-
-	float el_w, el_h, dy;
-	getElInfo(a_LogDims, el_w, el_h, dy);
 }
 
 void MenuScene::loadMainButtons(float a_ElW, float a_ElH, float a_Dy, const Dims& a_LogDims)
 {
-	UIButton* btn_lvl = new UIButton(
+	UIButton* lvlBtn = new UIButton(
 		m_Mgs,
 		{ a_ElW, a_ElH + a_Dy },
-		{ a_LogDims.width * .3f, MENU_BTN_H },
+		{ a_LogDims.width * BTN_W, MENU_BTN_H },
 		BUTTON_FONT,
 		onLevelSelector
 	);
-	btn_lvl->setSprite(RES::UI_BUTTON);
-	btn_lvl->setText("Graj");
+	lvlBtn->setSprite(RES::UI_BUTTON);
+	lvlBtn->setText("Graj");
 
-	UIButton* btn_scores = new UIButton(
+	UIButton* scoresBtn = new UIButton(
 		m_Mgs,
 		{ a_ElW, a_ElH + 2 * a_Dy },
-		{ a_LogDims.width * .3f, MENU_BTN_H },
+		{ a_LogDims.width * BTN_W, MENU_BTN_H },
 		BUTTON_FONT,
 		onScoreViewer
 	);
-	btn_scores->setSprite(RES::UI_BUTTON);
-	btn_scores->setText("Wyniki");
+	scoresBtn->setSprite(RES::UI_BUTTON);
+	scoresBtn->setText("Wyniki");
 
-	UIButton* btn_quit = new UIButton(
+	UIButton* quitBtn = new UIButton(
 		m_Mgs,
 		{ a_ElW, a_ElH + 3 * a_Dy },
-		{ a_LogDims.width * .3f, MENU_BTN_H },
+		{ a_LogDims.width * BTN_W, MENU_BTN_H },
 		BUTTON_FONT,
 		onQuit
 	);
-	btn_quit->setSprite(RES::UI_BUTTON);
-	btn_quit->setText("Wyjscie");
+	quitBtn->setSprite(RES::UI_BUTTON);
+	quitBtn->setText("Wyjscie");
 
-	m_Menu->addElement((UIElement*)btn_lvl);
-	m_Menu->addElement((UIElement*)btn_scores);
-	m_Menu->addElement((UIElement*)btn_quit);
+	m_Menu->addElement((UIElement*)lvlBtn);
+	m_Menu->addElement((UIElement*)scoresBtn);
+	m_Menu->addElement((UIElement*)quitBtn);
 }
 
 void MenuScene::loadLevelButtons(float a_ElW, float a_ElH, float a_Dy, const Dims& a_LogDims)
 {
-	char buff[BTN_TEXTSIZE + 1]{};
+	char buff[BTN_TEXTSIZE]{};
+
+	UIButton* backBtn = new UIButton(
+		m_Mgs,
+		{ a_ElW, a_ElH + BACK_BTN_POS * a_Dy },
+		{ a_LogDims.width * BTN_W, MENU_BTN_H },
+		BUTTON_FONT,
+		onBack
+	);
+	backBtn->setSprite(RES::UI_BUTTON);
+	backBtn->setText("Cofnij");
+	m_Menu->addElement((UIElement*)backBtn);
 
 	for (Uint32 i = 0; i < m_Settings.levels; i++) {
 		UIButton* btn = new UIButton(
 			m_Mgs,
 			{ a_ElW, a_ElH + a_Dy * i },
-			{ a_LogDims.width * .3f, MENU_BTN_H },
+			{ a_LogDims.width * BTN_W, MENU_BTN_H },
 			BUTTON_FONT,
 			onLevelChange
 		);

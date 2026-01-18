@@ -107,7 +107,6 @@ bool DisplayManager::init(const char* a_Title, Dims a_WinDims, Dims a_LogDims, b
 	}
 
 	m_ScreenDims = a_WinDims;
-
 	m_LogDims = a_LogDims;
 	m_LogRect = { 0.0f,0.0f, (float)m_LogDims.width, (float)m_LogDims.height };
 

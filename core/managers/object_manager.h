@@ -18,6 +18,7 @@ private:
 	~ObjectManager() override;
 	void destroy() override;
 	void startIfNeeded(GameObject*& a_Object);
+	void checkCollisions(int a_I, GameObject*& a_Obj1, Rigidbody& a_Rb1, Cuboid& a_Coll1);
 public:
 	void add(GameObject* a_Object);
 	void remove(GameObject* a_Object);
